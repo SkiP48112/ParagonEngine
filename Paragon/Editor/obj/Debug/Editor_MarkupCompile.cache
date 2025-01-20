@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 F:\ParagonEngine\Paragon\Editor\App.xaml
-31067256222
+4722832464
 
-51609267515
+7-794563386
 198-688555687
-GameProject\GameProjectResourceDictionary.xaml;GameProject\ProjectBrowsingDialog.xaml;MainWindow.xaml;
+GameProject\CreateProjectView.xaml;GameProject\OpenProjectView.xaml;GameProject\ProjectBrowsingDialog.xaml;MainWindow.xaml;
 
 False
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor.GameProject"
         mc:Ignorable="d" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        Title="ProjectBrowsingDialog" Height="450" Width="800">
+        Title="Project Browser" Height="600" Width="800">
     
     <Grid>
         <Grid.RowDefinitions>
@@ -14,17 +14,15 @@
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
-            <ToggleButton Content="Open Project" x:Name="openProjectButton" FontSize="32"/>
-            <ToggleButton Content="Create Project" x:Name="createProjectButton" FontSize="32" Margin="30, 0, 0, 0"/>
+            <ToggleButton Content="Open Project" x:Name="openProjectButton" FontSize="32" 
+                          Click="OnOpenProjectButton_Click" IsChecked="True"/>
+            <ToggleButton Content="Create Project" x:Name="createProjectButton" FontSize="32" Margin="30, 0, 0, 0"
+                          Click="OnCreateProjectButton_Click" IsChecked="False"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Border Width="800" Background="LightBlue">
-                <TextBlock FontSize="72" Text="Open Project"/>
-            </Border>
-            <Border Width="800" Background="LightGreen">
-                <TextBlock FontSize="72" Text="Create Project"/>
-            </Border>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" x:Name="browserContent">
+            <local:OpenProjectView/>
+            <local:CreateProjectView/>
         </StackPanel>
     </Grid>
 

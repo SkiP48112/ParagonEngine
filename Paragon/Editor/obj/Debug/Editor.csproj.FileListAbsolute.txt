@@ -19,6 +19,10 @@ F:\ParagonEngine\Paragon\Editor\obj\Debug\refint\Editor.dll
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Editor.pdb
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Editor.genruntimeconfig.cache
 F:\ParagonEngine\Paragon\Editor\obj\Debug\ref\Editor.dll
-F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\GameProjectResourceDictionary.baml
 F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\ProjectBrowsingDialog.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\ProjectBrowsingDialog.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\CreateProjectView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\OpenProjectView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\GeneratedInternalTypeHelper.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\CreateProjectView.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\OpenProjectView.baml
