@@ -1,28 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Editor.GameProject
 {
-    /// <summary>
-    /// Interaction logic for OpenProjectView.xaml
-    /// </summary>
     public partial class OpenProjectView : UserControl
     {
         public OpenProjectView()
         {
             InitializeComponent();
         }
+
+        private void OnOpenButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            OpenSelectedProject();
+        }
+
+        private void OnListBoxItem_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenSelectedProject();
+        }
+
+        private void OpenSelectedProject()
+        {
+            var template = gameProjectsListBox.SelectedItem as GameProjectData;
+            if (template == null)
+            {
+                return;
+            }
+
+            var project = OpenProjectViewModel.Open(template);
+            Window window = Window.GetWindow(this);
+            if(project != null)
+            {
+                window.DialogResult = true;
+                window.DataContext = project;
+            }
+
+            window.Close();
+        }
+
+        
     }
 }

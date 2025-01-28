@@ -13,7 +13,7 @@ namespace Editor.GameProject
 
         private void OnCreateButton_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as NewGameProjectViewModel;
+            var viewModel = DataContext as CreateProjectViewModel;
             if (viewModel == null)
             {
                 return;
@@ -29,6 +29,12 @@ namespace Editor.GameProject
             
             Window window = Window.GetWindow(this);
             window.DialogResult = !string.IsNullOrEmpty(projectPath);
+            if (window.DialogResult == true)
+            {
+                var project = OpenProjectViewModel.Open(new GameProjectData() {Name = viewModel.ProjectName, Path = projectPath});
+                window.DataContext = project;
+            }
+
             window.Close();
         }
     }

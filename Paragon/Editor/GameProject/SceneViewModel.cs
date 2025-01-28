@@ -7,9 +7,9 @@ namespace Editor.GameProject
     public class SceneViewModel : ViewModelBase
     {
         private string _name = string.Empty;
-        
+
         [DataMember]
-        public string Name 
+        public string Name
         {
             get => _name;
             set
@@ -24,6 +24,21 @@ namespace Editor.GameProject
 
         [DataMember]
         public GameProjectViewModel Project { get; private set; }
+
+        private bool _isActive;
+        [DataMember]
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if(_isActive != value)
+                {
+                    _isActive = value;
+                    OnPropertyChanged(nameof(IsActive));
+                }
+            }
+        }
 
         public SceneViewModel(GameProjectViewModel project, string name)
         {
