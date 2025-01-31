@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 F:\ParagonEngine\Paragon\Editor\App.xaml
-4722832464
+7557238868
 
-15888270736
+20152513251
 198-688555687
-GameProject\CreateProjectView.xaml;GameProject\OpenProjectView.xaml;GameProject\ProjectBrowsingDialog.xaml;MainWindow.xaml;
+Editors\WorldEditor\ProjectLayoutView.xaml;Editors\WorldEditor\WorldEditorView.xaml;GameProject\CreateProjectView.xaml;GameProject\OpenProjectView.xaml;GameProject\ProjectBrowsingDialog.xaml;MainWindow.xaml;Utilities\UndoRedoView.xaml;
 
 False
 

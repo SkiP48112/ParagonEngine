@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Editor.GameProject
 {
     [DataContract]
-    public class SceneViewModel : ViewModelBase
+    public class Scene : ViewModelBase
     {
         private string _name = string.Empty;
 
@@ -23,7 +23,7 @@ namespace Editor.GameProject
         }
 
         [DataMember]
-        public GameProjectViewModel Project { get; private set; }
+        public GameProject Project { get; private set; }
 
         private bool _isActive;
         [DataMember]
@@ -40,7 +40,7 @@ namespace Editor.GameProject
             }
         }
 
-        public SceneViewModel(GameProjectViewModel project, string name)
+        public Scene(GameProject project, string name)
         {
             Debug.Assert(project != null);
 

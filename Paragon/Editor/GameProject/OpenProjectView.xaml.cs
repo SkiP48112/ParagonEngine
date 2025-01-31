@@ -8,6 +8,12 @@ namespace Editor.GameProject
         public OpenProjectView()
         {
             InitializeComponent();
+
+            Loaded += (s, e) =>
+            {
+                var item = gameProjectsListBox.ItemContainerGenerator.ContainerFromIndex(gameProjectsListBox.SelectedIndex) as ListBoxItem;
+                item?.Focus();
+            };
         }
 
         private void OnOpenButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -28,7 +34,7 @@ namespace Editor.GameProject
                 return;
             }
 
-            var project = OpenProjectViewModel.Open(template);
+            var project = OpenProject.Open(template);
             Window window = Window.GetWindow(this);
             if(project != null)
             {
@@ -38,7 +44,5 @@ namespace Editor.GameProject
 
             window.Close();
         }
-
-        
     }
 }

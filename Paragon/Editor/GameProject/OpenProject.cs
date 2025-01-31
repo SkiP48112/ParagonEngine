@@ -30,7 +30,7 @@ namespace Editor.GameProject
     }
 
 
-    public class OpenProjectViewModel
+    public class OpenProject
     {
         private static readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\ParagonEngine\Editor";
         private static readonly string _projectDataPath = string.Empty;
@@ -39,7 +39,7 @@ namespace Editor.GameProject
         public static ReadOnlyObservableCollection<GameProjectData> GameProjects { get; }
 
 
-        static OpenProjectViewModel()
+        static OpenProject()
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Editor.GameProject
             Serializer.ToFile(new GameProjectDataList() { Projects = projects }, _projectDataPath);
         }
 
-        public static GameProjectViewModel Open(GameProjectData data)
+        public static GameProject Open(GameProjectData data)
         {
             ReadProjectData();
             var project = _gameProjects.FirstOrDefault(x => x.FullPath == data.FullPath);
@@ -101,7 +101,7 @@ namespace Editor.GameProject
 
             WriteProjectData();
 
-            return GameProjectViewModel.Load(project.FullPath);
+            return GameProject.Load(project.FullPath);
         }
     }
 }

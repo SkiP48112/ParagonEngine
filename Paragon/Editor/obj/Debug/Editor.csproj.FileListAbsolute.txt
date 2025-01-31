@@ -26,3 +26,9 @@ F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\OpenProjectView.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\GeneratedInternalTypeHelper.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\CreateProjectView.baml
 F:\ParagonEngine\Paragon\Editor\obj\Debug\GameProject\OpenProjectView.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\WorldEditorView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\WorldEditorView.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\ProjectLayoutView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\ProjectLayoutView.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\UndoRedoView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\UndoRedoView.baml

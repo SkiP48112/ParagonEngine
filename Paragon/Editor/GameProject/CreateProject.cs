@@ -5,7 +5,7 @@ using Editor.Utilities;
 
 namespace Editor.GameProject
 {
-    class CreateProjectViewModel : ViewModelBase
+    class CreateProject : ViewModelBase
     {
         // TODO: Get the path from the installation location
         private readonly string _templatesPath = GameProjectConsts.TEMPLATES_PATH;
@@ -74,7 +74,7 @@ namespace Editor.GameProject
             get; 
         }
 
-        public string CreateProject(GameProjectTemplate template)
+        public string CreateNewProject(GameProjectTemplate template)
         {
             ValidateProjectPath();
             if (!IsValid)
@@ -120,7 +120,7 @@ namespace Editor.GameProject
             }
         }
         
-        public CreateProjectViewModel()
+        public CreateProject()
         {
             ProjectTemplates = new ReadOnlyObservableCollection<GameProjectTemplate>(_projectTemplates);
 
