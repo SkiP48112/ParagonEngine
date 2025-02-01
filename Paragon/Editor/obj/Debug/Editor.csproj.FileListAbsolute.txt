@@ -32,3 +32,5 @@ F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\ProjectLayoutView.
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\ProjectLayoutView.baml
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\UndoRedoView.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\UndoRedoView.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\GameEntityView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\GameEntityView.baml

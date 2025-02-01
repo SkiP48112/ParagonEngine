@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Editor"
         xmlns:editors="clr-namespace:Editor.Editors"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="Editor" Height="1080" Width="1920">
+        Title="Editor" Height="720" Width="1280">
     <Grid>
         <editors:WorldEditorView/>
     </Grid>
