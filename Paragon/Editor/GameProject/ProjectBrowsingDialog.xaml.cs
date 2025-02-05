@@ -8,6 +8,18 @@ namespace Editor.GameProject
         public ProjectBrowsingDialog()
         {
             InitializeComponent();
+            Loaded += HandleOnProjectBrowserDialogLoaded;
+        }
+
+        private void HandleOnProjectBrowserDialogLoaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= HandleOnProjectBrowserDialogLoaded;
+            if (!OpenProject.GameProjects.Any())
+            {
+                openProjectButton.IsEnabled = false;
+                openProjectView.Visibility = Visibility.Hidden;
+                OnCreateProjectButton_Click(createProjectButton, new RoutedEventArgs());
+            }
         }
 
         private void OnOpenProjectButton_Click(object sender, RoutedEventArgs e)

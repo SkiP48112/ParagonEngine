@@ -1,5 +1,7 @@
 ﻿using Editor.Components;
 using Editor.GameProject;
+using Editor.Utilities;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -21,8 +23,25 @@ namespace Editor.Editors
 
         private void OnGameEntitiesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var entity = (sender as ListBox).SelectedItems[0];
-            GameEntityView.Instance.DataContext = entity;
+            GameEntityView.Instance.DataContext = null;
+            var listBox = sender as ListBox;
+            Debug.Assert(listBox != null);
+
+            if(e.AddedItems.Count > 0)
+            {
+                GameEntityView.Instance.DataContext = listBox.SelectedItems[0];
+            }
+
+            var newSelection = listBox.SelectedItems.Cast<GameEntity>().ToList();
+            var prevSelection = newSelection.Except(e.AddedItems.Cast<GameEntity>()).Concat(e.RemovedItems.Cast<GameEntity>()).ToList();
+
+            GameProject.GameProject.AddNewUndoRedoAction("Selection Changed", () => SelectItems(listBox, prevSelection), () => SelectItems(listBox, newSelection));
+        }
+
+        private void SelectItems(ListBox listBox, List<GameEntity> items)
+        {
+            listBox.UnselectAll();
+            items.ForEach(item => ((ListBoxItem)listBox.ItemContainerGenerator.ContainerFromItem(item)).IsSelected = true);
         }
     }
 }

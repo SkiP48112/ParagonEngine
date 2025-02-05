@@ -29,12 +29,22 @@ namespace Editor.Utilities
             _redoAction = redo;
         }
 
+        public UndoRedoAction(string property, object instance, object undoValue, object redoValue, string name) :
+            this(
+                () => instance.GetType().GetProperty(property).SetValue(instance, undoValue),
+                () => instance.GetType().GetProperty(property).SetValue(instance, redoValue),
+                name)
+        {
+        }
+
         public void Redo() => _redoAction();
         public void Undo() => _undoAction();
     }
 
     public class UndoRedoManager
     {
+        private bool _isAddEnabled = true;
+
         private readonly ObservableCollection<IUndoRedo> _redoList = new ObservableCollection<IUndoRedo>();
         public ReadOnlyObservableCollection<IUndoRedo> RedoList { get; }
 
@@ -55,6 +65,11 @@ namespace Editor.Utilities
 
         public void Add(IUndoRedo cmd)
         {
+            if (!_isAddEnabled)
+            {
+                return;
+            }
+
             _undoList.Add(cmd);
             _redoList.Clear();
         }
@@ -66,7 +81,10 @@ namespace Editor.Utilities
                 var cmd = _undoList.Last();
                 _undoList.RemoveAt(_undoList.Count - 1);
 
+                _isAddEnabled = false;
                 cmd.Undo();
+                _isAddEnabled = true;
+
                 _redoList.Insert(0, cmd);
             }
         }
@@ -78,7 +96,11 @@ namespace Editor.Utilities
                 var cmd = _redoList.First();
                 _redoList.RemoveAt(0);
 
+                _isAddEnabled = false;
                 cmd.Redo();
+                _isAddEnabled = false;
+
+
                 _undoList.Add(cmd);
             }
         }

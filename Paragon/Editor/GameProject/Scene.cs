@@ -86,24 +86,14 @@ namespace Editor.GameProject
             {
                 AddGameEntity(x);
                 var index = _gameEntities.Count - 1;
-
-                GameProject.UndoRedoManager.Add(new UndoRedoAction(
-                    () => RemoveGameEntity(x),
-                    () => _gameEntities.Insert(index, x),
-                    $"Add {x.Name} to {Name}"
-                    ));
+                GameProject.AddNewUndoRedoAction($"Add {x.Name} to {Name}", () => RemoveGameEntity(x), () => _gameEntities.Insert(index, x));
             });
 
             RemoveGameEntityCommand = new RelayCommand<GameEntity>(x =>
             {
                 var index = _gameEntities.IndexOf(x);
                 RemoveGameEntity(x);
-
-                GameProject.UndoRedoManager.Add(new UndoRedoAction(
-                    () => _gameEntities.Insert(index, x),
-                    () => RemoveGameEntity(x),
-                    $"Remove {x.Name} from {Name}"
-                    ));
+                GameProject.AddNewUndoRedoAction($"Remove {x.Name} from {Name}", () => _gameEntities.Insert(index, x), () => RemoveGameEntity(x));
             });
         }
     }

@@ -55,6 +55,11 @@ namespace Editor.GameProject
             OnDeserialized(new StreamingContext());
         }
 
+        public static void AddNewUndoRedoAction(string name, Action undo, Action redo)
+        {
+            UndoRedoManager.Add(new UndoRedoAction(undo, redo, name));
+        }
+
         private void AddScene(string name)
         {
             Debug.Assert(!string.IsNullOrEmpty(name.Trim()));
@@ -99,24 +104,14 @@ namespace Editor.GameProject
                 AddScene($"New Scene {_scenes.Count}");
                 var newScene = _scenes.Last();
                 var index = _scenes.Count - 1;
-
-                UndoRedoManager.Add(new UndoRedoAction(
-                    () => RemoveScene(newScene),
-                    () => _scenes.Insert(index, newScene),
-                    $"Add {newScene.Name}"
-                    ));
+                AddNewUndoRedoAction($"Add {newScene.Name}", () => RemoveScene(newScene), () => _scenes.Insert(index, newScene));
             });
 
             RemoveSceneCommand = new RelayCommand<Scene>(x =>
             {
                 var sceneIndex = _scenes.IndexOf(x);
                 RemoveScene(x);
-
-                UndoRedoManager.Add(new UndoRedoAction(
-                    () => _scenes.Insert(sceneIndex, x),
-                    () => RemoveScene(x),
-                    $"Remove {x.Name}"
-                    ));
+                AddNewUndoRedoAction($"Remove {x.Name}", () => _scenes.Insert(sceneIndex, x), () => RemoveScene(x));
             }, x => !x.IsActive);
 
             UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo());

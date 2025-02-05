@@ -37,8 +37,8 @@
             Grid.Row="1" 
             Orientation="Horizontal" 
             x:Name="browserContent">
-            <local:OpenProjectView/>
-            <local:CreateProjectView/>
+            <local:OpenProjectView x:Name="openProjectView"/>
+            <local:CreateProjectView x:Name="createProjectView"/>
         </StackPanel>
     </Grid>
 
