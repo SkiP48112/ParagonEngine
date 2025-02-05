@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Windows.Shapes;
 
 namespace Editor.GameProject
 {
@@ -55,7 +56,8 @@ namespace Editor.GameProject
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
-                // TODO: Lod to edittor logger
+                Logger.Log(MessageType.Error, $"Failed to read project data");
+                throw;
             }
         }
 

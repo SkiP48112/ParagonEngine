@@ -17,7 +17,8 @@ namespace Editor.Utilities
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
-                // TODO: Log errors in editor logger
+                Logger.Log(MessageType.Error, $"Failed to serialize {instance} to {path}");
+                throw;
             }
         }
 
@@ -32,9 +33,9 @@ namespace Editor.Utilities
             }
             catch (Exception e)
             {
-                // TODO: Log errors in editor logger
                 Debug.WriteLine(e.Message);
-                return default(T);
+                Logger.Log(MessageType.Error, $"Failed to deserialize {path}");
+                throw;
             }
         }
     }

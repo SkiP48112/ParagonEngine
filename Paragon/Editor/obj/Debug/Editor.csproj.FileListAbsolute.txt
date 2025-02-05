@@ -37,3 +37,5 @@ F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\GameEntityView.bam
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Dictionaries\ControlTemplates.baml
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Dictionaries\ControlTemplates.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\App.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\LoggerView.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\LoggerView.baml

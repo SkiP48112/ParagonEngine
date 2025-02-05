@@ -80,12 +80,13 @@ namespace Editor.GameProject
 
         public void Unload()
         {
-
+            UndoRedoManager.Reset();
         }
 
         public static void Save(GameProject project)
         {
             Serializer.ToFile(project, project.FullPath);
+            Logger.Log(MessageType.Info, $"Project saved to {project.FullPath}");
         }
 
         [OnDeserialized]

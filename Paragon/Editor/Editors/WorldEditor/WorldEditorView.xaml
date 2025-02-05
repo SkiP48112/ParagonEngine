@@ -61,11 +61,16 @@
                     VerticalAlignment="Top">
                 </GridSplitter>
 
-                <utl:UndoRedoView 
-                    DataContext="{Binding UndoRedoManager}" 
-                    Grid.Row="1">
-                </utl:UndoRedoView>
-
+                <TabControl Grid.Row="1">
+                    <TabItem Header="History">
+                        <utl:UndoRedoView 
+                            DataContext="{Binding UndoRedoManager}">
+                        </utl:UndoRedoView>
+                    </TabItem>
+                    <TabItem Header="Log">
+                        <utl:LoggerView/>
+                    </TabItem>
+                </TabControl>
             </Grid>
 
             <GridSplitter 
