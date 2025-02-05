@@ -34,3 +34,6 @@ F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\UndoRedoView.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Utilities\UndoRedoView.baml
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\GameEntityView.g.cs
 F:\ParagonEngine\Paragon\Editor\obj\Debug\Editors\WorldEditor\GameEntityView.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Dictionaries\ControlTemplates.baml
+F:\ParagonEngine\Paragon\Editor\obj\Debug\Dictionaries\ControlTemplates.g.cs
+F:\ParagonEngine\Paragon\Editor\obj\Debug\App.baml
