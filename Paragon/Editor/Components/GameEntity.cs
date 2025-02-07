@@ -1,9 +1,7 @@
 ﻿using Editor.GameProject;
-using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using System.Windows.Input;
 
 namespace Editor.Components
 {
@@ -26,14 +24,14 @@ namespace Editor.Components
             }
         }
 
-        private string _name;
+        private string _name = string.Empty;
         [DataMember]
         public string Name
         {
             get => _name;
             set
             {
-                if(_name != value)
+                if (_name != value)
                 {
                     _name = value;
                     OnPropertyChanged(nameof(Name));
@@ -60,7 +58,7 @@ namespace Editor.Components
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(_components != null)
+            if (_components != null)
             {
                 Components = new ReadOnlyObservableCollection<Component>(_components);
                 OnPropertyChanged(nameof(Components));

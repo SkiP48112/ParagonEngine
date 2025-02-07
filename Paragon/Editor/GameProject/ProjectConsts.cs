@@ -1,6 +1,6 @@
 ﻿namespace Editor.GameProject
 {
-    public static class GameProjectConsts
+    public static class ProjectConsts
     {
         public const string TEMPLATES_PATH = @"..\..\Editor\Templates";
         public const string DEFAULT_PROJECT_NAME = "NewProject";

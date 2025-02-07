@@ -1,5 +1,4 @@
 ﻿using Editor.Components;
-using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -27,7 +26,7 @@ namespace Editor.GameProject
         }
 
         [DataMember]
-        public GameProject Project { get; private set; }
+        public Project Project { get; private set; }
 
         private bool _isActive;
         [DataMember]
@@ -51,7 +50,7 @@ namespace Editor.GameProject
         private readonly ObservableCollection<GameEntity> _gameEntities = new ObservableCollection<GameEntity>();
         public ReadOnlyObservableCollection<GameEntity> GameEntities { get; private set; }
 
-        public Scene(GameProject project, string name)
+        public Scene(Project project, string name)
         {
             Debug.Assert(project != null);
 
@@ -86,14 +85,14 @@ namespace Editor.GameProject
             {
                 AddGameEntity(x);
                 var index = _gameEntities.Count - 1;
-                GameProject.AddNewUndoRedoAction($"Add {x.Name} to {Name}", () => RemoveGameEntity(x), () => _gameEntities.Insert(index, x));
+                Project.AddNewUndoRedoAction($"Add {x.Name} to {Name}", () => RemoveGameEntity(x), () => _gameEntities.Insert(index, x));
             });
 
             RemoveGameEntityCommand = new RelayCommand<GameEntity>(x =>
             {
                 var index = _gameEntities.IndexOf(x);
                 RemoveGameEntity(x);
-                GameProject.AddNewUndoRedoAction($"Remove {x.Name} from {Name}", () => _gameEntities.Insert(index, x), () => RemoveGameEntity(x));
+                Project.AddNewUndoRedoAction($"Remove {x.Name} from {Name}", () => _gameEntities.Insert(index, x), () => RemoveGameEntity(x));
             });
         }
     }

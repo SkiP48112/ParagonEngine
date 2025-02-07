@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-
 namespace Editor.GameProject
 {
     public partial class CreateProjectView : UserControl
@@ -19,19 +18,19 @@ namespace Editor.GameProject
                 return;
             }
 
-            var template = templatesListBox.SelectedItem as GameProjectTemplate;
+            var template = templatesListBox.SelectedItem as ProjectTemplate;
             if (template == null)
             {
                 return;
             }
 
             var projectPath = viewModel.CreateNewProject(template);
-            
+
             Window window = Window.GetWindow(this);
             window.DialogResult = !string.IsNullOrEmpty(projectPath);
             if (window.DialogResult == true)
             {
-                var project = OpenProject.Open(new GameProjectData() {Name = viewModel.ProjectName, Path = projectPath});
+                var project = OpenProject.Open(new ProjectData() { Name = viewModel.ProjectName, Path = projectPath });
                 window.DataContext = project;
             }
 
