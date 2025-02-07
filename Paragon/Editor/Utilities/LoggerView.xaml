@@ -1,23 +1,90 @@
-﻿<UserControl x:Class="Editor.Utilities.LoggerView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Editor.Utilities"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+﻿<UserControl
+    x:Class="Editor.Utilities.LoggerView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Editor.Utilities"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <DockPanel>
+        <Border Height="32" DockPanel.Dock="Top">
+            <StackPanel
+                Margin="4,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+                <Button
+                    Margin="1,0"
+                    Click="OnClearButton_Click"
+                    Content="Clear"
+                    Focusable="False" />
+                <ToggleButton
+                    x:Name="toggleInfo"
+                    Margin="1,0"
+                    Click="OnMessageFilterButton_Click"
+                    Content="Info"
+                    IsChecked="True"
+                    ToolTip="Toggle information messages" />
+                <ToggleButton
+                    x:Name="toggleWarning"
+                    Margin="1,0"
+                    Click="OnMessageFilterButton_Click"
+                    Content="Warning"
+                    IsChecked="True"
+                    ToolTip="Toggle warning messages" />
+                <ToggleButton
+                    x:Name="toggleError"
+                    Margin="1,0"
+                    Click="OnMessageFilterButton_Click"
+                    Content="Error"
+                    IsChecked="True"
+                    ToolTip="Toggle error messages" />
+            </StackPanel>
+        </Border>
+        <ScrollViewer
+            x:Name="scrollViewer"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Auto" />
         <ItemsControl ItemsSource="{Binding Source={x:Static local:Logger.FilteredMessages}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel/>
+                    <StackPanel />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Message}"/>
+                    <DockPanel ToolTip="{Binding MetaData}">
+                        <DockPanel.Style>
+                            <Style TargetType="DockPanel">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="Gray" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DockPanel.Style>
+                        <TextBlock Margin="5,0" Text="{Binding Time, StringFormat=hh:mm:ss}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="LightGreen" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:MessageType.Warning}">
+                                            <Setter Property="Foreground" Value="#ffffbb22" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:MessageType.Error}">
+                                            <Setter Property="Foreground" Value="#ffff4455" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                    </DockPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-    </Grid>
+    </DockPanel>
 </UserControl>
