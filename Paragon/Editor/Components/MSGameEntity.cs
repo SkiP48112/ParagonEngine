@@ -1,5 +1,4 @@
-﻿
-namespace Editor.Components
+﻿namespace Editor.Components
 {
     class MSGameEntity : MSEntity
     {

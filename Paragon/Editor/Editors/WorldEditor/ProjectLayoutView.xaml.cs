@@ -1,6 +1,5 @@
 ﻿using Editor.Components;
 using Editor.GameProject;
-using Editor.Utilities;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,7 +16,11 @@ namespace Editor.Editors
         private void OnAddGameEntityButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
+            Debug.Assert(button != null, $"Can't cast {nameof(sender)} to {nameof(Button)}");
+
             var viewModel = button.DataContext as Scene;
+            Debug.Assert(viewModel != null, $"Can't cast {nameof(button.DataContext)} to {nameof(Scene)}");
+
             viewModel.AddGameEntityCommand.Execute(new GameEntity(viewModel) { Name = "Empty Game Entity" });
         }
 
@@ -28,7 +31,7 @@ namespace Editor.Editors
             var newSelection = listBox.SelectedItems.Cast<GameEntity>().ToList();
             var prevSelection = newSelection.Except(e.AddedItems.Cast<GameEntity>()).Concat(e.RemovedItems.Cast<GameEntity>()).ToList();
 
-            GameProject.GameProject.AddNewUndoRedoAction("Selection Changed", () => SelectItems(listBox, prevSelection), () => SelectItems(listBox, newSelection));
+            GameProject.Project.AddNewUndoRedoAction("Selection Changed", () => SelectItems(listBox, prevSelection), () => SelectItems(listBox, newSelection));
 
             MSGameEntity msEntity = null;
             if (newSelection.Any())
@@ -36,7 +39,10 @@ namespace Editor.Editors
                 msEntity = new MSGameEntity(newSelection);
             }
 
-            GameEntityView.Instance.DataContext = msEntity;
+            var gameEntityViewInstance = GameEntityView.Instance;
+            Debug.Assert(gameEntityViewInstance != null, $"{nameof(GameEntityView)} instance is null");
+
+            gameEntityViewInstance.DataContext = msEntity;
         }
 
         private void SelectItems(ListBox listBox, List<GameEntity> items)

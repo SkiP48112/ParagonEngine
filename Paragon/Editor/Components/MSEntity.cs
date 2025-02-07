@@ -23,7 +23,7 @@ namespace Editor.Components
             }
         }
 
-        private string _name;
+        private string _name = string.Empty;
         public string Name
         {
             get => _name;
@@ -40,7 +40,7 @@ namespace Editor.Components
         private readonly ObservableCollection<IMSComponent> _components = new ObservableCollection<IMSComponent>();
         public ReadOnlyObservableCollection<IMSComponent> Components { get; }
 
-        public List<GameEntity> SelectedEntities { get;  }
+        public List<GameEntity> SelectedEntities { get; }
 
         public MSEntity(List<GameEntity> entities)
         {
@@ -48,14 +48,14 @@ namespace Editor.Components
             Components = new ReadOnlyObservableCollection<IMSComponent>(_components);
             SelectedEntities = entities;
 
-            PropertyChanged += (s, e) => 
-            { 
+            PropertyChanged += (s, e) =>
+            {
                 if (!_enableUpdates)
                 {
                     return;
                 }
 
-                UpdateGameEntities(e.PropertyName); 
+                UpdateGameEntities(e.PropertyName);
             };
         }
 
@@ -69,7 +69,7 @@ namespace Editor.Components
         public static float? GetMixedValue(List<GameEntity> entities, Func<GameEntity, float> getProperty)
         {
             var value = getProperty(entities.First());
-            foreach(var entity in entities.Skip(1))
+            foreach (var entity in entities.Skip(1))
             {
                 if (!value.IsEqual(getProperty(entity)))
                 {
@@ -108,11 +108,11 @@ namespace Editor.Components
             return value;
         }
 
-        protected virtual bool UpdateGameEntities(string propertyName)
+        protected virtual bool UpdateGameEntities(string? propertyName)
         {
             switch (propertyName)
             {
-                case nameof(IsEnabled): 
+                case nameof(IsEnabled):
                     SelectedEntities.ForEach(x => x.IsEnabled = IsEnabled.Value);
                     return true;
                 case nameof(Name):
@@ -126,7 +126,7 @@ namespace Editor.Components
         protected virtual bool UpdateMSGameEntity()
         {
             IsEnabled = GetMixedValue(SelectedEntities, new Func<GameEntity, bool>(x => x.IsEnabled));
-            Name= GetMixedValue(SelectedEntities, new Func<GameEntity, string>(x => x.Name));
+            Name = GetMixedValue(SelectedEntities, new Func<GameEntity, string>(x => x.Name)) ?? string.Empty;
 
             return true;
         }

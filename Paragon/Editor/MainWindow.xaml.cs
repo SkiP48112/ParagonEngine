@@ -27,7 +27,7 @@ namespace Editor
 
         private void UnloadCurrentProject()
         {
-            GameProject.GameProject.CurrentGameProject?.Unload();
+            GameProject.Project.CurrentGameProject?.Unload();
         }
 
         private void OpenProjectBrowsingDialog()

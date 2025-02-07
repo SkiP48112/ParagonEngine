@@ -28,7 +28,7 @@ namespace Editor.GameProject
 
         private void OpenSelectedProject()
         {
-            var template = gameProjectsListBox.SelectedItem as GameProjectData;
+            var template = gameProjectsListBox.SelectedItem as ProjectData;
             if (template == null)
             {
                 return;
@@ -36,7 +36,7 @@ namespace Editor.GameProject
 
             var project = OpenProject.Open(template);
             Window window = Window.GetWindow(this);
-            if(project != null)
+            if (project != null)
             {
                 window.DialogResult = true;
                 window.DataContext = project;

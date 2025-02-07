@@ -9,12 +9,12 @@ using System.Windows.Input;
 namespace Editor.GameProject
 {
     [DataContract(Name = "Game")]
-    class GameProject : ViewModelBase
+    class Project : ViewModelBase
     {
-        [DataMember] public string Name { get; private set; } = GameProjectConsts.DEFAULT_PROJECT_NAME;
+        [DataMember] public string Name { get; private set; } = ProjectConsts.DEFAULT_PROJECT_NAME;
         [DataMember] public string Path { get; private set; }
-        public string FullPath => $@"{Path}{Name}\{Name}{GameProjectConsts.PROJECT_EXTENSION}";
-        public static GameProject? CurrentGameProject => Application.Current.MainWindow.DataContext as GameProject;
+        public string FullPath => $@"{Path}{Name}\{Name}{ProjectConsts.PROJECT_EXTENSION}";
+        public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
 
         public ICommand AddSceneCommand { get; private set; }
@@ -29,7 +29,7 @@ namespace Editor.GameProject
             get => _activeScene;
             set
             {
-                if(_activeScene != value)
+                if (_activeScene != value)
                 {
                     _activeScene = value;
                     OnPropertyChanged(nameof(ActiveScene));
@@ -38,7 +38,7 @@ namespace Editor.GameProject
 
         }
 
-        [DataMember(Name = "Scenes")] 
+        [DataMember(Name = "Scenes")]
         private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
         public ReadOnlyObservableCollection<Scene> Scenes
         {
@@ -46,7 +46,7 @@ namespace Editor.GameProject
             private set;
         }
 
-        public GameProject(string name, string path)
+        public Project(string name, string path)
         {
             Name = name;
             Path = path;
@@ -58,6 +58,23 @@ namespace Editor.GameProject
         public static void AddNewUndoRedoAction(string name, Action undo, Action redo)
         {
             UndoRedoManager.Add(new UndoRedoAction(undo, redo, name));
+        }
+
+        public static Project Load(string path)
+        {
+            Debug.Assert(File.Exists(path));
+            return Serializer.FromFile<Project>(path);
+        }
+
+        public void Unload()
+        {
+            UndoRedoManager.Reset();
+        }
+
+        public static void Save(Project project)
+        {
+            Serializer.ToFile(project, project.FullPath);
+            Logger.Log(MessageType.Info, $"Project saved to {project.FullPath}");
         }
 
         private void AddScene(string name)
@@ -72,27 +89,31 @@ namespace Editor.GameProject
             _scenes.Remove(scene);
         }
 
-        public static GameProject Load(string path)
+        private RelayCommand<object> GetAddSceneCommand()
         {
-            Debug.Assert(File.Exists(path));
-            return Serializer.FromFile<GameProject>(path);
+            return new RelayCommand<object>(x =>
+            {
+                AddScene($"New Scene {_scenes.Count}");
+                var newScene = _scenes.Last();
+                var index = _scenes.Count - 1;
+                AddNewUndoRedoAction($"Add {newScene.Name}", () => RemoveScene(newScene), () => _scenes.Insert(index, newScene));
+            });
         }
 
-        public void Unload()
+        private RelayCommand<Scene> GetRemoveSceneCommand()
         {
-            UndoRedoManager.Reset();
-        }
-
-        public static void Save(GameProject project)
-        {
-            Serializer.ToFile(project, project.FullPath);
-            Logger.Log(MessageType.Info, $"Project saved to {project.FullPath}");
+            return new RelayCommand<Scene>(x =>
+            {
+                var sceneIndex = _scenes.IndexOf(x);
+                RemoveScene(x);
+                AddNewUndoRedoAction($"Remove {x.Name}", () => _scenes.Insert(sceneIndex, x), () => RemoveScene(x));
+            }, x => !x.IsActive);
         }
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(_scenes != null)
+            if (_scenes != null)
             {
                 Scenes = new ReadOnlyObservableCollection<Scene>(_scenes);
                 OnPropertyChanged(nameof(Scenes));
@@ -100,20 +121,8 @@ namespace Editor.GameProject
 
             ActiveScene = Scenes.FirstOrDefault(x => x.IsActive);
 
-            AddSceneCommand = new RelayCommand<object>(x =>
-            {
-                AddScene($"New Scene {_scenes.Count}");
-                var newScene = _scenes.Last();
-                var index = _scenes.Count - 1;
-                AddNewUndoRedoAction($"Add {newScene.Name}", () => RemoveScene(newScene), () => _scenes.Insert(index, newScene));
-            });
-
-            RemoveSceneCommand = new RelayCommand<Scene>(x =>
-            {
-                var sceneIndex = _scenes.IndexOf(x);
-                RemoveScene(x);
-                AddNewUndoRedoAction($"Remove {x.Name}", () => _scenes.Insert(sceneIndex, x), () => RemoveScene(x));
-            }, x => !x.IsActive);
+            AddSceneCommand = GetAddSceneCommand();
+            RemoveSceneCommand = GetRemoveSceneCommand();
 
             UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo());
             RedoCommand = new RelayCommand<object>(x => UndoRedoManager.Redo());

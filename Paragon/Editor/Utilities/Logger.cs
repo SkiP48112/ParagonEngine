@@ -5,34 +5,6 @@ using System.Windows.Data;
 
 namespace Editor.Utilities
 {
-    enum MessageType
-    {
-        Info = 0x01,
-        Warning = 0x02,
-        Error = 0x04,
-    }
-
-    class LogMessage
-    {
-        public DateTime Time { get; }
-        public MessageType Type { get; }
-        public string Message { get; }
-        public string File { get; }
-        public string Caller { get; }
-        public int Line { get; }
-        public string MetaData => $"{File} : {Caller} ({Line})";
-
-        public LogMessage(MessageType type, string msg, string file, string caller, int line)
-        {
-            Time  = DateTime.Now;
-            Type = type;
-            Message = msg;
-            File = System.IO.Path.GetFileName(file);
-            Caller = caller;
-            Line = line;
-        }
-    }
-
     static class Logger
     {
         private static int _filter = (int)(MessageType.Info | MessageType.Warning | MessageType.Error);
@@ -49,12 +21,12 @@ namespace Editor.Utilities
             };
         }
 
-        public static async void Log( 
-            MessageType type, 
-            string msg, 
-            [CallerFilePath]string file="", 
-            [CallerMemberName]string caler="", 
-            [CallerLineNumber]int line = 0)
+        public static async void Log(
+            MessageType type,
+            string msg,
+            [CallerFilePath] string file = "",
+            [CallerMemberName] string caler = "",
+            [CallerLineNumber] int line = 0)
         {
             // Creates a new task on the UI thread
             await Application.Current.Dispatcher.BeginInvoke(new Action(() =>

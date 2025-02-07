@@ -1,5 +1,4 @@
 ﻿using Editor.Components;
-using Editor.GameProject;
 using System.Diagnostics;
 using System.Windows.Controls;
 
@@ -8,10 +7,10 @@ namespace Editor.Editors
 {
     public partial class GameEntityView : UserControl
     {
-        private Action _undoAction;
+        private Action? _undoAction;
         private string? _propertyName;
 
-        public static GameEntityView Instance { get; private set; }
+        public static GameEntityView? Instance { get; private set; }
 
         public GameEntityView()
         {
@@ -31,6 +30,8 @@ namespace Editor.Editors
         private Action GetRenameAction()
         {
             var viewModel = DataContext as MSEntity;
+            Debug.Assert(viewModel != null, $"Can't cast {nameof(DataContext)} to {nameof(MSEntity)}");
+
             var selection = viewModel.SelectedEntities.Select(entity => (entity, entity.Name)).ToList();
             return new Action(() =>
             {
@@ -42,6 +43,8 @@ namespace Editor.Editors
         private Action GetIsEnabledAction()
         {
             var viewModel = DataContext as MSEntity;
+            Debug.Assert(viewModel != null, $"Can't cast {nameof(DataContext)} to {nameof(MSEntity)}");
+
             var selection = viewModel.SelectedEntities.Select(entity => (entity, entity.IsEnabled)).ToList();
             return new Action(() =>
             {
@@ -57,10 +60,10 @@ namespace Editor.Editors
 
         private void OnNameTextBox_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-            if(_propertyName == nameof(MSEntity.Name) && _undoAction != null)
+            if (_propertyName == nameof(MSEntity.Name) && _undoAction != null)
             {
                 var redoAction = GetRenameAction();
-                GameProject.GameProject.AddNewUndoRedoAction("Rename game entity", _undoAction, redoAction);
+                GameProject.Project.AddNewUndoRedoAction("Rename game entity", _undoAction, redoAction);
                 _propertyName = null;
             }
 
@@ -71,12 +74,12 @@ namespace Editor.Editors
         {
             var undoAction = GetIsEnabledAction();
             var viewModel = DataContext as MSEntity;
-            Debug.Assert(viewModel != null);
+            Debug.Assert(viewModel != null, $"Can't cast {nameof(DataContext)} to {nameof(MSEntity)}");
 
             viewModel.IsEnabled = ((CheckBox)sender).IsChecked == true;
 
             var redoAction = GetIsEnabledAction();
-            GameProject.GameProject.AddNewUndoRedoAction(viewModel.IsEnabled == true ? "Enable game entity" : "Disable game entity", undoAction, redoAction);
+            GameProject.Project.AddNewUndoRedoAction(viewModel.IsEnabled == true ? "Enable game entity" : "Disable game entity", undoAction, redoAction);
         }
     }
 }

@@ -1,31 +1,31 @@
-﻿using System.Collections.ObjectModel;
+﻿using Editor.Utilities;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using Editor.Utilities;
 
 namespace Editor.GameProject
 {
     class CreateProject : ViewModelBase
     {
         // TODO: Get the path from the installation location
-        private readonly string _templatesPath = GameProjectConsts.TEMPLATES_PATH;
+        private readonly string _templatesPath = ProjectConsts.TEMPLATES_PATH;
 
-        private string _projectName = GameProjectConsts.DEFAULT_PROJECT_NAME;
-        public string ProjectName 
+        private string _projectName = ProjectConsts.DEFAULT_PROJECT_NAME;
+        public string ProjectName
         {
             get => _projectName;
-            set 
-            { 
-                if(_projectName != value)
+            set
+            {
+                if (_projectName != value)
                 {
                     _projectName = value;
                     ValidateProjectPath();
                     OnPropertyChanged(nameof(ProjectName));
                 }
-            } 
+            }
         }
 
-        private string _projectPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\{GameProjectConsts.PROJECTS_FOLDER_NAME}\";
+        private string _projectPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\{ProjectConsts.PROJECTS_FOLDER_NAME}\";
         public string ProjectPath
         {
             get => _projectPath;
@@ -68,13 +68,50 @@ namespace Editor.GameProject
             }
         }
 
-        private ObservableCollection<GameProjectTemplate> _projectTemplates = new ObservableCollection<GameProjectTemplate>();
-        public ReadOnlyObservableCollection<GameProjectTemplate> ProjectTemplates 
-        { 
-            get; 
+        private ObservableCollection<ProjectTemplate> _projectTemplates = new ObservableCollection<ProjectTemplate>();
+        public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates
+        {
+            get;
         }
 
-        public string CreateNewProject(GameProjectTemplate template)
+        public CreateProject()
+        {
+            ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
+
+            try
+            {
+                var templates = Directory.GetFiles(_templatesPath, ProjectConsts.TEMPLATE_FILE_NAME, SearchOption.AllDirectories);
+                Debug.Assert(templates.Any());
+
+                foreach (var file in templates)
+                {
+                    var fileDirectoryPath = Path.GetDirectoryName(file);
+                    Debug.Assert(fileDirectoryPath != null);
+
+                    var template = Serializer.FromFile<ProjectTemplate>(file);
+                    template.IconPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, ProjectConsts.ICON_FILE_NAME));
+                    template.Icon = File.ReadAllBytes(template.IconPath);
+
+                    template.ScreenshotPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, ProjectConsts.SCREENSHOT_FILE_NAME));
+                    template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
+
+                    template.ProjectPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, template.File));
+                    template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
+
+                    _projectTemplates.Add(template);
+                }
+
+                ValidateProjectPath();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                Logger.Log(MessageType.Error, $"Failed to read project templates");
+                throw;
+            }
+        }
+
+        public string CreateNewProject(ProjectTemplate template)
         {
             ValidateProjectPath();
             if (!IsValid)
@@ -95,19 +132,19 @@ namespace Editor.GameProject
                     Directory.CreateDirectory(path);
                 }
 
-                foreach(var folder in template.Folders)
+                foreach (var folder in template.Folders)
                 {
                     Directory.CreateDirectory(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path), folder)));
                 }
 
                 var dirInfo = new DirectoryInfo(path + @".Paragon\");
                 dirInfo.Attributes |= FileAttributes.Hidden;
-                File.Copy(template.IconPath, Path.GetFullPath(Path.Combine(dirInfo.FullName, GameProjectConsts.ICON_FILE_NAME)));
-                File.Copy(template.ScreenshotPath, Path.GetFullPath(Path.Combine(dirInfo.FullName, GameProjectConsts.SCREENSHOT_FILE_NAME)));
+                File.Copy(template.IconPath, Path.GetFullPath(Path.Combine(dirInfo.FullName, ProjectConsts.ICON_FILE_NAME)));
+                File.Copy(template.ScreenshotPath, Path.GetFullPath(Path.Combine(dirInfo.FullName, ProjectConsts.SCREENSHOT_FILE_NAME)));
 
                 var projectXml = File.ReadAllText(template.ProjectPath);
                 projectXml = string.Format(projectXml, ProjectName, ProjectPath);
-                var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{GameProjectConsts.PROJECT_EXTENSION}"));
+                var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{ProjectConsts.PROJECT_EXTENSION}"));
                 File.WriteAllText(projectPath, projectXml);
 
                 return path;
@@ -116,43 +153,6 @@ namespace Editor.GameProject
             {
                 Debug.WriteLine(e.Message);
                 Logger.Log(MessageType.Error, $"Failed to create {ProjectName}");
-                throw;
-            }
-        }
-        
-        public CreateProject()
-        {
-            ProjectTemplates = new ReadOnlyObservableCollection<GameProjectTemplate>(_projectTemplates);
-
-            try
-            {
-                var templates = Directory.GetFiles(_templatesPath, GameProjectConsts.TEMPLATE_FILE_NAME, SearchOption.AllDirectories);
-                Debug.Assert(templates.Any());
-
-                foreach (var file in templates)
-                {
-                    var fileDirectoryPath = Path.GetDirectoryName(file);
-                    Debug.Assert(fileDirectoryPath != null);
-                    
-                    var template = Serializer.FromFile<GameProjectTemplate>(file);
-                    template.IconPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, GameProjectConsts.ICON_FILE_NAME));
-                    template.Icon = File.ReadAllBytes(template.IconPath);
-
-                    template.ScreenshotPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, GameProjectConsts.SCREENSHOT_FILE_NAME));
-                    template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
-
-                    template.ProjectPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, template.File));
-                    template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
-
-                    _projectTemplates.Add(template);
-                }
-
-                ValidateProjectPath();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-                Logger.Log(MessageType.Error, $"Failed to read project templates");
                 throw;
             }
         }
@@ -184,7 +184,7 @@ namespace Editor.GameProject
             {
                 ErrorMsg = "Invalid character(s) used in project path.";
             }
-            else if(Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path).Any())
+            else if (Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path).Any())
             {
                 ErrorMsg = "Selected project folder already exists and it's not empty.";
             }

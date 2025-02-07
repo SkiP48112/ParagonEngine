@@ -18,7 +18,7 @@ namespace Editor.Editors
             Loaded -= HandleOnWorldEditorViewLoaded;
             Focus();
 
-            ((INotifyCollectionChanged)GameProject.GameProject.UndoRedoManager.UndoList).CollectionChanged += (s, e) => Focus();
+            ((INotifyCollectionChanged)GameProject.Project.UndoRedoManager.UndoList).CollectionChanged += (s, e) => Focus();
         }
     }
 }
