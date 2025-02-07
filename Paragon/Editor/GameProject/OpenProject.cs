@@ -31,7 +31,7 @@ namespace Editor.GameProject
     }
 
 
-    public class OpenProject
+    class OpenProject
     {
         private static readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\ParagonEngine\Editor";
         private static readonly string _projectDataPath = string.Empty;

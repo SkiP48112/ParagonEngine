@@ -9,7 +9,7 @@ using System.Windows.Input;
 namespace Editor.GameProject
 {
     [DataContract(Name = "Game")]
-    public class GameProject : ViewModelBase
+    class GameProject : ViewModelBase
     {
         [DataMember] public string Name { get; private set; } = GameProjectConsts.DEFAULT_PROJECT_NAME;
         [DataMember] public string Path { get; private set; }

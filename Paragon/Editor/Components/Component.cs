@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Editor.Components
 {
     [DataContract]
-    public class Component : ViewModelBase
+    abstract class Component : ViewModelBase
     {
         [DataMember]
         public GameEntity Owner { get; private set; }

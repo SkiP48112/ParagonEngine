@@ -7,13 +7,6 @@ namespace Editor.Utilities
         public LoggerView()
         {
             InitializeComponent();
-
-            Loaded += (s, e) =>
-            {
-                Logger.Log(MessageType.Info, "Informaiton Message");
-                Logger.Log(MessageType.Warning, "Warning Message");
-                Logger.Log(MessageType.Error, "Error Message");
-            };
         }
 
         private void OnClearButton_Click(object sender, System.Windows.RoutedEventArgs e)
