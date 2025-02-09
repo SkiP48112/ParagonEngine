@@ -11,15 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\CommonHeaders.h" />
-    <ClInclude Include="Common\PrimitiveTypes.h" />
-    <ClInclude Include="Common\Id.h" />
-    <ClInclude Include="Components\ComponentsCommon.h" />
-    <ClInclude Include="Components\Entity.h" />
-    <ClInclude Include="Components\Transform.h" />
+    <ClInclude Include="common\common_headers.h" />
+    <ClInclude Include="common\primitive_types.h" />
+    <ClInclude Include="common\id.h" />
+    <ClInclude Include="components\components_common.h" />
+    <ClInclude Include="components\entity.h" />
+    <ClInclude Include="components\transform.h" />
+    <ClInclude Include="engine_api\game_entity.h" />
+    <ClInclude Include="engine_api\transform_component.h" />
+    <ClInclude Include="utilities\math_types.h" />
+    <ClInclude Include="utilities\utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Components\Entity.cpp" />
+    <ClCompile Include="components\entity.cpp" />
+    <ClCompile Include="components\Transform.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

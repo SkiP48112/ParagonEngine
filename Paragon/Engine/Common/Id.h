@@ -1,64 +1,77 @@
 #pragma once
-#include "CommonHeaders.h"
+#include "common_headers.h"
 
 namespace paragon::id
 {
-	using id_type = U32;
+	using IDType = U32;
 
-	constexpr U32 generation_bits{ 8 };
-	constexpr U32 index_bits{ sizeof(id_type) * 8 - generation_bits };
+	namespace internal
+	{
+		constexpr U32 GENERATION_BITS{ 8 };
+		constexpr U32 INDEX_BITS{ sizeof(IDType) * 8 - GENERATION_BITS };
+		
+		constexpr IDType INDEX_MASK{ (IDType{1} << INDEX_BITS) - 1 };
+		constexpr IDType GENERATION_MASK{ (IDType{1} << GENERATION_BITS) - 1 };
+	}
 
-	constexpr id_type index_mask{ (id_type{1} << index_bits) - 1 };
-	constexpr id_type generation_mask{ (id_type{1} << generation_bits) - 1 };
-	constexpr id_type id_mask{ id_type(-1) };
+	constexpr IDType INVALID_ID{ IDType(-1) };
+	constexpr U32 MIN_DELETED_ELEMENTS{ 1024 };
 
-	using generation_type = std::conditional_t<generation_bits <= 16, std::conditional_t<generation_bits <= 8, U8, U16>, U32>;
+	using GenerationType = std::conditional_t<internal::GENERATION_BITS <= 16, std::conditional_t<internal::GENERATION_BITS <= 8, U8, U16>, U32>;
 	
-	static_assert(sizeof(generation_type) * 8 >= generation_bits);
-	static_assert((sizeof(id_type) - sizeof(generation_type)) > 0);
+	static_assert(sizeof(GenerationType) * 8 >= internal::GENERATION_BITS);
+	static_assert((sizeof(IDType) - sizeof(GenerationType)) > 0);
 
-	inline bool is_valid(id_type id)
+
+	constexpr bool IsValid(IDType id)
 	{
-		return id != id_mask;
+		return id != INVALID_ID;
 	}
 
-	inline id_type index(id_type id)
+
+	constexpr IDType Index(IDType id)
 	{
-		return id & index_mask;
+		IDType index{ id & internal::INDEX_MASK };
+		assert(index != internal::INDEX_MASK);
+
+		return index;
 	}
 
-	inline id_type generation(id_type id)
+
+	constexpr IDType Generation(IDType id)
 	{
-		return (id >> index_bits) & generation_mask;
+		return (id >> internal::INDEX_BITS) & internal::GENERATION_MASK;
 	}
 
-	inline id_type new_generation(id_type id)
+
+	constexpr IDType NewGeneration(IDType id)
 	{
-		const id_type generation{ id::generation(id) + 1 };
-		assert(generation < 255);
-		return index(id) | (generation << index_bits);
+		const IDType generation{ id::Generation(id) + 1 };
+		assert(generation < (((U64)1 << internal::GENERATION_BITS) - 1));
+		return Index(id) | (generation << internal::INDEX_BITS);
 	}
+
 
 #if _DEBUG
 	namespace internal
 	{
-		struct id_base
+		struct IDBase
 		{
-			constexpr explicit id_base(id_type id) : _id{ id } {}
-			constexpr operator id_type() const { return _id; }
+			constexpr explicit IDBase(IDType id) : _id{ id } {}
+			constexpr operator IDType() const { return _id; }
 
 		private:
-			id_type _id;
+			IDType _id;
 		};
 	}
 #define DEFINE_TYPED_ID(name)							\
-	struct name final : id::internal::id_base		\
+	struct name final : id::internal::IDBase		\
 	{												\
-		constexpr explicit name(id::id_type id)		\
-			: id_base { id } {}						\
-		constexpr name() : id_base {id::id_mask} {}	\
+		constexpr explicit name(id::IDType id)		\
+			: IDBase { id } {}						\
+		constexpr name() : IDBase { 0 } {}			\
 	};
 #else
-#define DEFINE_TYPED_ID(name) using name = id::id_type;
+#define DEFINE_TYPED_ID(name) using name = id::IDType;
 #endif
 }
