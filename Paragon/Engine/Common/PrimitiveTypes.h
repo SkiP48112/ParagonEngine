@@ -16,4 +16,4 @@ using F32 = float;
 constexpr U64 U64_INVALID_ID{ 0xffff'ffff'ffff'ffffui64};
 constexpr U32 U32_INVALID_ID{ 0xffff'ffffui32};
 constexpr U16 U16_INVALID_ID{ 0xffffui16};
-constexpr U8  U8_INVALID_ID{ 0xffui8};
+constexpr U8  U8_INVALID_ID { 0xffui8};
