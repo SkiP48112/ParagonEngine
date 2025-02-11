@@ -7,7 +7,7 @@ namespace paragon::id
 
 	namespace internal
 	{
-		constexpr U32 GENERATION_BITS{ 8 };
+		constexpr U32 GENERATION_BITS{ 10 };
 		constexpr U32 INDEX_BITS{ sizeof(IDType) * 8 - GENERATION_BITS };
 		
 		constexpr IDType INDEX_MASK{ (IDType{1} << INDEX_BITS) - 1 };
