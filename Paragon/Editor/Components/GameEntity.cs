@@ -1,4 +1,6 @@
-﻿using Editor.GameProject;
+﻿using Editor.DLLWrapper;
+using Editor.GameProject;
+using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -9,6 +11,45 @@ namespace Editor.Components
     [KnownType(typeof(Transform))]
     class GameEntity : ViewModelBase
     {
+        private int _entityId = ID.INVALID_ID;
+        public int EntityId
+        {
+            get => _entityId;
+            set
+            {
+                if (_entityId != value)
+                {
+                    _entityId = value;
+                    OnPropertyChanged(nameof(EntityId));
+                }
+            }
+        }
+
+        private bool _isActive;
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if (_isActive != value)
+                {
+                    _isActive = value;
+                    if (_isActive)
+                    {
+                        EntityId = EngineAPI.CreateGameEntity(this);
+                        Debug.Assert(ID.IsValid(EntityId));
+                    }
+                    else
+                    {
+                        EngineAPI.RemoveGameEntity(this);
+                    }
+
+
+                    OnPropertyChanged(nameof(IsActive));
+                }
+            }
+        }
+
         private bool _isEnabled = true;
         [DataMember]
         public bool IsEnabled
@@ -54,6 +95,9 @@ namespace Editor.Components
             _components.Add(new Transform(this));
             OnDeserialized(new StreamingContext());
         }
+
+        public Component? GetComponent(Type type) => Components.FirstOrDefault(x => x.GetType() == type);
+        public T? GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
