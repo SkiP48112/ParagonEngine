@@ -14,7 +14,7 @@ namespace paragon::game_entity
 		constexpr explicit Entity(EntityID id) : id { id } 
 		{ }
 
-		constexpr Entity() : id { id::INVALID_ID }
+		constexpr Entity() : id { idINVALID_ID }
 		{ }
 		
 		constexpr EntityID GetID() const 
@@ -24,7 +24,7 @@ namespace paragon::game_entity
 
 		constexpr bool IsValid() const 
 		{ 
-			return id::IsValid(id);  
+			return idIsValid(id);  
 		}
 
 		transform::Component Transform() const;

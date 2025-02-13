@@ -41,14 +41,14 @@ namespace
 		TransformComponent transform;
 	};
 
-	game_entity::Entity EntityFromID(id::IDType id)
+	game_entity::Entity EntityFromID(idID_TYPE id)
 	{
 		return game_entity::Entity(game_entity::EntityID{ id });
 	}
 }
 
 EDITOR_INTERFACE
-id::IDType CreateGameEntity(GameEntityDesc* pDesc)
+idID_TYPE CreateGameEntity(GameEntityDesc* pDesc)
 {
 	assert(pDesc);
 	GameEntityDesc& desc{ *pDesc };
@@ -60,8 +60,8 @@ id::IDType CreateGameEntity(GameEntityDesc* pDesc)
 }
 
 EDITOR_INTERFACE
-void RemoveGameEntity(id::IDType id)
+void RemoveGameEntity(idID_TYPE id)
 {
-	assert(id::IsValid(id));
+	assert(idIsValid(id));
 	game_entity::RemoveGameEntity(EntityFromID(id));
 }

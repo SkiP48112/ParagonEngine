@@ -14,7 +14,7 @@ namespace paragon::transform
 	Component CreateTransform(const InitInfo& info, game_entity::Entity entity)
 	{
 		assert(entity.IsValid());
-		const id::IDType entityIndex{ id::Index(entity.GetID()) };
+		const idID_TYPE entityIndex{ idGetIndex(entity.GetID()) };
 
 		if (positions.size() > entityIndex)
 		{
@@ -43,20 +43,20 @@ namespace paragon::transform
 	math::Vector3 Component::GetPosition() const
 	{
 		assert(IsValid());
-		return positions[id::Index(id)];
+		return positions[idGetIndex(id)];
 	}
 
 
 	math::Vector4 Component::GetRotation() const
 	{
 		assert(IsValid());
-		return rotations[id::Index(id)];
+		return rotations[idGetIndex(id)];
 	}
 
 
 	math::Vector3 Component::GetScale() const
 	{
 		assert(IsValid());
-		return scales[id::Index(id)];
+		return scales[idGetIndex(id)];
 	}
 }

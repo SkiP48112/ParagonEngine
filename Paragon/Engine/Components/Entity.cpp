@@ -6,7 +6,7 @@ namespace paragon::game_entity
 	namespace
 	{
 		ds::Vector<transform::Component> transforms;
-		ds::Vector<id::GenerationType> generations;
+		ds::Vector<idGENERATION_TYPE> generations;
 		ds::Deque<EntityID> freeIds;
 	}
 
@@ -21,18 +21,18 @@ namespace paragon::game_entity
 		}
 
 		EntityID id;
-		if (freeIds.size() > id::MIN_DELETED_ELEMENTS)
+		if (freeIds.size() > idMIN_DELETED_ELEMENTS)
 		{
 			id = freeIds.front();
 			assert(!IsAlive(Entity{ id }));
 
 			freeIds.pop_front();
-			id = EntityID{ id::NewGeneration(id) };
-			++generations[id::Index(id)];
+			id = EntityID{ idNewGeneration(id) };
+			++generations[idGetIndex(id)];
 		}
 		else
 		{
-			id = EntityID{(id::IDType)generations.size()};
+			id = EntityID{(idID_TYPE)generations.size()};
 			generations.push_back(0);
 
 			// Resize components
@@ -41,7 +41,7 @@ namespace paragon::game_entity
 		}
 
 		const Entity newEntity{ id };
-		const id::IDType index{ id::Index(id) };
+		const idID_TYPE index{ idGetIndex(id) };
 
 		// Create transform component
 		assert(!transforms[index].IsValid());
@@ -58,7 +58,7 @@ namespace paragon::game_entity
 	void RemoveGameEntity(Entity entity)
 	{
 		const EntityID id{ entity.GetID() };
-		const id::IDType index{ id::Index(id) };
+		const idID_TYPE index{ idGetIndex(id) };
 
 		assert(IsAlive(entity));
 		if (IsAlive(entity))
@@ -76,12 +76,12 @@ namespace paragon::game_entity
 		assert(entity.IsValid());
 		
 		const EntityID id{ entity.GetID() };
-		const id::IDType index{ id::Index(id) };
+		const idID_TYPE index{ idGetIndex(id) };
 
 		assert(index < generations.size());
-		assert(generations[index] == id::Generation(id));
+		assert(generations[index] == idGetGeneration(id));
 	
-		return (generations[index] == id::Generation(id) && transforms[index].IsValid());
+		return (generations[index] == idGetGeneration(id) && transforms[index].IsValid());
 	}
 
 
@@ -89,7 +89,7 @@ namespace paragon::game_entity
 	{
 		assert(IsAlive(*this));
 
-		const id::IDType index{  id::Index(id) };
+		const idID_TYPE index{  idGetIndex(id) };
 		return transforms[index];
 	}
 }

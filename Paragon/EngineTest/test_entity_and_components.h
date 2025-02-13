@@ -51,7 +51,7 @@ private:
 		while (count > 0)
 		{
 			game_entity::Entity entity{ game_entity::CreateGameEntity(entityInfo) };
-			assert(entity.IsValid() && id::IsValid(entity.GetID()));
+			assert(entity.IsValid() && idIsValid(entity.GetID()));
 
 			entities.push_back(entity);
 			assert(game_entity::IsAlive(entity));
@@ -73,7 +73,7 @@ private:
 		{
 			const U32 index{(U32)rand() % (U32)entities.size()};
 			const game_entity::Entity entity{ entities[index] };
-			assert(entity.IsValid() && id::IsValid(entity.GetID()));
+			assert(entity.IsValid() && idIsValid(entity.GetID()));
 			if (entity.IsValid())
 			{
 				game_entity::RemoveGameEntity(entity);

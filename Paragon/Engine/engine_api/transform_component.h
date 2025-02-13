@@ -14,7 +14,7 @@ namespace paragon::transform
 		{
 		}
 
-		constexpr Component() : id{ id::INVALID_ID }
+		constexpr Component() : id{ idINVALID_ID }
 		{
 		}
 
@@ -25,7 +25,7 @@ namespace paragon::transform
 
 		constexpr bool IsValid() const
 		{
-			return id::IsValid(id);
+			return idIsValid(id);
 		}
 
 
