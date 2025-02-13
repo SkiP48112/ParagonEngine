@@ -12,8 +12,8 @@ namespace
 	constexpr idID_TYPE ID_GENERATION_MASK{ (idID_TYPE{1} << ID_GENERATION_BITS) - 1 };
 }
 
-constexpr idID_TYPE idINVALID_ID{ idID_TYPE(-1) };
-constexpr U32 idMIN_DELETED_ELEMENTS{ 1024 };
+constexpr idID_TYPE ID_INVALID_ID{ idID_TYPE(-1) };
+constexpr U32 ID_MIN_DELETED_ELEMENTS{ 1024 };
 
 using idGENERATION_TYPE = std::conditional_t<ID_GENERATION_BITS <= 16, std::conditional_t<ID_GENERATION_BITS <= 8, U8, U16>, U32>;
 
@@ -23,7 +23,7 @@ static_assert((sizeof(idID_TYPE) - sizeof(idGENERATION_TYPE)) > 0);
 
 constexpr bool idIsValid(idID_TYPE id)
 {
-	return id != idINVALID_ID;
+	return id != ID_INVALID_ID;
 }
 
 

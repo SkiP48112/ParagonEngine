@@ -1,16 +1,13 @@
 #pragma once
 #include "components_common.h"
 
-namespace paragon::transform
+struct geTRANSFORM_INIT_INFO
 {
-	struct InitInfo
-	{
-		F32 position[3]{};
-		F32 rotation[4]{};
-		F32 scale[3]{1.0f, 1.0f, 1.0f};
-	};
+	F32 position[3]{};
+	F32 rotation[4]{};
+	F32 scale[3]{1.0f, 1.0f, 1.0f};
+};
 
 
-	Component CreateTransform(const InitInfo& info, game_entity::Entity entity);
-	void RemoveTrasnform(Component component);
-}
+geTRANSFORM_COMPONENT geCreateTransform(const geTRANSFORM_INIT_INFO& info, geENTITY entity);
+void geRemoveTrasnform(geTRANSFORM_COMPONENT component);

@@ -1,22 +1,17 @@
 #pragma once
 #include "components_common.h"
 
-namespace paragon
-{
-#define INIT_INFO(component) namespace component {struct InitInfo;}
-	INIT_INFO(transform);
+
+#define INIT_INFO(COMPONENT) struct ge##COMPONENT##_##INIT_INFO
+	INIT_INFO(TRANSFORM);
 #undef INIT_INFO
-
-	namespace game_entity
-	{
-		struct EntityInfo
-		{
-			transform::InitInfo* transform{ nullptr };
-		};
+	
+struct geENTITY_INFO
+{
+	geTRANSFORM_INIT_INFO* transform{ nullptr };
+};
 
 
-		Entity CreateGameEntity(const EntityInfo info);
-		void RemoveGameEntity(Entity entity);
-		bool IsAlive(Entity entity);
-	}
-}
+geENTITY geCreateGameEntity(const geENTITY_INFO info);
+void geRemoveGameEntity(geENTITY entity);
+bool geIsAlive(geENTITY entity);

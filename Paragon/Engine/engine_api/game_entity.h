@@ -3,33 +3,31 @@
 #include "..\components\components_common.h"
 #include "transform_component.h"
 
-namespace paragon::game_entity
+
+DEFINE_TYPED_ID(geENTITY_ID);
+
+
+class geENTITY
 {
-	DEFINE_TYPED_ID(EntityID);
+public:
+	constexpr explicit geENTITY(geENTITY_ID id) : id { id } 
+	{ }
 
+	constexpr geENTITY() : id { ID_INVALID_ID }
+	{ }
+	
+	constexpr geENTITY_ID GetID() const 
+	{ 
+		return id; 
+	}
 
-	class Entity
-	{
-	public:
-		constexpr explicit Entity(EntityID id) : id { id } 
-		{ }
+	constexpr bool IsValid() const 
+	{ 
+		return idIsValid(id);  
+	}
 
-		constexpr Entity() : id { idINVALID_ID }
-		{ }
-		
-		constexpr EntityID GetID() const 
-		{ 
-			return id; 
-		}
+	geTRANSFORM_COMPONENT Transform() const;
 
-		constexpr bool IsValid() const 
-		{ 
-			return idIsValid(id);  
-		}
-
-		transform::Component Transform() const;
-
-	private:
-		EntityID id;
-	};
-}
+private:
+	geENTITY_ID id;
+};

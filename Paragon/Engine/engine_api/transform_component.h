@@ -2,38 +2,35 @@
 
 #include "..\components\components_common.h"
 
-namespace paragon::transform
+DEFINE_TYPED_ID(geTRANSFORM_ID);
+
+
+class geTRANSFORM_COMPONENT final
 {
-	DEFINE_TYPED_ID(TransformID);
-
-
-	class Component final
+public:
+	constexpr explicit geTRANSFORM_COMPONENT(geTRANSFORM_ID id) : id{ id }
 	{
-	public:
-		constexpr explicit Component(TransformID id) : id{ id }
-		{
-		}
+	}
 
-		constexpr Component() : id{ idINVALID_ID }
-		{
-		}
+	constexpr geTRANSFORM_COMPONENT() : id{ ID_INVALID_ID }
+	{
+	}
 
-		constexpr TransformID GetID() const
-		{
-			return id;
-		}
+	constexpr geTRANSFORM_ID GetID() const
+	{
+		return id;
+	}
 
-		constexpr bool IsValid() const
-		{
-			return idIsValid(id);
-		}
+	constexpr bool IsValid() const
+	{
+		return idIsValid(id);
+	}
 
 
-		math::Vector3 GetPosition() const;
-		math::Vector4 GetRotation() const;
-		math::Vector3 GetScale() const;
+	mathVECTOR_3 GetPosition() const;
+	mathVECTOR_4 GetRotation() const;
+	mathVECTOR_3 GetScale() const;
 
-	private:
-		TransformID id;
-	};
-}
+private:
+	geTRANSFORM_ID id;
+};
