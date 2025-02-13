@@ -5,9 +5,9 @@ namespace paragon::game_entity
 {
 	namespace
 	{
-		utl::Vector<transform::Component> transforms;
-		utl::Vector<id::GenerationType> generations;
-		utl::Deque<EntityID> freeIds;
+		ds::Vector<transform::Component> transforms;
+		ds::Vector<id::GenerationType> generations;
+		ds::Deque<EntityID> freeIds;
 	}
 
 
@@ -84,11 +84,12 @@ namespace paragon::game_entity
 		return (generations[index] == id::Generation(id) && transforms[index].IsValid());
 	}
 
+
 	transform::Component Entity::Transform() const
 	{
 		assert(IsAlive(*this));
 
-		const id::IDType index{  id::Index(_id) };
+		const id::IDType index{  id::Index(id) };
 		return transforms[index];
 	}
 }

@@ -10,22 +10,22 @@ namespace paragon::transform
 	class Component final
 	{
 	public:
-		constexpr explicit Component(TransformID id) : _id{ id }
+		constexpr explicit Component(TransformID id) : id{ id }
 		{
 		}
 
-		constexpr Component() : _id{ id::INVALID_ID }
+		constexpr Component() : id{ id::INVALID_ID }
 		{
 		}
 
 		constexpr TransformID GetID() const
 		{
-			return _id;
+			return id;
 		}
 
 		constexpr bool IsValid() const
 		{
-			return id::IsValid(_id);
+			return id::IsValid(id);
 		}
 
 
@@ -34,6 +34,6 @@ namespace paragon::transform
 		math::Vector3 GetScale() const;
 
 	private:
-		TransformID _id;
+		TransformID id;
 	};
 }

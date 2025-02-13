@@ -92,7 +92,7 @@ private:
 		std::cout << "Entities removed " << removed << std::endl;
 	}
 
-	utl::Vector<game_entity::Entity> entities;
+	ds::Vector<game_entity::Entity> entities;
 
 	U32 added{ 0 };
 	U32 removed{ 0 };

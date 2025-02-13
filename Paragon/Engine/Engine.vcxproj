@@ -20,7 +20,7 @@
     <ClInclude Include="engine_api\game_entity.h" />
     <ClInclude Include="engine_api\transform_component.h" />
     <ClInclude Include="utilities\math_types.h" />
-    <ClInclude Include="utilities\utilities.h" />
+    <ClInclude Include="utilities\data_structures.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="components\entity.cpp" />

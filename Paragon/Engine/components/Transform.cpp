@@ -5,9 +5,9 @@ namespace paragon::transform
 {
 	namespace
 	{
-		utl::Vector<math::Vector3> positions;
-		utl::Vector<math::Vector4> rotations;
-		utl::Vector<math::Vector3> scales;
+		ds::Vector<math::Vector3> positions;
+		ds::Vector<math::Vector4> rotations;
+		ds::Vector<math::Vector3> scales;
 	}
 
 
@@ -43,20 +43,20 @@ namespace paragon::transform
 	math::Vector3 Component::GetPosition() const
 	{
 		assert(IsValid());
-		return positions[id::Index(_id)];
+		return positions[id::Index(id)];
 	}
 
 
 	math::Vector4 Component::GetRotation() const
 	{
 		assert(IsValid());
-		return rotations[id::Index(_id)];
+		return rotations[id::Index(id)];
 	}
 
 
 	math::Vector3 Component::GetScale() const
 	{
 		assert(IsValid());
-		return scales[id::Index(_id)];
+		return scales[id::Index(id)];
 	}
 }

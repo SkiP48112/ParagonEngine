@@ -5,10 +5,10 @@ namespace paragon::id
 {
 	using IDType = U32;
 
-	namespace internal
+	namespace
 	{
-		constexpr U32 GENERATION_BITS{ 10 };
-		constexpr U32 INDEX_BITS{ sizeof(IDType) * 8 - GENERATION_BITS };
+		constexpr IDType GENERATION_BITS{ 10 };
+		constexpr IDType INDEX_BITS{ sizeof(IDType) * 8 - GENERATION_BITS };
 		
 		constexpr IDType INDEX_MASK{ (IDType{1} << INDEX_BITS) - 1 };
 		constexpr IDType GENERATION_MASK{ (IDType{1} << GENERATION_BITS) - 1 };
@@ -17,9 +17,9 @@ namespace paragon::id
 	constexpr IDType INVALID_ID{ IDType(-1) };
 	constexpr U32 MIN_DELETED_ELEMENTS{ 1024 };
 
-	using GenerationType = std::conditional_t<internal::GENERATION_BITS <= 16, std::conditional_t<internal::GENERATION_BITS <= 8, U8, U16>, U32>;
+	using GenerationType = std::conditional_t<GENERATION_BITS <= 16, std::conditional_t<GENERATION_BITS <= 8, U8, U16>, U32>;
 	
-	static_assert(sizeof(GenerationType) * 8 >= internal::GENERATION_BITS);
+	static_assert(sizeof(GenerationType) * 8 >= GENERATION_BITS);
 	static_assert((sizeof(IDType) - sizeof(GenerationType)) > 0);
 
 
@@ -31,8 +31,8 @@ namespace paragon::id
 
 	constexpr IDType Index(IDType id)
 	{
-		IDType index{ id & internal::INDEX_MASK };
-		assert(index != internal::INDEX_MASK);
+		IDType index{ id & INDEX_MASK };
+		assert(index != INDEX_MASK);
 
 		return index;
 	}
@@ -40,15 +40,15 @@ namespace paragon::id
 
 	constexpr IDType Generation(IDType id)
 	{
-		return (id >> internal::INDEX_BITS) & internal::GENERATION_MASK;
+		return (id >> INDEX_BITS) & GENERATION_MASK;
 	}
 
 
 	constexpr IDType NewGeneration(IDType id)
 	{
 		const IDType generation{ id::Generation(id) + 1 };
-		assert(generation < (((U64)1 << internal::GENERATION_BITS) - 1));
-		return Index(id) | (generation << internal::INDEX_BITS);
+		assert(generation < (((U64)1 << GENERATION_BITS) - 1));
+		return Index(id) | (generation << INDEX_BITS);
 	}
 
 
@@ -57,11 +57,11 @@ namespace paragon::id
 	{
 		struct IDBase
 		{
-			constexpr explicit IDBase(IDType id) : _id{ id } {}
-			constexpr operator IDType() const { return _id; }
+			constexpr explicit IDBase(IDType id) : id{ id } {}
+			constexpr operator IDType() const { return id; }
 
 		private:
-			IDType _id;
+			IDType id;
 		};
 	}
 #define DEFINE_TYPED_ID(name)							\

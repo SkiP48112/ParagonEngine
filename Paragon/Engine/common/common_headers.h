@@ -12,5 +12,5 @@
 
 // Common headers
 #include "primitive_types.h"
-#include "..\utilities\utilities.h"
+#include "..\utilities\data_structures.h"
 #include "..\utilities\math_types.h"

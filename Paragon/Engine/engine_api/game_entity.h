@@ -11,25 +11,25 @@ namespace paragon::game_entity
 	class Entity
 	{
 	public:
-		constexpr explicit Entity(EntityID id) : _id {id} 
+		constexpr explicit Entity(EntityID id) : id { id } 
 		{ }
 
-		constexpr Entity() : _id {id::INVALID_ID} 
+		constexpr Entity() : id { id::INVALID_ID }
 		{ }
 		
 		constexpr EntityID GetID() const 
 		{ 
-			return _id; 
+			return id; 
 		}
 
 		constexpr bool IsValid() const 
 		{ 
-			return id::IsValid(_id);  
+			return id::IsValid(id);  
 		}
 
 		transform::Component Transform() const;
 
 	private:
-		EntityID _id;
+		EntityID id;
 	};
 }
