@@ -1,62 +1,60 @@
 #include "transform.h"
 #include "entity.h"
 
-namespace paragon::transform
+
+namespace
 {
-	namespace
+	dsVECTOR<mVECTOR3> positions;
+	dsVECTOR<mVECTOR4> rotations;
+	dsVECTOR<mVECTOR3> scales;
+}
+
+
+geTRANSFORM_COMPONENT geCreateTransform(const geTRANSFORM_INIT_INFO& info, geENTITY entity)
+{
+	assert(entity.IsValid());
+	const idID_TYPE entityIndex{ idGetIndex(entity.GetID()) };
+
+	if (positions.size() > entityIndex)
 	{
-		ds::Vector<math::Vector3> positions;
-		ds::Vector<math::Vector4> rotations;
-		ds::Vector<math::Vector3> scales;
+		positions[entityIndex] = mVECTOR3(info.position);
+		rotations[entityIndex] = mVECTOR4(info.rotation);
+		scales[entityIndex] = mVECTOR3(info.scale);
+	}
+	else
+	{
+		assert(positions.size() == entityIndex);
+		positions.emplace_back(info.position);
+		rotations.emplace_back(info.rotation);
+		scales.emplace_back(info.scale);
 	}
 
-
-	Component CreateTransform(const InitInfo& info, game_entity::Entity entity)
-	{
-		assert(entity.IsValid());
-		const id::IDType entityIndex{ id::Index(entity.GetID()) };
-
-		if (positions.size() > entityIndex)
-		{
-			positions[entityIndex] = math::Vector3(info.position);
-			rotations[entityIndex] = math::Vector4(info.rotation);
-			scales[entityIndex] = math::Vector3(info.scale);
-		}
-		else
-		{
-			assert(positions.size() == entityIndex);
-			positions.emplace_back(info.position);
-			rotations.emplace_back(info.rotation);
-			scales.emplace_back(info.scale);
-		}
-
-		return Component{ TransformID{ entity.GetID() } };
-	}
+	return geTRANSFORM_COMPONENT{ geTRANSFORM_ID{ entity.GetID() } };
+}
 
 
-	void RemoveTrasnform(Component component)
-	{
-		assert(component.IsValid());
-	}
+void geRemoveTrasnform(geTRANSFORM_COMPONENT component)
+{
+	assert(component.IsValid());
+}
 
 
-	math::Vector3 Component::GetPosition() const
-	{
-		assert(IsValid());
-		return positions[id::Index(id)];
-	}
+mVECTOR3 geTRANSFORM_COMPONENT::GetPosition() const
+{
+	assert(IsValid());
+	return positions[idGetIndex(id)];
+}
 
 
-	math::Vector4 Component::GetRotation() const
-	{
-		assert(IsValid());
-		return rotations[id::Index(id)];
-	}
+mVECTOR4 geTRANSFORM_COMPONENT::GetRotation() const
+{
+	assert(IsValid());
+	return rotations[idGetIndex(id)];
+}
 
 
-	math::Vector3 Component::GetScale() const
-	{
-		assert(IsValid());
-		return scales[id::Index(id)];
-	}
+mVECTOR3 geTRANSFORM_COMPONENT::GetScale() const
+{
+	assert(IsValid());
+	return scales[idGetIndex(id)];
 }

@@ -1,95 +1,95 @@
 #include "entity.h"
 #include "transform.h"
 
-namespace paragon::game_entity
+
+namespace
 {
-	namespace
+	dsVECTOR<geTRANSFORM_COMPONENT> transforms;
+	dsVECTOR<idGENERATION_TYPE> generations;
+	dsDEQUE<geENTITY_ID> freeIds;
+}
+
+
+geENTITY geCreateGameEntity(const geENTITY_INFO info)
+{
+	// Every game entity must have a transform component
+	assert(info.transform); 
+	if (!info.transform)
 	{
-		ds::Vector<transform::Component> transforms;
-		ds::Vector<id::GenerationType> generations;
-		ds::Deque<EntityID> freeIds;
+		return geENTITY{};
 	}
 
-
-	Entity CreateGameEntity(const EntityInfo info)
+	geENTITY_ID id;
+	if (freeIds.size() > ID_MIN_DELETED_ELEMENTS)
 	{
-		// Every game entity must have a transform component
-		assert(info.transform); 
-		if (!info.transform)
-		{
-			return Entity{};
-		}
+		id = freeIds.front();
+		assert(!geIsAlive(geENTITY{ id }));
 
-		EntityID id;
-		if (freeIds.size() > id::MIN_DELETED_ELEMENTS)
-		{
-			id = freeIds.front();
-			assert(!IsAlive(Entity{ id }));
+		freeIds.pop_front();
+		id = geENTITY_ID{ idNewGeneration(id) };
+		++generations[idGetIndex(id)];
+	}
+	else
+	{
+		id = geENTITY_ID{(idID_TYPE)generations.size()};
+		generations.push_back(0);
 
-			freeIds.pop_front();
-			id = EntityID{ id::NewGeneration(id) };
-			++generations[id::Index(id)];
-		}
-		else
-		{
-			id = EntityID{(id::IDType)generations.size()};
-			generations.push_back(0);
-
-			// Resize components
-			// NOTE: Don't want to use resize(), so the number of memory allocations stays low
-			transforms.emplace_back();
-		}
-
-		const Entity newEntity{ id };
-		const id::IDType index{ id::Index(id) };
-
-		// Create transform component
-		assert(!transforms[index].IsValid());
-		transforms[index] = transform::CreateTransform(*info.transform, newEntity);
-		if (!transforms[index].IsValid())
-		{
-			return {};
-		}
-
-		return newEntity;
+		// Resize components
+		// NOTE: Don't want to use resize(), so the number of memory allocations stays low
+		transforms.emplace_back();
 	}
 
+	const geENTITY newEntity{ id };
+	const idID_TYPE index{ idGetIndex(id) };
 
-	void RemoveGameEntity(Entity entity)
+	// Create transform component
+	assert(!transforms[index].IsValid());
+	transforms[index] = geCreateTransform(*info.transform, newEntity);
+	if (!transforms[index].IsValid())
 	{
-		const EntityID id{ entity.GetID() };
-		const id::IDType index{ id::Index(id) };
-
-		assert(IsAlive(entity));
-		if (IsAlive(entity))
-		{
-			transform::RemoveTrasnform(transforms[index]);
-			transforms[index] = {};
-
-			freeIds.push_back(id);
-		}
+		return {};
 	}
 
+	return newEntity;
+}
 
-	bool IsAlive(Entity entity)
+
+void geRemoveGameEntity(geENTITY entity)
+{
+	const geENTITY_ID id{ entity.GetID() };
+	const idID_TYPE index{ idGetIndex(id) };
+
+	assert(geIsAlive(entity));
+	if (!geIsAlive(entity))
 	{
-		assert(entity.IsValid());
-		
-		const EntityID id{ entity.GetID() };
-		const id::IDType index{ id::Index(id) };
+		return;
+	}
 
-		assert(index < generations.size());
-		assert(generations[index] == id::Generation(id));
+	geRemoveTrasnform(transforms[index]);
+	transforms[index] = {};
+
+	freeIds.push_back(id);
+}
+
+
+bool geIsAlive(geENTITY entity)
+{
+	assert(entity.IsValid());
 	
-		return (generations[index] == id::Generation(id) && transforms[index].IsValid());
-	}
+	const geENTITY_ID id{ entity.GetID() };
+	const idID_TYPE index{ idGetIndex(id) };
+
+	assert(index < generations.size());
+	assert(generations[index] == idGetGeneration(id));
+
+	return (generations[index] == idGetGeneration(id) && transforms[index].IsValid());
+}
 
 
-	transform::Component Entity::Transform() const
-	{
-		assert(IsAlive(*this));
+geTRANSFORM_COMPONENT geENTITY::Transform() const
+{
+	assert(geIsAlive(*this));
 
-		const id::IDType index{  id::Index(id) };
-		return transforms[index];
-	}
+	const idID_TYPE index{  idGetIndex(id) };
+	return transforms[index];
 }

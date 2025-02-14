@@ -4,10 +4,9 @@ namespace Editor.Utilities
 {
     public class UndoRedoAction : IUndoRedo
     {
+        public string Name { get; }
         private Action _undoAction;
         private Action _redoAction;
-
-        public string Name { get; }
 
         public UndoRedoAction(string name)
         {

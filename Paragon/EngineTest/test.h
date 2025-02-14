@@ -1,6 +1,7 @@
 #pragma once
 
-class Test
+
+class testTEST
 {
 public:
 	virtual bool Initialize() = 0;

@@ -2,23 +2,21 @@
 
 #include <iostream>
 #include <ctime>
-
 #include "test.h"
 #include "..\Engine\components\entity.h"
 #include "..\Engine\components\transform.h"
 
-using namespace paragon;
 
-class TestEntityAndComponents : public Test
+class testENTITY_AND_COMPONENTS : public testTEST
 {
 public:
 	bool Initialize() override
 	{
 		srand((U32)time(nullptr));
-		return true; 
-	};
+		return true;
+	}
 
-	void Run() override 
+	void Run() override
 	{
 		do
 		{
@@ -33,8 +31,9 @@ public:
 		} while (getchar() != 'q');
 	}
 
-	void Shutdown() override 
-	{ }
+	void Shutdown() override
+	{
+	}
 
 
 private:
@@ -46,15 +45,15 @@ private:
 			count = 1000;
 		}
 
-		transform::InitInfo transformInfo{};
-		game_entity::EntityInfo entityInfo{ &transformInfo };
+		geTRANSFORM_INIT_INFO transformInfo{};
+		geENTITY_INFO entityInfo{ &transformInfo };
 		while (count > 0)
 		{
-			game_entity::Entity entity{ game_entity::CreateGameEntity(entityInfo) };
-			assert(entity.IsValid() && id::IsValid(entity.GetID()));
+			geENTITY entity{ geCreateGameEntity(entityInfo) };
+			assert(entity.IsValid() && idIsValid(entity.GetID()));
 
 			entities.push_back(entity);
-			assert(game_entity::IsAlive(entity));
+			assert(geIsAlive(entity));
 
 			added++;
 			count--;
@@ -71,14 +70,14 @@ private:
 
 		while (count > 0)
 		{
-			const U32 index{(U32)rand() % (U32)entities.size()};
-			const game_entity::Entity entity{ entities[index] };
-			assert(entity.IsValid() && id::IsValid(entity.GetID()));
+			const U32 index{ (U32)rand() % (U32)entities.size() };
+			const geENTITY entity{ entities[index] };
+			assert(entity.IsValid() && idIsValid(entity.GetID()));
 			if (entity.IsValid())
 			{
-				game_entity::RemoveGameEntity(entity);
+				geRemoveGameEntity(entity);
 				entities.erase(entities.begin() + index);
-				assert(!game_entity::IsAlive(entity));
+				assert(!geIsAlive(entity));
 			}
 
 			removed++;
@@ -92,10 +91,10 @@ private:
 		std::cout << "Entities removed " << removed << std::endl;
 	}
 
-	ds::Vector<game_entity::Entity> entities;
+private:
+	dsVECTOR<geENTITY> entities;
 
 	U32 added{ 0 };
 	U32 removed{ 0 };
 	U32 amount{ 0 };
-
 };

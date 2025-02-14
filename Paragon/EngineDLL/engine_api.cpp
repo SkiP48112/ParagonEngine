@@ -1,26 +1,22 @@
 #include "common_headers.h"
+#include "id.h"
 #include "..\Engine\components\entity.h"
 #include "..\Engine\components\transform.h"
-#include "id.h"
+
 
 #ifndef EDITOR_INTERFACE
 	#define EDITOR_INTERFACE extern "C" __declspec(dllexport)
 #endif
 
-using namespace paragon;
 
 namespace
 {
-	struct TransformComponent
+	struct apiTRANSFORM_COMPONENT
 	{
-		F32 position[3];
-		F32 rotation[3];
-		F32 scale[3];
-
-		transform::InitInfo ToInitInfo()
+		geTRANSFORM_INIT_INFO ToInitInfo()
 		{
 			using namespace DirectX;
-			transform::InitInfo info;
+			geTRANSFORM_INIT_INFO info;
 
 			memcpy(&info.position[0], &position[0], sizeof(F32) * _countof(position));
 			memcpy(&info.scale[0], &scale[0], sizeof(F32) * _countof(scale));
@@ -34,34 +30,42 @@ namespace
 
 			return info;
 		}
+
+		F32 position[3];
+		F32 rotation[3];
+		F32 scale[3];
 	};
 
-	struct GameEntityDesc
+
+	struct apiGAME_ENTITY_DESC
 	{
-		TransformComponent transform;
+		apiTRANSFORM_COMPONENT transform;
 	};
 
-	game_entity::Entity EntityFromID(id::IDType id)
+
+	geENTITY EntityFromID(idID_TYPE id)
 	{
-		return game_entity::Entity(game_entity::EntityID{ id });
+		return geENTITY(geENTITY_ID{ id });
 	}
 }
 
+
 EDITOR_INTERFACE
-id::IDType CreateGameEntity(GameEntityDesc* pDesc)
+idID_TYPE CreateGameEntity(apiGAME_ENTITY_DESC* pDesc)
 {
 	assert(pDesc);
-	GameEntityDesc& desc{ *pDesc };
+	apiGAME_ENTITY_DESC& desc{ *pDesc };
 
-	transform::InitInfo transformInfo{ desc.transform.ToInitInfo() };
-	game_entity::EntityInfo entityInfo{ &transformInfo };
+	geTRANSFORM_INIT_INFO transformInfo{ desc.transform.ToInitInfo() };
+	geENTITY_INFO entityInfo{ &transformInfo };
 
-	return game_entity::CreateGameEntity(entityInfo).GetID();
+	return geCreateGameEntity(entityInfo).GetID();
 }
 
+
 EDITOR_INTERFACE
-void RemoveGameEntity(id::IDType id)
+void RemoveGameEntity(idID_TYPE id)
 {
-	assert(id::IsValid(id));
-	game_entity::RemoveGameEntity(EntityFromID(id));
+	assert(idIsValid(id));
+	geRemoveGameEntity(EntityFromID(id));
 }
