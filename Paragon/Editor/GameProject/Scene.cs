@@ -10,7 +10,6 @@ namespace Editor.GameProject
     class Scene : ViewModelBase
     {
         private string _name = string.Empty;
-
         [DataMember]
         public string Name
         {

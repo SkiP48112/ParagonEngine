@@ -2,6 +2,7 @@
 
 #include "..\components\components_common.h"
 
+
 DEFINE_TYPED_ID(geTRANSFORM_ID);
 
 
@@ -27,9 +28,9 @@ public:
 	}
 
 
-	mathVECTOR_3 GetPosition() const;
-	mathVECTOR_4 GetRotation() const;
-	mathVECTOR_3 GetScale() const;
+	mVECTOR3 GetPosition() const;
+	mVECTOR4 GetRotation() const;
+	mVECTOR3 GetScale() const;
 
 private:
 	geTRANSFORM_ID id;

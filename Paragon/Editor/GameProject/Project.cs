@@ -13,6 +13,7 @@ namespace Editor.GameProject
     {
         [DataMember] public string Name { get; private set; } = ProjectConsts.DEFAULT_PROJECT_NAME;
         [DataMember] public string Path { get; private set; }
+
         public string FullPath => $@"{Path}{Name}\{Name}{ProjectConsts.PROJECT_EXTENSION}";
         public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();

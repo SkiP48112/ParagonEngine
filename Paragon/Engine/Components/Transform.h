@@ -1,5 +1,7 @@
 #pragma once
+
 #include "components_common.h"
+
 
 struct geTRANSFORM_INIT_INFO
 {

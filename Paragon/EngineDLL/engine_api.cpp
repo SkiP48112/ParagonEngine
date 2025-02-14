@@ -1,20 +1,18 @@
 #include "common_headers.h"
+#include "id.h"
 #include "..\Engine\components\entity.h"
 #include "..\Engine\components\transform.h"
-#include "id.h"
+
 
 #ifndef EDITOR_INTERFACE
 	#define EDITOR_INTERFACE extern "C" __declspec(dllexport)
 #endif
 
+
 namespace
 {
 	struct apiTRANSFORM_COMPONENT
 	{
-		F32 position[3];
-		F32 rotation[3];
-		F32 scale[3];
-
 		geTRANSFORM_INIT_INFO ToInitInfo()
 		{
 			using namespace DirectX;
@@ -32,18 +30,25 @@ namespace
 
 			return info;
 		}
+
+		F32 position[3];
+		F32 rotation[3];
+		F32 scale[3];
 	};
+
 
 	struct apiGAME_ENTITY_DESC
 	{
 		apiTRANSFORM_COMPONENT transform;
 	};
 
+
 	geENTITY EntityFromID(idID_TYPE id)
 	{
 		return geENTITY(geENTITY_ID{ id });
 	}
 }
+
 
 EDITOR_INTERFACE
 idID_TYPE CreateGameEntity(apiGAME_ENTITY_DESC* pDesc)
@@ -56,6 +61,7 @@ idID_TYPE CreateGameEntity(apiGAME_ENTITY_DESC* pDesc)
 
 	return geCreateGameEntity(entityInfo).GetID();
 }
+
 
 EDITOR_INTERFACE
 void RemoveGameEntity(idID_TYPE id)

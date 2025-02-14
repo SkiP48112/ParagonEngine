@@ -7,9 +7,10 @@ namespace Editor.Utilities
 {
     static class Logger
     {
-        private static int _filter = (int)(MessageType.Info | MessageType.Warning | MessageType.Error);
         private readonly static ObservableCollection<LogMessage> _messages = new ObservableCollection<LogMessage>();
         public static ReadOnlyObservableCollection<LogMessage> Messages { get; } = new ReadOnlyObservableCollection<LogMessage>(_messages);
+
+        private static int _filter = (int)(MessageType.Info | MessageType.Warning | MessageType.Error);
         public static CollectionViewSource FilteredMessages { get; } = new CollectionViewSource() { Source = Messages };
 
         static Logger()

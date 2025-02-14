@@ -1,6 +1,7 @@
 #include "entity.h"
 #include "transform.h"
 
+
 namespace
 {
 	dsVECTOR<geTRANSFORM_COMPONENT> transforms;
@@ -59,13 +60,15 @@ void geRemoveGameEntity(geENTITY entity)
 	const idID_TYPE index{ idGetIndex(id) };
 
 	assert(geIsAlive(entity));
-	if (geIsAlive(entity))
+	if (!geIsAlive(entity))
 	{
-		geRemoveTrasnform(transforms[index]);
-		transforms[index] = {};
-
-		freeIds.push_back(id);
+		return;
 	}
+
+	geRemoveTrasnform(transforms[index]);
+	transforms[index] = {};
+
+	freeIds.push_back(id);
 }
 
 

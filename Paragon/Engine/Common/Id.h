@@ -1,7 +1,10 @@
 #pragma once
+
 #include "common_headers.h"
 
+
 using idID_TYPE = U32;
+
 
 namespace
 {
@@ -12,10 +15,12 @@ namespace
 	constexpr idID_TYPE ID_GENERATION_MASK{ (idID_TYPE{1} << ID_GENERATION_BITS) - 1 };
 }
 
+using idGENERATION_TYPE = std::conditional_t<ID_GENERATION_BITS <= 16, std::conditional_t<ID_GENERATION_BITS <= 8, U8, U16>, U32>;
+
+
 constexpr idID_TYPE ID_INVALID_ID{ idID_TYPE(-1) };
 constexpr U32 ID_MIN_DELETED_ELEMENTS{ 1024 };
 
-using idGENERATION_TYPE = std::conditional_t<ID_GENERATION_BITS <= 16, std::conditional_t<ID_GENERATION_BITS <= 8, U8, U16>, U32>;
 
 static_assert(sizeof(idGENERATION_TYPE) * 8 >= ID_GENERATION_BITS);
 static_assert((sizeof(idID_TYPE) - sizeof(idGENERATION_TYPE)) > 0);

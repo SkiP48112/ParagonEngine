@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <ctime>
-
 #include "test.h"
 #include "..\Engine\components\entity.h"
 #include "..\Engine\components\transform.h"
+
 
 class testENTITY_AND_COMPONENTS : public testTEST
 {

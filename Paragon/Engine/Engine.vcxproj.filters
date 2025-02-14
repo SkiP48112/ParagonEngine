@@ -2,15 +2,21 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="common\common_headers.h" />
-    <ClInclude Include="common\primitive_types.h" />
+    <ClInclude Include="common\app_primitive_types.h" />
     <ClInclude Include="common\id.h" />
     <ClInclude Include="components\components_common.h" />
     <ClInclude Include="components\entity.h" />
     <ClInclude Include="components\transform.h" />
-    <ClInclude Include="utilities\data_structures.h" />
     <ClInclude Include="engine_api\game_entity.h" />
     <ClInclude Include="engine_api\transform_component.h" />
-    <ClInclude Include="utilities\math_types.h" />
+    <ClInclude Include="math\m_vector3.h" />
+    <ClInclude Include="math\m_vector2.h" />
+    <ClInclude Include="math\m_vector4.h" />
+    <ClInclude Include="math\m_consts.h" />
+    <ClInclude Include="math\m_matr3.h" />
+    <ClInclude Include="math\m_matr4.h" />
+    <ClInclude Include="data_structures\ds_vector.h" />
+    <ClInclude Include="data_structures\ds_deque.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="components\entity.cpp" />
