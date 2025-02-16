@@ -10,9 +10,7 @@ namespace Editor.Dictionaries
     {
         private void OnTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            var textBox = sender as TextBox;
-            Debug.Assert(textBox != null);
-
+            var textBox = (TextBox)sender;
             var expression = textBox.GetBindingExpression(TextBox.TextProperty);
             if(expression == null)
             {
@@ -22,12 +20,50 @@ namespace Editor.Dictionaries
             if(e.Key == Key.Enter)
             {
                 HandleOnEnterPressed(textBox, expression);
+                Keyboard.ClearFocus();
                 e.Handled = true;
             }
             else if (e.Key == Key.Escape)
             {
                 HandleOnEscapePressed(expression);
+                Keyboard.ClearFocus();
             }
+        }
+
+        private void OnTextBoxWithRename_KeyDown(object sender, KeyEventArgs e)
+        {
+            var textBox = (TextBox)sender;
+            var expression = textBox.GetBindingExpression(TextBox.TextProperty);
+            if (expression == null)
+            {
+                return;
+            }
+
+            if (e.Key == Key.Enter)
+            {
+                HandleOnEnterPressed(textBox, expression);
+                textBox.Visibility = Visibility.Collapsed;
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                HandleOnEscapePressed(expression);
+                textBox.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void OnTextBoxWithRename_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var textBox = (TextBox)sender;
+            var expression = textBox.GetBindingExpression(TextBox.TextProperty);
+            if(expression == null)
+            {
+                return;
+            }
+
+            expression.UpdateTarget();
+            textBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
+            textBox.Visibility = Visibility.Collapsed;
         }
 
         private void HandleOnEnterPressed(TextBox textBox, BindingExpression exp)
@@ -40,14 +76,11 @@ namespace Editor.Dictionaries
             {
                 exp.UpdateSource();
             }
-
-            Keyboard.ClearFocus();
         }
 
         private void HandleOnEscapePressed(BindingExpression exp)
         {
             exp.UpdateTarget();
-            Keyboard.ClearFocus();
         }
 
         private void OnCloseButton_Click(object sender, RoutedEventArgs e)
