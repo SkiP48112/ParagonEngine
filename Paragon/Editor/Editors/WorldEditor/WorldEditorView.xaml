@@ -2,6 +2,7 @@
     x:Class="Editor.Editors.WorldEditorView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctrl="clr-namespace:Editor.Utilities.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Editor.Editors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -46,12 +47,71 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
+
+                <Border Background="{StaticResource Editor.Selected.BackgroundBrush}">
+                    <StackPanel VerticalAlignment="Center">
+                        <ctrl:NumberBox Foreground="{StaticResource Editor.FontBrush}" Value="0" />
+
+                        <ctrl:ScalarBox Multiplier="10" Value="10" />
+
+                        <ctrl:VectorBox
+                            VectorType="Vector2"
+                            W="3"
+                            X="0"
+                            Y="1"
+                            Z="2" />
+
+                        <ctrl:VectorBox
+                            VectorType="Vector3"
+                            W="3"
+                            X="0"
+                            Y="1"
+                            Z="2" />
+
+                        <ctrl:VectorBox
+                            VectorType="Vector4"
+                            W="3"
+                            X="0"
+                            Y="1"
+                            Z="2" />
+
+                        <ctrl:VectorBox
+                            Orientation="Vertical"
+                            VectorType="Vector2"
+                            W="3"
+                            X="0"
+                            Y="1"
+                            Z="2" />
+
+                        <ctrl:VectorBox
+                            Orientation="Vertical"
+                            VectorType="Vector3"
+                            W="3"
+                            X="0"
+                            Y="1"
+                            Z="2" />
+
+                        <ctrl:VectorBox
+                            Orientation="Vertical"
+                            VectorType="Vector4"
+                            W="3"
+                            X="0"
+                            Y="1"
+                            Z="2" />
+                    </StackPanel>
+
+                </Border>
+
                 <GridSplitter
                     Grid.Row="1"
                     Height="5"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Top" />
-                <TabControl Grid.Row="1">
+                    VerticalAlignment="Top"
+                    Background="Transparent" />
+                <TabControl
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    Background="{StaticResource Editor.Window.GrayBrush2}">
                     <TabItem Header="History">
                         <utl:UndoRedoView DataContext="{Binding UndoRedoManager}" />
                     </TabItem>
@@ -64,7 +124,8 @@
                 Grid.Column="1"
                 Width="5"
                 HorizontalAlignment="Left"
-                VerticalAlignment="Stretch" />
+                VerticalAlignment="Stretch"
+                Background="Transparent" />
             <Grid Grid.Column="1" Margin="5,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -74,9 +135,13 @@
                     Grid.Row="1"
                     Height="5"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Top" />
-                <local:ProjectLayoutView />
-                <local:GameEntityView Grid.Row="1" />
+                    VerticalAlignment="Top"
+                    Background="Transparent" />
+                <local:ProjectLayoutView Background="{StaticResource Editor.Window.GrayBrush3}" />
+                <local:GameEntityView
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    Background="{StaticResource Editor.Window.GrayBrush3}" />
             </Grid>
         </Grid>
     </Grid>
