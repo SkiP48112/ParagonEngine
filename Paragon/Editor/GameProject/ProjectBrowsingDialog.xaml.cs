@@ -1,10 +1,14 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 
 namespace Editor.GameProject
 {
     public partial class ProjectBrowsingDialog : Window
     {
+        private readonly CubicEase cubicEase = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+
         public ProjectBrowsingDialog()
         {
             InitializeComponent();
@@ -22,12 +26,43 @@ namespace Editor.GameProject
             }
         }
 
+        private void AnimateToOpenProjectView()
+        {
+            var highlightAnim = new DoubleAnimation(400, 200, new Duration(TimeSpan.FromSeconds(0.2)));
+            highlightAnim.EasingFunction = cubicEase;
+            highlightAnim.Completed += (s, e) => 
+            {
+                var thicknessAnimation = new ThicknessAnimation(new Thickness(-1600, 0, 0, 0), new Thickness(0), new Duration(TimeSpan.FromSeconds(0.5)));
+                thicknessAnimation.EasingFunction = cubicEase;
+                browserContent.BeginAnimation(MarginProperty, thicknessAnimation);
+            };
+
+            highlightRect.BeginAnimation(Canvas.LeftProperty, highlightAnim);
+        }
+
+        private void AnimateToCreateProjectView()
+        {
+            var highlightAnim = new DoubleAnimation(200, 400, new Duration(TimeSpan.FromSeconds(0.2)));
+            highlightAnim.EasingFunction = cubicEase;
+            highlightAnim.Completed += (s, e) =>
+            {
+                var thicknessAnimation = new ThicknessAnimation(new Thickness(0), new Thickness(-1600, 0, 0, 0), new Duration(TimeSpan.FromSeconds(0.5)));
+                thicknessAnimation.EasingFunction = cubicEase;
+                browserContent.BeginAnimation(MarginProperty, thicknessAnimation);
+            };
+
+            highlightRect.BeginAnimation(Canvas.LeftProperty, highlightAnim);
+        }
+
         private void OnOpenProjectButton_Click(object sender, RoutedEventArgs e)
         {
             if (createProjectButton.IsChecked == true)
             {
                 createProjectButton.IsChecked = false;
-                browserContent.Margin = new Thickness(0);
+
+                AnimateToOpenProjectView();
+                openProjectView.IsEnabled = true;
+                createProjectView.IsEnabled = false;
             }
 
             openProjectButton.IsChecked = true;
@@ -38,11 +73,13 @@ namespace Editor.GameProject
             if (openProjectButton.IsChecked == true)
             {
                 openProjectButton.IsChecked = false;
-                browserContent.Margin = new Thickness(-800, 0, 0, 0);
+
+                AnimateToCreateProjectView();
+                createProjectView.IsEnabled = true;
+                openProjectView.IsEnabled = false;
             }
 
             createProjectButton.IsChecked = true;
         }
-
     }
 }
