@@ -37,6 +37,9 @@
             <ctrl:VectorBox
                 Grid.Row="0"
                 Grid.Column="1"
+                LostKeyboardFocus="OnPositionVector_LostKeyboardFocus"
+                PreviewMouseLeftButtonDown="OnPositionVectorBox_PreviewMouseLeftButtonDown"
+                PreviewMouseLeftButtonUp="OnPositionVectorBox_PreviewMouseLeftButtonUp"
                 X="{Binding PositionX}"
                 Y="{Binding PositionY}"
                 Z="{Binding PositionZ}" />
@@ -49,6 +52,9 @@
             <ctrl:VectorBox
                 Grid.Row="1"
                 Grid.Column="1"
+                LostKeyboardFocus="OnRotationVector_LostKeyboardFocus"
+                PreviewMouseLeftButtonDown="OnRotationVectorBox_PreviewMouseLeftButtonDown"
+                PreviewMouseLeftButtonUp="OnRotationVectorBox_PreviewMouseLeftButtonUp"
                 X="{Binding RotationX}"
                 Y="{Binding RotationY}"
                 Z="{Binding RotationZ}" />
@@ -61,6 +67,9 @@
             <ctrl:VectorBox
                 Grid.Row="2"
                 Grid.Column="1"
+                LostKeyboardFocus="OnScaleVector_LostKeyboardFocus"
+                PreviewMouseLeftButtonDown="OnScaleVectorBox_PreviewMouseLeftButtonDown"
+                PreviewMouseLeftButtonUp="OnScaleVectorBox_PreviewMouseLeftButtonUp"
                 X="{Binding ScaleX}"
                 Y="{Binding ScaleY}"
                 Z="{Binding ScaleZ}" />

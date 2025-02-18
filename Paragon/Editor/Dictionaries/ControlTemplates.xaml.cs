@@ -55,14 +55,18 @@ namespace Editor.Dictionaries
         private void OnTextBoxWithRename_LostFocus(object sender, RoutedEventArgs e)
         {
             var textBox = (TextBox)sender;
+            if (!textBox.IsVisible)
+            {
+                return;
+            }
+
             var expression = textBox.GetBindingExpression(TextBox.TextProperty);
-            if(expression == null)
+            if (expression == null)
             {
                 return;
             }
 
             expression.UpdateTarget();
-            textBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
             textBox.Visibility = Visibility.Collapsed;
         }
 

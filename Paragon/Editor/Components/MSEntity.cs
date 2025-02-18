@@ -59,6 +59,11 @@ namespace Editor.Components
             };
         }
 
+        public T? GetMSComponent<T>() where T : IMSComponent
+        {
+            return (T)Components.FirstOrDefault(x => x.GetType() == typeof(T));
+        }
+
         public void Refresh()
         {
             _enableUpdates = false;

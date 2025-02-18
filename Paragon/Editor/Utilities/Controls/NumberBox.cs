@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -62,6 +63,7 @@ namespace Editor.Utilities.Controls
             
             e.Handled = true;
             _mouseXStart = e.GetPosition(this).X;
+            Focus();
         }
 
         private void OnTextBlockMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -101,7 +103,7 @@ namespace Editor.Utilities.Controls
             UpdateMultiplier();
 
             var newValue = _originalValue + (delta * _multiplier * Multiplier);
-            Value = newValue.ToString("0.#####");
+            Value = newValue.ToString("0.#####", CultureInfo.InvariantCulture);
 
             _isValueChanged = true;
         }
