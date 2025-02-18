@@ -14,5 +14,7 @@ namespace Editor.Components
             Debug.Assert(owner != null);
             Owner = owner;
         }
+
+        public abstract IMSComponent GetMultiselectionComponent(MSEntity msEntity);
     }
 }

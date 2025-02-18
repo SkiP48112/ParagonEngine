@@ -39,11 +39,11 @@ namespace Editor.Components
                         EntityId = EngineAPI.CreateGameEntity(this);
                         Debug.Assert(ID.IsValid(EntityId));
                     }
-                    else
+                    else if(ID.IsValid(EntityId))
                     {
                         EngineAPI.RemoveGameEntity(this);
+                        EntityId = ID.INVALID_ID;
                     }
-
 
                     OnPropertyChanged(nameof(IsActive));
                 }

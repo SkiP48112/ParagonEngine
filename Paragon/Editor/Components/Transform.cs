@@ -54,5 +54,10 @@ namespace Editor.Components
         public Transform(GameEntity owner) : base(owner)
         {
         }
+
+        public override IMSComponent GetMultiselectionComponent(MSEntity msEntity)
+        {
+            return new MSCTransform(msEntity);
+        }
     }
 }

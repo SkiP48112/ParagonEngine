@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace Editor.Editors

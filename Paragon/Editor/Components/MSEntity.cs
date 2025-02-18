@@ -6,7 +6,7 @@ namespace Editor.Components
 {
     abstract class MSEntity : ViewModelBase
     {
-        // Enables upadtes to selected entities
+        // Enables upadtes to selected objects
         private bool _enableUpdates = true;
 
         private bool? _isEnabled = true;
@@ -59,19 +59,45 @@ namespace Editor.Components
             };
         }
 
+        public T? GetMSComponent<T>() where T : IMSComponent
+        {
+            return (T)Components.FirstOrDefault(x => x.GetType() == typeof(T));
+        }
+
         public void Refresh()
         {
             _enableUpdates = false;
             UpdateMSGameEntity();
+            MakeComponentList();
             _enableUpdates = true;
         }
 
-        public static float? GetMixedValue(List<GameEntity> entities, Func<GameEntity, float> getProperty)
+        private void MakeComponentList()
         {
-            var value = getProperty(entities.First());
-            foreach (var entity in entities.Skip(1))
+            _components.Clear();
+            var firstEntity = SelectedEntities.FirstOrDefault();
+            if(firstEntity == null)
             {
-                if (!value.IsEqual(getProperty(entity)))
+                return;
+            }
+
+            foreach(var component in firstEntity.Components)
+            {
+                var type = component.GetType();
+                if(!SelectedEntities.Skip(1).Any(entity => entity.GetComponent(type) == null))
+                {
+                    Debug.Assert(Components.FirstOrDefault(x => x.GetType() == type) == null);
+                    _components.Add(component.GetMultiselectionComponent(this));
+                }
+            }
+        }
+
+        public static float? GetMixedValue<T>(List<T> objects, Func<T, float> getProperty)
+        {
+            var value = getProperty(objects.First());
+            foreach (var obj in objects.Skip(1))
+            {
+                if (!value.IsEqual(getProperty(obj)))
                 {
                     return null;
                 }
@@ -80,12 +106,12 @@ namespace Editor.Components
             return value;
         }
 
-        public static bool? GetMixedValue(List<GameEntity> entities, Func<GameEntity, bool> getProperty)
+        public static bool? GetMixedValue<T>(List<T> objects, Func<T, bool> getProperty)
         {
-            var value = getProperty(entities.First());
-            foreach (var entity in entities.Skip(1))
+            var value = getProperty(objects.First());
+            foreach (var obj in objects.Skip(1))
             {
-                if (value != getProperty(entity))
+                if (value != getProperty(obj))
                 {
                     return null;
                 }
@@ -94,12 +120,12 @@ namespace Editor.Components
             return value;
         }
 
-        public static string? GetMixedValue(List<GameEntity> entities, Func<GameEntity, string> getProperty)
+        public static string? GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
         {
-            var value = getProperty(entities.First());
-            foreach (var entity in entities.Skip(1))
+            var value = getProperty(objects.First());
+            foreach (var obj in objects.Skip(1))
             {
-                if (value != getProperty(entity))
+                if (value != getProperty(obj))
                 {
                     return null;
                 }
