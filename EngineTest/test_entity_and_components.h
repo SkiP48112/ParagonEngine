@@ -3,8 +3,8 @@
 #include <iostream>
 #include <ctime>
 #include "test.h"
-#include "..\Engine\components\entity.h"
-#include "..\Engine\components\transform.h"
+#include "..\Engine\game_entities\ge_entity.h"
+#include "..\Engine\game_entities\ge_transform.h"
 
 
 class testENTITY_AND_COMPONENTS : public testTEST

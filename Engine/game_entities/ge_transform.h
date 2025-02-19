@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components_common.h"
+#include "ge_common.h"
 
 
 struct geTRANSFORM_INIT_INFO

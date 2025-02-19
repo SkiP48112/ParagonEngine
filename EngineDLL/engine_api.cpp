@@ -1,7 +1,7 @@
-#include "common_headers.h"
+#include "app_common_headers.h"
 #include "id.h"
-#include "..\Engine\components\entity.h"
-#include "..\Engine\components\transform.h"
+#include "..\Engine\game_entities\ge_entity.h"
+#include "..\Engine\game_entities\ge_transform.h"
 
 
 #ifndef EDITOR_INTERFACE

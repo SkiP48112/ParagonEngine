@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\components\components_common.h"
+#include "..\game_entities\ge_common.h"
 
 
 DEFINE_TYPED_ID(geTRANSFORM_ID);

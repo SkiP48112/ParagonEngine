@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components_common.h"
+#include "ge_common.h"
 
 
 #define INIT_INFO(COMPONENT) struct ge##COMPONENT##_##INIT_INFO

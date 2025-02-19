@@ -1,7 +1,7 @@
 #pragma once
 
-#include "transform_component.h"
-#include "..\components\components_common.h"
+#include "api_transform_component.h"
+#include "..\game_entities\ge_common.h"
 
 
 DEFINE_TYPED_ID(geENTITY_ID);

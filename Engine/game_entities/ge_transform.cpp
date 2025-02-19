@@ -1,5 +1,5 @@
-#include "transform.h"
-#include "entity.h"
+#include "ge_transform.h"
+#include "ge_entity.h"
 
 
 namespace
