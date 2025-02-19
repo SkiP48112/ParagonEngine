@@ -11,5 +11,5 @@ struct geTRANSFORM_INIT_INFO
 };
 
 
-geTRANSFORM_COMPONENT geCreateTransform(const geTRANSFORM_INIT_INFO& info, geENTITY entity);
+geTRANSFORM_COMPONENT geCreateTransform(geTRANSFORM_INIT_INFO info, geENTITY entity);
 void geRemoveTrasnform(geTRANSFORM_COMPONENT component);

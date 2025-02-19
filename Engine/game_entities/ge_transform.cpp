@@ -10,7 +10,7 @@ namespace
 }
 
 
-geTRANSFORM_COMPONENT geCreateTransform(const geTRANSFORM_INIT_INFO& info, geENTITY entity)
+geTRANSFORM_COMPONENT geCreateTransform(geTRANSFORM_INIT_INFO info, geENTITY entity)
 {
 	assert(entity.IsValid());
 	const idID_TYPE entityIndex{ idGetIndex(entity.GetID()) };

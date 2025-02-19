@@ -1,16 +1,20 @@
 #include "ge_entity.h"
 #include "ge_transform.h"
+#include "ge_script.h"
 
 
 namespace
 {
 	dsVECTOR<geTRANSFORM_COMPONENT> transforms;
+	dsVECTOR<geSCRIPT_COMPONENT> scripts;
+
+
 	dsVECTOR<idGENERATION_TYPE> generations;
 	dsDEQUE<geENTITY_ID> freeIds;
 }
 
 
-geENTITY geCreateGameEntity(const geENTITY_INFO info)
+geENTITY geCreateGameEntity(geENTITY_INFO info)
 {
 	// Every game entity must have a transform component
 	assert(info.transform); 
@@ -23,7 +27,7 @@ geENTITY geCreateGameEntity(const geENTITY_INFO info)
 	if (freeIds.size() > ID_MIN_DELETED_ELEMENTS)
 	{
 		id = freeIds.front();
-		assert(!geIsAlive(geENTITY{ id }));
+		assert(!geIsAlive(id));
 
 		freeIds.pop_front();
 		id = geENTITY_ID{ idNewGeneration(id) };
@@ -50,21 +54,23 @@ geENTITY geCreateGameEntity(const geENTITY_INFO info)
 		return {};
 	}
 
+	// Create script component
+	if (info.script && info.script->scriptCreator)
+	{
+		assert(!scripts[index].IsValid());
+		scripts[index] = geCreateScript(*info.script, newEntity);
+		assert(scripts[index].IsValid());
+	}
+
 	return newEntity;
 }
 
 
-void geRemoveGameEntity(geENTITY entity)
+void geRemoveGameEntity(geENTITY_ID id)
 {
-	const geENTITY_ID id{ entity.GetID() };
 	const idID_TYPE index{ idGetIndex(id) };
 
-	assert(geIsAlive(entity));
-	if (!geIsAlive(entity))
-	{
-		return;
-	}
-
+	assert(geIsAlive(id));
 	geRemoveTrasnform(transforms[index]);
 	transforms[index] = {};
 
@@ -72,11 +78,9 @@ void geRemoveGameEntity(geENTITY entity)
 }
 
 
-bool geIsAlive(geENTITY entity)
+bool geIsAlive(geENTITY_ID id)
 {
-	assert(entity.IsValid());
-	
-	const geENTITY_ID id{ entity.GetID() };
+	assert(idIsValid(id));
 	const idID_TYPE index{ idGetIndex(id) };
 
 	assert(index < generations.size());
@@ -86,10 +90,19 @@ bool geIsAlive(geENTITY entity)
 }
 
 
-geTRANSFORM_COMPONENT geENTITY::Transform() const
+geTRANSFORM_COMPONENT geENTITY::GetTransform() const
 {
-	assert(geIsAlive(*this));
+	assert(geIsAlive(id));
 
 	const idID_TYPE index{  idGetIndex(id) };
 	return transforms[index];
+}
+
+
+geSCRIPT_COMPONENT geENTITY::GetScript() const
+{
+	assert(geIsAlive(id));
+
+	const idID_TYPE index{ idGetIndex(id) };
+	return scripts[index];
 }

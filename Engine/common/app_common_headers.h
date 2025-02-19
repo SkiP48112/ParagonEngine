@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <assert.h>
 #include <typeInfo>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 #if defined(_WIN64)
 #include <DirectXMath.h>

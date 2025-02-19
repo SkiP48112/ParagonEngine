@@ -67,5 +67,5 @@ EDITOR_INTERFACE
 void RemoveGameEntity(idID_TYPE id)
 {
 	assert(idIsValid(id));
-	geRemoveGameEntity(EntityFromID(id));
+	geRemoveGameEntity(geENTITY_ID{ id });
 }

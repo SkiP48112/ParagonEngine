@@ -53,7 +53,7 @@ private:
 			assert(entity.IsValid() && idIsValid(entity.GetID()));
 
 			entities.push_back(entity);
-			assert(geIsAlive(entity));
+			assert(geIsAlive(entity.GetID()));
 
 			added++;
 			count--;
@@ -75,9 +75,9 @@ private:
 			assert(entity.IsValid() && idIsValid(entity.GetID()));
 			if (entity.IsValid())
 			{
-				geRemoveGameEntity(entity);
+				geRemoveGameEntity(entity.GetID());
 				entities.erase(entities.begin() + index);
-				assert(!geIsAlive(entity));
+				assert(!geIsAlive(entity.GetID()));
 			}
 
 			removed++;
