@@ -42,12 +42,12 @@ namespace Editor.GameProject
             }
         }
 
-        public ICommand AddGameEntityCommand { get; private set; }
-        public ICommand RemoveGameEntityCommand { get; private set; }
+        public ICommand? AddGameEntityCommand { get; private set; }
+        public ICommand? RemoveGameEntityCommand { get; private set; }
 
         [DataMember(Name = nameof(GameEntities))]
         private readonly ObservableCollection<GameEntity> _gameEntities = new ObservableCollection<GameEntity>();
-        public ReadOnlyObservableCollection<GameEntity> GameEntities { get; private set; }
+        public ReadOnlyObservableCollection<GameEntity>? GameEntities { get; private set; }
 
         public Scene(Project project, string name)
         {
@@ -88,23 +88,28 @@ namespace Editor.GameProject
                 OnPropertyChanged(nameof(GameEntities));
             }
 
-            foreach(var entity in _gameEntities)
+            Debug.Assert(GameEntities != null);
+            foreach(var entity in GameEntities)
             {
                 entity.IsActive = IsActive;
             }
 
-            AddGameEntityCommand = new RelayCommand<GameEntity>(x =>
+            AddGameEntityCommand = new RelayCommand<GameEntity>(gameEntity =>
             {
-                AddGameEntity(x);
-                var index = _gameEntities.Count - 1;
-                Project.AddNewUndoRedoAction($"Add {x.Name} to {Name}", () => RemoveGameEntity(x), () => AddGameEntity(x, index));
+                Debug.Assert(gameEntity != null, "Can't add game entity cause it's null.");
+
+                AddGameEntity(gameEntity);
+                var index = GameEntities.Count - 1;
+                Project.AddNewUndoRedoAction($"Add {gameEntity.Name} to {Name}", () => RemoveGameEntity(gameEntity), () => AddGameEntity(gameEntity, index));
             });
 
-            RemoveGameEntityCommand = new RelayCommand<GameEntity>(x =>
+            RemoveGameEntityCommand = new RelayCommand<GameEntity>(gameEntity =>
             {
-                var index = _gameEntities.IndexOf(x);
-                RemoveGameEntity(x);
-                Project.AddNewUndoRedoAction($"Remove {x.Name} from {Name}", () => AddGameEntity(x, index), () => RemoveGameEntity(x));
+                Debug.Assert(gameEntity != null, "Can't remove game entity because it's null");
+                var index = GameEntities.IndexOf(gameEntity);
+
+                RemoveGameEntity(gameEntity);
+                Project.AddNewUndoRedoAction($"Remove {gameEntity.Name} from {Name}", () => AddGameEntity(gameEntity, index), () => RemoveGameEntity(gameEntity));
             });
         }
     }

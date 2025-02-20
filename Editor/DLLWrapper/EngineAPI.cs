@@ -1,5 +1,6 @@
 ﻿using Editor.Components;
 using Editor.EngineAPIStructs;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -35,6 +36,8 @@ namespace Editor.DLLWrapper
             // transform
             {
                 var component = entity.GetComponent<Transform>();
+                Debug.Assert(component != null, $"Can't get {nameof(Transform)} from entity {entity.ToString()}");
+
                 desc.Transform.Position = component.Position;
                 desc.Transform.Rotation = component.Rotation;
                 desc.Transform.Scale = component.Scale;

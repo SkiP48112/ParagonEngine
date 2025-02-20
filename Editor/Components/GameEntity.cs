@@ -85,7 +85,7 @@ namespace Editor.Components
 
         [DataMember(Name = nameof(Components))]
         private readonly ObservableCollection<Component> _components = new ObservableCollection<Component>();
-        public ReadOnlyObservableCollection<Component> Components { get; private set; }
+        public ReadOnlyObservableCollection<Component>? Components { get; private set; }
 
         public GameEntity(Scene scene)
         {
@@ -96,7 +96,7 @@ namespace Editor.Components
             OnDeserialized(new StreamingContext());
         }
 
-        public Component? GetComponent(Type type) => Components.FirstOrDefault(x => x.GetType() == type);
+        public Component? GetComponent(Type type) => Components?.FirstOrDefault(x => x.GetType() == type);
         public T? GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
 
         [OnDeserialized]

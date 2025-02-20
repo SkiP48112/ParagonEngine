@@ -22,7 +22,7 @@ namespace Editor.Utilities
             }
         }
 
-        internal static T FromFile<T>(string path)
+        internal static T? FromFile<T>(string path)
         {
             try
             {

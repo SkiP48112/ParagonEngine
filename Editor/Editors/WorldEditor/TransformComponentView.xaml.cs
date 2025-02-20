@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Editor.Editors
 {
@@ -60,40 +61,40 @@ namespace Editor.Editors
             Project.AddNewUndoRedoAction(name, _undoAction, redoAction);
         }
 
-        private void OnPositionVectorBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnPositionVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
         {
             _propertyChanged = false;
             _undoAction = GetPositionAction();
         }
 
-        private void OnPositionVectorBox_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnPositionVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
         {
             RecordAction(GetPositionAction(), "PositionChanged");
         }
 
-        private void OnRotationVectorBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRotationVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
         {
             _propertyChanged = false;
             _undoAction = GetRotationAction();
         }
 
-        private void OnRotationVectorBox_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnRotationVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
         {
             RecordAction(GetRotationAction(), "RotationChanged");
         }
 
-        private void OnScaleVectorBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnScaleVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
         {
             _propertyChanged = false;
             _undoAction = GetScaleAction();
         }
 
-        private void OnScaleVectorBox_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnScaleVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
         {
             RecordAction(GetScaleAction(), "ScaleChanged");
         }
 
-        private void OnPositionVector_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        private void OnPositionVector_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if(_propertyChanged && _undoAction != null)
             {
@@ -101,7 +102,7 @@ namespace Editor.Editors
             }
         }
 
-        private void OnRotationVector_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        private void OnRotationVector_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (_propertyChanged && _undoAction != null)
             {
@@ -109,10 +110,11 @@ namespace Editor.Editors
             }
         }
 
-        private void OnScaleVector_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        private void OnScaleVector_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (_propertyChanged && _undoAction != null)
             {
+                
                 OnScaleVectorBox_PreviewMouseLeftButtonUp(sender, null);
             }
         }

@@ -89,6 +89,9 @@ namespace Editor.GameProject
                     Debug.Assert(fileDirectoryPath != null);
 
                     var template = Serializer.FromFile<ProjectTemplate>(file);
+                    Debug.Assert(template != null, $"Can't read tempalte from file {file}");
+                    Debug.Assert(template.File != null, $"Can't get orihect path for template {template.Type} because it's file is null.");
+
                     template.IconPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, ProjectConsts.ICON_FILE_NAME));
                     template.Icon = File.ReadAllBytes(template.IconPath);
 
@@ -132,19 +135,33 @@ namespace Editor.GameProject
                     Directory.CreateDirectory(path);
                 }
 
+                Debug.Assert(template.Folders != null, $"Folders can't be null in project template {template.Type}");
                 foreach (var folder in template.Folders)
                 {
-                    Directory.CreateDirectory(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path), folder)));
+                    string directoryName = Path.GetDirectoryName(path);
+                    Debug.Assert(directoryName != null, $"Can't get directory name for path {path}");
+
+                    var combinedPath = Path.Combine(directoryName, folder);
+                    var fullPath = Path.GetFullPath(combinedPath);
+
+                    Directory.CreateDirectory(fullPath);
                 }
 
                 var dirInfo = new DirectoryInfo(path + @".Paragon\");
                 dirInfo.Attributes |= FileAttributes.Hidden;
+
+                Debug.Assert(template.IconPath != null, $"Icon Path can't be null in project template {template.Type}");
                 File.Copy(template.IconPath, Path.GetFullPath(Path.Combine(dirInfo.FullName, ProjectConsts.ICON_FILE_NAME)));
+
+                Debug.Assert(template.ScreenshotPath != null, $"Screenshot  Path can't be null in project template {template.Type}");
                 File.Copy(template.ScreenshotPath, Path.GetFullPath(Path.Combine(dirInfo.FullName, ProjectConsts.SCREENSHOT_FILE_NAME)));
 
+                Debug.Assert(template.ProjectPath != null, $"Project Path can't be null in project template {template.Type}");
                 var projectXml = File.ReadAllText(template.ProjectPath);
                 projectXml = string.Format(projectXml, ProjectName, ProjectPath);
+                
                 var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{ProjectConsts.PROJECT_EXTENSION}"));
+                
                 File.WriteAllText(projectPath, projectXml);
 
                 return path;

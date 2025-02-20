@@ -34,7 +34,7 @@ namespace Editor.GameProject
             }
         }
 
-        public static Project Open(ProjectData data)
+        public static Project? Open(ProjectData data)
         {
             ReadProjectData();
             var project = _gameProjects.FirstOrDefault(x => x.FullPath == data.FullPath);
@@ -58,9 +58,10 @@ namespace Editor.GameProject
         {
             if (File.Exists(_projectDataPath))
             {
-                var projects = Serializer.FromFile<ProjectDataList>(_projectDataPath).Projects.OrderByDescending(x => x.Date);
+                var projects = Serializer.FromFile<ProjectDataList>(_projectDataPath)?.Projects?.OrderByDescending(x => x.Date);
                 _gameProjects.Clear();
 
+                Debug.Assert(projects != null, $"Error due read from project file {_projectDataPath}");
                 foreach (var project in projects)
                 {
                     if (File.Exists(project.FullPath))

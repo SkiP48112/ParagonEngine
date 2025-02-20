@@ -76,7 +76,7 @@ namespace Editor.Components
         {
             _components.Clear();
             var firstEntity = SelectedEntities.FirstOrDefault();
-            if(firstEntity == null)
+            if(firstEntity == null || firstEntity.Components == null)
             {
                 return;
             }
@@ -139,6 +139,7 @@ namespace Editor.Components
             switch (propertyName)
             {
                 case nameof(IsEnabled):
+                    Debug.Assert(IsEnabled != null);
                     SelectedEntities.ForEach(x => x.IsEnabled = IsEnabled.Value);
                     return true;
                 case nameof(Name):

@@ -5,8 +5,8 @@ namespace Editor.Utilities
     public class UndoRedoAction : IUndoRedo
     {
         public string Name { get; }
-        private Action _undoAction;
-        private Action _redoAction;
+        private Action? _undoAction;
+        private Action? _redoAction;
 
         public UndoRedoAction(string name)
         {
@@ -22,13 +22,30 @@ namespace Editor.Utilities
 
         public UndoRedoAction(string property, object instance, object undoValue, object redoValue, string name) :
             this(
-                () => instance.GetType().GetProperty(property).SetValue(instance, undoValue),
-                () => instance.GetType().GetProperty(property).SetValue(instance, redoValue),
+                () => SetValue(property, instance, undoValue),
+                () => SetValue(property, instance, redoValue),
                 name)
         {
         }
 
-        public void Redo() => _redoAction();
-        public void Undo() => _undoAction();
+        public void Redo()
+        {
+            Debug.Assert(_redoAction != null, $"Can't execute {Name} redo action because it is null.");
+            _redoAction();
+        }
+
+        public void Undo() 
+        {
+            Debug.Assert(_undoAction != null, $"Can't execute {Name} undo action because it is null.");
+            _undoAction(); 
+        }
+
+        private static void SetValue(string propertyName, object instance, object actionValue)
+        {
+            var type = instance.GetType();
+            var property = type.GetProperty(propertyName);
+
+            property?.SetValue(instance, actionValue);
+        }
     }
 }

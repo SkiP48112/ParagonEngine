@@ -21,7 +21,7 @@ namespace Editor.Editors
             var viewModel = button.DataContext as Scene;
             Debug.Assert(viewModel != null, $"Can't cast {nameof(button.DataContext)} to {nameof(Scene)}");
 
-            viewModel.AddGameEntityCommand.Execute(new GameEntity(viewModel) { Name = "Empty Game Entity" });
+            viewModel.AddGameEntityCommand?.Execute(new GameEntity(viewModel) { Name = "Empty Game Entity" });
         }
 
         private void OnGameEntitiesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

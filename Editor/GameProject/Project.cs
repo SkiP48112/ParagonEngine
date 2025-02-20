@@ -18,14 +18,14 @@ namespace Editor.GameProject
         public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
 
-        public ICommand AddSceneCommand { get; private set; }
-        public ICommand RemoveSceneCommand { get; private set; }
-        public ICommand UndoCommand { get; private set; }
-        public ICommand RedoCommand { get; private set; }
-        public ICommand SaveCommand { get; private set; }
+        public ICommand? AddSceneCommand { get; private set; }
+        public ICommand? RemoveSceneCommand { get; private set; }
+        public ICommand? UndoCommand { get; private set; }
+        public ICommand? RedoCommand { get; private set; }
+        public ICommand? SaveCommand { get; private set; }
 
-        private Scene _activeScene;
-        public Scene ActiveScene
+        private Scene? _activeScene;
+        public Scene? ActiveScene
         {
             get => _activeScene;
             set
@@ -41,7 +41,7 @@ namespace Editor.GameProject
 
         [DataMember(Name = "Scenes")]
         private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
-        public ReadOnlyObservableCollection<Scene> Scenes
+        public ReadOnlyObservableCollection<Scene>? Scenes
         {
             get;
             private set;
@@ -61,7 +61,7 @@ namespace Editor.GameProject
             UndoRedoManager.Add(new UndoRedoAction(undo, redo, name));
         }
 
-        public static Project Load(string path)
+        public static Project? Load(string path)
         {
             Debug.Assert(File.Exists(path));
             return Serializer.FromFile<Project>(path);
@@ -103,11 +103,13 @@ namespace Editor.GameProject
 
         private RelayCommand<Scene> GetRemoveSceneCommand()
         {
-            return new RelayCommand<Scene>(x =>
+            return new RelayCommand<Scene>(scene =>
             {
-                var sceneIndex = _scenes.IndexOf(x);
-                RemoveScene(x);
-                AddNewUndoRedoAction($"Remove {x.Name}", () => _scenes.Insert(sceneIndex, x), () => RemoveScene(x));
+                Debug.Assert(scene != null, "Can't remove scene because it's null.");
+
+                var sceneIndex = _scenes.IndexOf(scene);
+                RemoveScene(scene);
+                AddNewUndoRedoAction($"Remove {scene.Name}", () => _scenes.Insert(sceneIndex, scene), () => RemoveScene(scene));
             }, x => !x.IsActive);
         }
 
@@ -120,6 +122,7 @@ namespace Editor.GameProject
                 OnPropertyChanged(nameof(Scenes));
             }
 
+            Debug.Assert(Scenes != null);
             ActiveScene = Scenes.FirstOrDefault(x => x.IsActive);
 
             AddSceneCommand = GetAddSceneCommand();
