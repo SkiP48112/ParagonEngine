@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="common\app_common_headers.h" />
+    <ClInclude Include="common\app_primitive_types.h" />
+    <ClInclude Include="common\id.h" />
+    <ClInclude Include="game_entities\ge_common.h" />
+    <ClInclude Include="game_entities\ge_entity.h" />
+    <ClInclude Include="game_entities\ge_transform.h" />
+    <ClInclude Include="engine_api\api_game_entity.h" />
+    <ClInclude Include="engine_api\api_transform_component.h" />
+    <ClInclude Include="math\m_vector3.h" />
+    <ClInclude Include="math\m_vector2.h" />
+    <ClInclude Include="math\m_vector4.h" />
+    <ClInclude Include="math\m_consts.h" />
+    <ClInclude Include="math\m_matr3.h" />
+    <ClInclude Include="math\m_matr4.h" />
+    <ClInclude Include="data_structures\ds_vector.h" />
+    <ClInclude Include="data_structures\ds_deque.h" />
+    <ClInclude Include="engine_api\api_script_component.h" />
+    <ClInclude Include="game_entities\ge_script.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="game_entities\ge_entity.cpp" />
+    <ClCompile Include="game_entities\ge_transform.cpp" />
+    <ClCompile Include="game_entities\ge_script.cpp" />
+    <ClCompile Include="core\main.cpp" />
+  </ItemGroup>
+</Project>
