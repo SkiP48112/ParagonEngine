@@ -9,11 +9,13 @@ DEFINE_TYPED_ID(geSCRIPT_ID);
 class geSCRIPT_COMPONENT final
 {
 public:
-	constexpr explicit geSCRIPT_COMPONENT(geSCRIPT_ID id) : id{ id }
+	constexpr explicit geSCRIPT_COMPONENT(geSCRIPT_ID id) 
+		: id{ id }
 	{
 	}
 
-	constexpr geSCRIPT_COMPONENT() : id{ ID_INVALID_ID }
+	constexpr geSCRIPT_COMPONENT() 
+		: id{ ID_INVALID_ID }
 	{
 	}
 

@@ -11,11 +11,13 @@ DEFINE_TYPED_ID(geENTITY_ID);
 class geENTITY
 {
 public:
-	constexpr explicit geENTITY(geENTITY_ID id) : id { id } 
+	constexpr explicit geENTITY(geENTITY_ID id) 
+		: id { id } 
 	{ 
 	}
 
-	constexpr geENTITY() : id { ID_INVALID_ID }
+	constexpr geENTITY() 
+		: id { ID_INVALID_ID }
 	{ 
 	}
 	
@@ -65,6 +67,7 @@ using dsSTRING_HASH = std::hash<std::string>;
 
 U8 apiRegisterScript(size_t, geSCRIPT_CREATOR);
 
+
 template<class geSCRIPT_CLASS>
 geSCRIPT_PTR apiCreateScript(geENTITY entity)
 {
@@ -72,7 +75,6 @@ geSCRIPT_PTR apiCreateScript(geENTITY entity)
 	return std::make_unique<geSCRIPT_CLASS>(entity);
 
 }
-
 
 
 #define REGISTER_SCRIPT(TYPE)										\

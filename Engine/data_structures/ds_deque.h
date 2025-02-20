@@ -1,12 +1,12 @@
 #pragma once
 
-#define USE_STR_DEQUE true
+#define USE_STL_DEQUE true
 
 
-#ifdef USE_STR_DEQUE
+#ifdef USE_STL_DEQUE
 	#include <deque>
 	template<typename T>
 	using dsDEQUE = std::deque<T>;
-#endif // USE_STR_DEQUE
+#endif // USE_STL_DEQUE
 
 	// TODO: write my own implementation of stl contrainers

@@ -60,13 +60,21 @@ constexpr idID_TYPE idNewGeneration(idID_TYPE id)
 	{
 		struct idID_BASE
 		{
-			constexpr explicit idID_BASE(idID_TYPE id) : id{ id } {}
-			constexpr operator idID_TYPE() const { return id; }
+			constexpr explicit idID_BASE(idID_TYPE id) 
+				: id{ id } 
+			{
+			}
+
+			constexpr operator idID_TYPE() const 
+			{ 
+				return id; 
+			}
 
 		private:
 			idID_TYPE id;
 		};
 	}
+
 
 #define DEFINE_TYPED_ID(name)							\
 	struct name final : idID_BASE						\

@@ -10,14 +10,15 @@ namespace
 	dsVECTOR<idGENERATION_TYPE> generations;
 	dsVECTOR<geSCRIPT_ID> freeIds;
 
-	using SCRIPT_REGISTERY = std::unordered_map<size_t, geSCRIPT_CREATOR>;
-	SCRIPT_REGISTERY& Registery() 
+	// We need to create out own implementation of unordered_map
+	using dsSCRIPT_REGISTERY = std::unordered_map<size_t, geSCRIPT_CREATOR>;
+	dsSCRIPT_REGISTERY& Registery() 
 	{
 		// NOTE: we put static variable in a function because of
 		//		the initializetion order in static data. This way, we can
 		//		be certain that the data is initialized before accessing it.
 
-		static SCRIPT_REGISTERY registery;
+		static dsSCRIPT_REGISTERY registery;
 		return registery;
 	}
 
@@ -39,7 +40,7 @@ namespace
 
 U8 apiRegisterScript(size_t tag, geSCRIPT_CREATOR func)
 {
-	bool result{ Registery().insert(SCRIPT_REGISTERY::value_type(tag, func)).second };
+	bool result{ Registery().insert(dsSCRIPT_REGISTERY::value_type(tag, func)).second };
 	assert(result);
 
 	return result;

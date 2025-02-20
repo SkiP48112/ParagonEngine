@@ -13,8 +13,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineTest", "EngineTest\EngineTest.vcxproj", "{5779597E-0CD2-47C1-8DA1-87835B151FB7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E18EEA77-2ACB-404B-86C1-B125614FDD8B} = {E18EEA77-2ACB-404B-86C1-B125614FDD8B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineDLL", "EngineDLL\EngineDLL.vcxproj", "{2B6EC5EC-25C7-4316-8062-1BB244D5629A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E18EEA77-2ACB-404B-86C1-B125614FDD8B} = {E18EEA77-2ACB-404B-86C1-B125614FDD8B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
