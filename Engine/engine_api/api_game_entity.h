@@ -77,10 +77,12 @@ geSCRIPT_PTR apiCreateScript(geENTITY entity)
 }
 
 
-#define REGISTER_SCRIPT(TYPE)										\
-		class TYPE;													\
-		namespace {													\
-		const U8 _reg##TYPE											\
-		{ apiRegisterScript( dsSTRING_HASH()(#TYPE),				\
-			&apiCreateScript<TYPE>) };								\
+#define REGISTER_SCRIPT(TYPE)														\
+		class TYPE;																	\
+		namespace																	\
+		{																			\
+			const U8 _reg_##TYPE													\
+			{																		\
+			apiRegisterScript( dsSTRING_HASH()(#TYPE), &apiCreateScript<TYPE>)		\
+			};																		\
 		}
