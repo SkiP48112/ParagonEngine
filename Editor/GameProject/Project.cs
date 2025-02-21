@@ -1,4 +1,5 @@
-﻿using Editor.Utilities;
+﻿using Editor.GameDevelopment;
+using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -15,9 +16,10 @@ namespace Editor.GameProject
         [DataMember] public string Path { get; private set; }
 
         public string FullPath => $@"{Path}{Name}\{Name}{ProjectConsts.PROJECT_EXTENSION}";
+        public string Solution => $@"{Path}{Name}.sln";
         public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
-
+        
         public ICommand? AddSceneCommand { get; private set; }
         public ICommand? RemoveSceneCommand { get; private set; }
         public ICommand? UndoCommand { get; private set; }
@@ -69,6 +71,7 @@ namespace Editor.GameProject
 
         public void Unload()
         {
+            VisualStudio.CloseVisualStudio();
             UndoRedoManager.Reset();
         }
 
