@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace Editor.GameDevelopment
 {
@@ -15,7 +16,7 @@ namespace Editor.GameDevelopment
 
 namespace {1} {{
 
-REGISTER_SCRIPT({{0}});
+REGISTER_SCRIPT({0});
 
 
 void {0}::BeginPlay()
@@ -84,6 +85,11 @@ class {0} : public geENTITY_SCRIPT
 
             IsEnabled = false;
 
+            busyAnimation.Opacity = 0;
+            busyAnimation.Visibility = Visibility.Visible;
+            DoubleAnimation fadeIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(500)));
+            busyAnimation.BeginAnimation(OpacityProperty, fadeIn);
+
             try
             {
                 var name = scriptName.Text;
@@ -98,6 +104,17 @@ class {0} : public geENTITY_SCRIPT
             {
                 Debug.WriteLine(ex.Message);
                 Logger.Log(MessageType.Error, $"Failed to create script {scriptName.Text}");
+            }
+            finally
+            {
+                DoubleAnimation fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromMilliseconds(200)));
+                fadeOut.Completed += (s, e) =>
+                {
+                    busyAnimation.Opacity = 0;
+                    busyAnimation.Visibility = Visibility.Hidden;
+                    Close();
+                };
+                busyAnimation.BeginAnimation(OpacityProperty, fadeOut);
             }
         }
 

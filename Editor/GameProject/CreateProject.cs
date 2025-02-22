@@ -99,8 +99,6 @@ namespace Editor.GameProject
                     template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
 
                     template.ProjectPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, template.File));
-                    template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
-
                     template.TemplatePath = fileDirectoryPath;
 
                     _projectTemplates.Add(template);
@@ -160,7 +158,7 @@ namespace Editor.GameProject
 
                 Debug.Assert(template.ProjectPath != null, $"Project Path can't be null in project template {template.Type}");
                 var projectXml = File.ReadAllText(template.ProjectPath);
-                projectXml = string.Format(projectXml, ProjectName, ProjectPath);
+                projectXml = string.Format(projectXml, ProjectName, path);
                 
                 var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{ProjectConsts.PROJECT_EXTENSION}"));
                 
