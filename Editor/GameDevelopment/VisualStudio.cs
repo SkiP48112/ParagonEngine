@@ -9,7 +9,7 @@ namespace Editor.GameDevelopment
     static class VisualStudio
     {
         private static EnvDTE80.DTE2? _vsInstance = null;
-        private static readonly string _progID = "VisualStudio.DTE.16.0";
+        private static readonly string _progID = "VisualStudio.DTE.17.0";
 
         [DllImport("ole32.dll")]
         private static extern int GetRunningObjectTable(uint reserved, out IRunningObjectTable pprot);
@@ -144,8 +144,7 @@ namespace Editor.GameDevelopment
                     var cpp = files.FirstOrDefault(x => Path.GetExtension(x) == ".cpp");
                     if (!string.IsNullOrEmpty(cpp))
                     {
-                        //TODO: Fix it with EnvDTE for VS2022
-                        //_vsInstance.ItemOperations.OpenFile(cpp, EnvDTE.Constants.vsViewKindTextView).Visible = true;
+                        _vsInstance.ItemOperations.OpenFile(cpp, EnvDTE.Constants.vsViewKindTextView).Visible = true;
                     }
 
                     _vsInstance.MainWindow.Activate();

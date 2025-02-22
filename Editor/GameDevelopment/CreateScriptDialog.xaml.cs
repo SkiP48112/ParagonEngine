@@ -39,6 +39,7 @@ namespace {1} {{
 
 class {0} : public geENTITY_SCRIPT
 {{
+public:
     constexpr explicit {0}(geENTITY entity)
         : geENTITY_SCRIPT(entity)
     {{
@@ -47,6 +48,8 @@ class {0} : public geENTITY_SCRIPT
 
     void BeginPlay() override;
     void Update(float dt) override;
+
+private:
 }};
 
 }} // namespace {1}";
