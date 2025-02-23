@@ -1,71 +1,43 @@
+#include "common.h"
 #include "app_common_headers.h"
-#include "id.h"
-#include "..\Engine\game_entities\ge_entity.h"
-#include "..\Engine\game_entities\ge_transform.h"
 
+#ifndef WIN32_MEAN_AND_LEAN
+	#define WIN32_MEAN_AND_LEAN
+#endif // !WIN32_MEAN_AND_LEAN
 
-#ifndef EDITOR_INTERFACE
-	#define EDITOR_INTERFACE extern "C" __declspec(dllexport)
-#endif
-
+#include <Windows.h>
 
 namespace
 {
-	struct apiTRANSFORM_COMPONENT
+	HMODULE gameCodeDll{ nullptr };
+}
+
+EDITOR_INTERFACE
+U32 LoadGameCodeDll(const char* dllPath)
+{
+	if (gameCodeDll)
 	{
-		geTRANSFORM_INIT_INFO ToInitInfo()
-		{
-			using namespace DirectX;
-			geTRANSFORM_INIT_INFO info;
-
-			memcpy(&info.position[0], &position[0], sizeof(F32) * _countof(position));
-			memcpy(&info.scale[0], &scale[0], sizeof(F32) * _countof(scale));
-
-			XMFLOAT3A rot{ &rotation[0] };
-			XMVECTOR quat{ XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3A(&rot))};
-
-			XMFLOAT4A rotQuat{};
-			XMStoreFloat4A(&rotQuat, quat);
-			memcpy(&info.rotation[0], &rotQuat.x, sizeof(F32) * _countof(info.rotation));
-
-			return info;
-		}
-
-		F32 position[3];
-		F32 rotation[3];
-		F32 scale[3];
-	};
-
-
-	struct apiGAME_ENTITY_DESC
-	{
-		apiTRANSFORM_COMPONENT transform;
-	};
-
-
-	geENTITY EntityFromID(idID_TYPE id)
-	{
-		return geENTITY(geENTITY_ID{ id });
+		return FALSE;
 	}
+
+	gameCodeDll = LoadLibraryA(dllPath);
+	assert(gameCodeDll);
+
+	return gameCodeDll ? TRUE : FALSE;
 }
 
-
 EDITOR_INTERFACE
-idID_TYPE CreateGameEntity(apiGAME_ENTITY_DESC* pDesc)
+U32 UnloadGameCodeDll()
 {
-	assert(pDesc);
-	apiGAME_ENTITY_DESC& desc{ *pDesc };
+	if (!gameCodeDll)
+	{
+		return FALSE;
+	}
 
-	geTRANSFORM_INIT_INFO transformInfo{ desc.transform.ToInitInfo() };
-	geENTITY_INFO entityInfo{ &transformInfo };
+	assert(gameCodeDll);
+	int result{FreeLibrary(gameCodeDll) };
+	assert(result);
 
-	return geCreateGameEntity(entityInfo).GetID();
-}
-
-
-EDITOR_INTERFACE
-void RemoveGameEntity(idID_TYPE id)
-{
-	assert(idIsValid(id));
-	geRemoveGameEntity(geENTITY_ID{ id });
+	gameCodeDll = nullptr;
+	return TRUE;
 }

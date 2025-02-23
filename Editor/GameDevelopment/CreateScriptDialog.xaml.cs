@@ -15,7 +15,6 @@ namespace Editor.GameDevelopment
             @"#include ""{0}.h""
 
 namespace {1} {{
-
 REGISTER_SCRIPT({0});
 
 
@@ -30,12 +29,14 @@ void {0}::Update(float dt)
 
 }}
 
-}} // namespace {1}";
+
+}}";
 
         private static readonly string _hCode =
             @"#pragma once
 
 namespace {1} {{
+
 
 class {0} : public geENTITY_SCRIPT
 {{
@@ -52,7 +53,8 @@ public:
 private:
 }};
 
-}} // namespace {1}";
+
+}}";
 
         private static readonly string _namespace = GetNamespaceFromProjectName();
 

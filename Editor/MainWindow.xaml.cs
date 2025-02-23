@@ -7,7 +7,7 @@ namespace Editor
 {
     public partial class MainWindow : Window
     {
-        public static string ParagonPath { get; set; } = @"F:\ParagonEngine";
+        public static string ParagonPath { get; set; } = @"F:\ParagonEngine\";
 
         public MainWindow()
         {
@@ -32,7 +32,7 @@ namespace Editor
                 if(dialog.ShowDialog() == true)
                 {
                     enginePath = dialog.ParagonPath;
-                    Environment.SetEnvironmentVariable("PARAGON_ENGINE", ParagonPath.ToUpper(), EnvironmentVariableTarget.User);
+                    Environment.SetEnvironmentVariable("PARAGON_ENGINE", enginePath!.ToUpper(), EnvironmentVariableTarget.User);
                 }
                 else
                 {
@@ -53,7 +53,7 @@ namespace Editor
 
         private void UnloadCurrentProject()
         {
-            GameProject.Project.CurrentGameProject?.Unload();
+            Project.CurrentGameProject?.Unload();
         }
 
         private void OpenProjectBrowsingDialog()

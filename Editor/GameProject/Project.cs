@@ -1,4 +1,5 @@
-﻿using Editor.GameDevelopment;
+﻿using Editor.DLLWrapper;
+using Editor.GameDevelopment;
 using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,12 +20,33 @@ namespace Editor.GameProject
         public string Solution => $@"{Path}{Name}.sln";
         public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
-        
+
+        private static readonly string[] _buildConfigurationNames = { "Debug", "Release", "DebugEditor", "ReleaseEditor" };
+
         public ICommand? AddSceneCommand { get; private set; }
         public ICommand? RemoveSceneCommand { get; private set; }
         public ICommand? UndoCommand { get; private set; }
         public ICommand? RedoCommand { get; private set; }
         public ICommand? SaveCommand { get; private set; }
+        public ICommand? BuildCommand { get; private set; }
+
+        private int _buildConfig;
+        [DataMember]
+        public int BuildConfig
+        {
+            get => _buildConfig;
+            set
+            {
+                if(_buildConfig != value)
+                {
+                    _buildConfig = value;
+                    OnPropertyChanged(nameof(BuildConfig));
+                }
+            }
+        }
+
+        public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
+        public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
 
         private Scene? _activeScene;
         public Scene? ActiveScene
@@ -81,6 +103,11 @@ namespace Editor.GameProject
             Logger.Log(MessageType.Info, $"Project saved to {project.FullPath}");
         }
 
+        private static string GetBuildConfigurationName(BuildConfiguration configuration)
+        {
+            return _buildConfigurationNames[(int)configuration];
+        }
+
         private void AddScene(string name)
         {
             Debug.Assert(!string.IsNullOrEmpty(name.Trim()));
@@ -116,6 +143,47 @@ namespace Editor.GameProject
             }, x => !x.IsActive);
         }
 
+        private void BuildGameCodeDll(bool showWindow = true)
+        {
+            try
+            {
+                UnloadGameCodeDll();
+                VisualStudio.BuildSolution(this, GetBuildConfigurationName(DllBuildConfig), showWindow);
+                if (VisualStudio.IsBuildSucceeded)
+                {
+                    LoadGameCodeDll();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Logger.Log(MessageType.Error, "Failed to build game code dll.");
+                throw;
+            }
+            
+        }
+
+        private void LoadGameCodeDll()
+        {
+            var configName = GetBuildConfigurationName(DllBuildConfig);
+            var dll = $@"{Path}x64\{configName}\{Name}.dll";
+            if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
+            {
+                Logger.Log(MessageType.Info, "Game code DLL loaded successfully.");
+                return;
+            }
+
+            Logger.Log(MessageType.Warning, "Failed to load game code DLL file. Try to build the project first.");
+        }
+
+        private void UnloadGameCodeDll()
+        {
+            if (EngineAPI.UnloadGameCodeDll() != 0)
+            {
+                Logger.Log(MessageType.Info, "Game code DLL unloaded successfully.");
+            }
+        }
+
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
@@ -128,12 +196,15 @@ namespace Editor.GameProject
             Debug.Assert(Scenes != null);
             ActiveScene = Scenes.FirstOrDefault(x => x.IsActive);
 
+            BuildGameCodeDll(false);
+
             AddSceneCommand = GetAddSceneCommand();
             RemoveSceneCommand = GetRemoveSceneCommand();
 
-            UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo());
-            RedoCommand = new RelayCommand<object>(x => UndoRedoManager.Redo());
+            UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo(), x => UndoRedoManager.UndoList.Any());
+            RedoCommand = new RelayCommand<object>(x => UndoRedoManager.Redo(), x => UndoRedoManager.RedoList.Any());
             SaveCommand = new RelayCommand<object>(x => Save(this));
+            BuildCommand = new RelayCommand<bool>(x => BuildGameCodeDll(x), x => !VisualStudio.IsDebugging() && VisualStudio.IsBuildDone);
         }
     }
 }
