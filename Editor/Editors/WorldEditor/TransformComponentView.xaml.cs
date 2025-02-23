@@ -47,7 +47,7 @@ namespace Editor.Editors
         private Action? GetRotationAction() => GetAction((x) => (x, x.Rotation), (x) => x.transform.Rotation = x.Item2);
         private Action? GetScaleAction() => GetAction((x) => (x, x.Scale), (x) => x.transform.Scale = x.Item2);
 
-        private void RecordAction(Action? redoAction, string name)
+        private void RecordActions(Action? redoAction, string name)
         {
             if (!_propertyChanged)
             {
@@ -69,7 +69,7 @@ namespace Editor.Editors
 
         private void OnPositionVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
         {
-            RecordAction(GetPositionAction(), "PositionChanged");
+            RecordActions(GetPositionAction(), "PositionChanged");
         }
 
         private void OnRotationVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
@@ -80,7 +80,7 @@ namespace Editor.Editors
 
         private void OnRotationVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
         {
-            RecordAction(GetRotationAction(), "RotationChanged");
+            RecordActions(GetRotationAction(), "RotationChanged");
         }
 
         private void OnScaleVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
@@ -91,7 +91,7 @@ namespace Editor.Editors
 
         private void OnScaleVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
         {
-            RecordAction(GetScaleAction(), "ScaleChanged");
+            RecordActions(GetScaleAction(), "ScaleChanged");
         }
 
         private void OnPositionVector_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)

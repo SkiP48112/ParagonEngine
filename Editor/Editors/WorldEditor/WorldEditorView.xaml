@@ -30,6 +30,7 @@
             Key="S"
             Command="{Binding SaveCommand}"
             Modifiers="Ctrl" />
+        <KeyBinding Key="F7" Command="{Binding BuildCommand}" />
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -45,7 +46,8 @@
             <Button
                 Margin="8,0,0,0"
                 Click="OnCreateScriptButton_Click"
-                Content="Create Script" />
+                Content="Create Script" 
+                IsEnabled="{Binding Path=IsEnabled, ElementName=buildButton}"/>
             <Button
                 x:Name="buildButton"
                 Margin="8,0,0,0"

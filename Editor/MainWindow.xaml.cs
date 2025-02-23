@@ -7,7 +7,7 @@ namespace Editor
 {
     public partial class MainWindow : Window
     {
-        public static string ParagonPath { get; set; } = @"F:\ParagonEngine\";
+        public static string ParagonPath { get; set; } = string.Empty;
 
         public MainWindow()
         {
