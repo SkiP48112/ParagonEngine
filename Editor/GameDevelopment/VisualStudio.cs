@@ -194,7 +194,7 @@ namespace Editor.GameDevelopment
             IsBuildSucceeded = false;
             IsBuildDone = false;
 
-            for(int i = 0; i < 3; ++i)
+            for(int i = 0; i < 3 && !IsBuildDone; ++i)
             {
                 try
                 {

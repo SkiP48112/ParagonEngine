@@ -1,4 +1,5 @@
-﻿using Editor.DLLWrapper;
+﻿using Editor.Components;
+using Editor.DLLWrapper;
 using Editor.GameDevelopment;
 using Editor.Utilities;
 using System.Collections.ObjectModel;
@@ -107,6 +108,7 @@ namespace Editor.GameProject
 
         public void Unload()
         {
+            UnloadGameCodeDll();
             VisualStudio.CloseVisualStudio();
             UndoRedoManager.Reset();
         }
@@ -186,6 +188,7 @@ namespace Editor.GameProject
             if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
             {
                 AvailableScripts = EngineAPI.GetScriptNames();
+                ActiveScene!.GameEntities!.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = true);
                 Logger.Log(MessageType.Info, "Game code DLL loaded successfully.");
                 return;
             }
@@ -195,6 +198,7 @@ namespace Editor.GameProject
 
         private void UnloadGameCodeDll()
         {
+            ActiveScene!.GameEntities!.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = false);
             if (EngineAPI.UnloadGameCodeDll() != 0)
             {
                 AvailableScripts = null;
@@ -232,6 +236,7 @@ namespace Editor.GameProject
 
             Debug.Assert(Scenes != null);
             ActiveScene = Scenes.FirstOrDefault(x => x.IsActive);
+            Debug.Assert(ActiveScene != null);
 
             await BuildGameCodeDll(false);
             SetCommands();

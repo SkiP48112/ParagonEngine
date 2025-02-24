@@ -3,6 +3,7 @@
 #include "id.h"
 #include "..\Engine\game_entities\ge_entity.h"
 #include "..\Engine\game_entities\ge_transform.h"
+#include "..\Engine\game_entities\ge_script.h"
 
 
 namespace
@@ -33,9 +34,23 @@ namespace
 	};
 
 
+	struct apiSCRIPT_COMPONENT
+	{
+		geSCRIPT_CREATOR scriptCreator;
+
+		geSCRIPT_INIT_INFO ToInitInfo()
+		{
+			geSCRIPT_INIT_INFO info;
+			info.scriptCreator = scriptCreator;
+			return info;
+		}
+	};
+
+
 	struct apiGAME_ENTITY_DESC
 	{
 		apiTRANSFORM_COMPONENT transform;
+		apiSCRIPT_COMPONENT script;
 	};
 
 
@@ -53,7 +68,13 @@ idID_TYPE CreateGameEntity(apiGAME_ENTITY_DESC* pDesc)
 	apiGAME_ENTITY_DESC& desc{ *pDesc };
 
 	geTRANSFORM_INIT_INFO transformInfo{ desc.transform.ToInitInfo() };
-	geENTITY_INFO entityInfo{ &transformInfo };
+	geSCRIPT_INIT_INFO scriptInfo{ desc.script.ToInitInfo() };
+
+	geENTITY_INFO entityInfo
+	{ 
+		&transformInfo,
+		&scriptInfo
+	};
 
 	return geCreateGameEntity(entityInfo).GetID();
 }

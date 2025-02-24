@@ -1,5 +1,7 @@
 ﻿using Editor.Components;
 using Editor.EngineAPIStructs;
+using Editor.GameProject;
+using Editor.Utilities;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -67,9 +69,21 @@ namespace Editor.DLLWrapper
 
                 //script
                 {
-                    //var c = entity.GetComponent<Script>();
+                    // NOTE: here we also check if currnt project is not null, so we can tell whether the game code dll
+                    //       has been loaded or not.
+                    var scriptComponent = entity.GetComponent<Script>();
+                    if(scriptComponent != null && Project.CurrentGameProject != null)
+                    {
+                        if (Project.CurrentGameProject.AvailableScripts!.Contains(scriptComponent.Name))
+                        {
+                            desc.Script.ScriptCreator = GetScriptCreator(scriptComponent.Name!);
+                        }
+                        else
+                        {
+                            Logger.Log(MessageType.Error, $"Unable to find script with name {scriptComponent.Name}. Game entity will be created without script component.");
+                        }
+                    }
                 }
-
 
                 return CreateGameEntity(desc);
             }
