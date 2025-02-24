@@ -9,6 +9,7 @@ namespace Editor.Components
 {
     [DataContract]
     [KnownType(typeof(Transform))]
+    [KnownType(typeof(Script))]
     class GameEntity : ViewModelBase
     {
         private int _entityId = ID.INVALID_ID;
@@ -36,12 +37,12 @@ namespace Editor.Components
                     _isActive = value;
                     if (_isActive)
                     {
-                        EntityId = EngineAPI.CreateGameEntity(this);
+                        EntityId = EngineAPI.EntityAPI.CreateGameEntity(this);
                         Debug.Assert(ID.IsValid(EntityId));
                     }
                     else if(ID.IsValid(EntityId))
                     {
-                        EngineAPI.RemoveGameEntity(this);
+                        EngineAPI.EntityAPI.RemoveGameEntity(this);
                         EntityId = ID.INVALID_ID;
                     }
 
@@ -98,6 +99,43 @@ namespace Editor.Components
 
         public Component? GetComponent(Type type) => Components?.FirstOrDefault(x => x.GetType() == type);
         public T? GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
+
+        public bool AddComponent(Component component)
+        {
+            Debug.Assert(component != null);
+            if(_components.Any(x => x.GetType() == component.GetType()))
+            {
+                Logger.Log(MessageType.Warning, $"Entity {Name} already has a component of type {component.GetType().Name}");
+                return false;
+            }
+
+
+            IsActive = false;
+            _components.Add(component);
+            IsActive = true;
+
+            return true;
+        }
+
+        public void RemoveComponent(Component component)
+        {
+            Debug.Assert(component != null);
+            if(component is Transform)
+            {
+                Logger.Log(MessageType.Warning, $"Can't remove transform component from {Name}.");
+                return;
+            }
+
+            if (!_components.Contains(component))
+            {
+                Logger.Log(MessageType.Warning, $"{Name} doesn't contains {component.GetType().Name} component.");
+                return;
+            }
+
+            IsActive = false;
+            _components.Remove(component);
+            IsActive = true;
+        }
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)

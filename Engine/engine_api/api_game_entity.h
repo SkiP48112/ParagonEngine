@@ -67,20 +67,42 @@ using dsSTRING_HASH = std::hash<std::string>;
 
 U8 apiRegisterScript(size_t, geSCRIPT_CREATOR);
 
+#ifdef USE_WITH_EDITOR
+extern "C" __declspec(dllexport)
+#endif
+geSCRIPT_CREATOR apiGetScriptCreator(size_t tag);
+
 
 template<class geSCRIPT_CLASS>
 geSCRIPT_PTR apiCreateScript(geENTITY entity)
 {
 	assert(entity.IsValid());
 	return std::make_unique<geSCRIPT_CLASS>(entity);
-
 }
 
+#ifdef USE_WITH_EDITOR
+U8 apiAddScriptName(const char* name);
 
-#define REGISTER_SCRIPT(TYPE)										\
-		class TYPE;													\
-		namespace {													\
-		const U8 _reg##TYPE											\
-		{ apiRegisterScript( dsSTRING_HASH()(#TYPE),				\
-			&apiCreateScript<TYPE>) };								\
+#define REGISTER_SCRIPT(TYPE)															\
+		namespace																		\
+		{																				\
+			const U8 _reg_##TYPE														\
+			{																			\
+				apiRegisterScript( dsSTRING_HASH()(#TYPE), &apiCreateScript<TYPE>)		\
+			};																			\
+			const U8 _name_##TYPE														\
+			{																			\
+				apiAddScriptName(#TYPE)												\
+			};																			\
 		}
+
+#else
+#define REGISTER_SCRIPT(TYPE)															\
+		namespace																		\
+		{																				\
+			const U8 _reg_##TYPE														\
+			{																			\
+				apiRegisterScript( dsSTRING_HASH()(#TYPE), &apiCreateScript<TYPE>)		\
+			};																			\
+		}
+#endif

@@ -8,7 +8,6 @@ namespace
 	dsVECTOR<geTRANSFORM_COMPONENT> transforms;
 	dsVECTOR<geSCRIPT_COMPONENT> scripts;
 
-
 	dsVECTOR<idGENERATION_TYPE> generations;
 	dsDEQUE<geENTITY_ID> freeIds;
 }
@@ -41,6 +40,7 @@ geENTITY geCreateGameEntity(geENTITY_INFO info)
 		// Resize components
 		// NOTE: Don't want to use resize(), so the number of memory allocations stays low
 		transforms.emplace_back();
+		scripts.emplace_back();
 	}
 
 	const geENTITY newEntity{ id };
@@ -69,8 +69,14 @@ geENTITY geCreateGameEntity(geENTITY_INFO info)
 void geRemoveGameEntity(geENTITY_ID id)
 {
 	const idID_TYPE index{ idGetIndex(id) };
-
 	assert(geIsAlive(id));
+
+	if (scripts[index].IsValid())
+	{
+		geRemoveScript(scripts[index]);
+		scripts[index] = {};
+	}
+
 	geRemoveTrasnform(transforms[index]);
 	transforms[index] = {};
 

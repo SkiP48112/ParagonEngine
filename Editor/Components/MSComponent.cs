@@ -10,7 +10,7 @@ namespace Editor.Components
         public MSComponent(MSEntity msEntity)
         {
             Debug.Assert(msEntity.SelectedEntities.Any() == true);
-            SelectedComponents = msEntity.SelectedEntities.Select(entity => entity.GetComponent<T>()).ToList();
+            SelectedComponents = msEntity.SelectedEntities.Select(entity => entity.GetComponent<T>()).ToList()!;
             PropertyChanged += (s, e) =>
             {
                 if (_enableUpdates)

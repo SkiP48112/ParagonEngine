@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Editor.GameDevelopment;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Editor.Editors
@@ -16,6 +17,11 @@ namespace Editor.Editors
         {
             Loaded -= HandleOnWorldEditorViewLoaded;
             Focus();
+        }
+
+        private void OnCreateScriptButton_Click(object sender, RoutedEventArgs e)
+        {
+            new CreateScriptDialog().ShowDialog();
         }
     }
 }

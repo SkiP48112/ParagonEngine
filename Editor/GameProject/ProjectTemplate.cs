@@ -14,5 +14,6 @@ namespace Editor.GameProject
         public string? IconPath { get; set; }
         public string? ScreenshotPath { get; set; }
         public string? ProjectPath { get; set; }
+        public string? TemplatePath { get; set; }
     }
 }

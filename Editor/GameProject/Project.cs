@@ -1,4 +1,7 @@
-﻿using Editor.Utilities;
+﻿using Editor.Components;
+using Editor.DLLWrapper;
+using Editor.GameDevelopment;
+using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -14,15 +17,51 @@ namespace Editor.GameProject
         [DataMember] public string Name { get; private set; } = ProjectConsts.DEFAULT_PROJECT_NAME;
         [DataMember] public string Path { get; private set; }
 
-        public string FullPath => $@"{Path}{Name}\{Name}{ProjectConsts.PROJECT_EXTENSION}";
+        public string FullPath => $@"{Path}{Name}{ProjectConsts.PROJECT_EXTENSION}";
+        public string Solution => $@"{Path}{Name}.sln";
         public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
+
+        private static readonly string[] _buildConfigurationNames = { "Debug", "Release", "DebugEditor", "ReleaseEditor" };
 
         public ICommand? AddSceneCommand { get; private set; }
         public ICommand? RemoveSceneCommand { get; private set; }
         public ICommand? UndoCommand { get; private set; }
         public ICommand? RedoCommand { get; private set; }
         public ICommand? SaveCommand { get; private set; }
+        public ICommand? BuildCommand { get; private set; }
+
+        public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
+        public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
+
+        private int _buildConfig;
+        [DataMember]
+        public int BuildConfig
+        {
+            get => _buildConfig;
+            set
+            {
+                if(_buildConfig != value)
+                {
+                    _buildConfig = value;
+                    OnPropertyChanged(nameof(BuildConfig));
+                }
+            }
+        }
+
+        private string[]? _availableScripts;
+        public string[]? AvailableScripts
+        {
+            get => _availableScripts;
+            set
+            {
+                if(_availableScripts != value)
+                {
+                    _availableScripts = value;
+                    OnPropertyChanged(nameof(AvailableScripts));
+                }
+            }
+        }
 
         private Scene? _activeScene;
         public Scene? ActiveScene
@@ -69,6 +108,8 @@ namespace Editor.GameProject
 
         public void Unload()
         {
+            UnloadGameCodeDll();
+            VisualStudio.CloseVisualStudio();
             UndoRedoManager.Reset();
         }
 
@@ -76,6 +117,11 @@ namespace Editor.GameProject
         {
             Serializer.ToFile(project, project.FullPath);
             Logger.Log(MessageType.Info, $"Project saved to {project.FullPath}");
+        }
+
+        private static string GetBuildConfigurationName(BuildConfiguration configuration)
+        {
+            return _buildConfigurationNames[(int)configuration];
         }
 
         private void AddScene(string name)
@@ -113,8 +159,74 @@ namespace Editor.GameProject
             }, x => !x.IsActive);
         }
 
+        private async Task BuildGameCodeDll(bool showWindow = true)
+        {
+            try
+            {
+                UnloadGameCodeDll();
+                await Task.Run(() => VisualStudio.BuildSolution(this, GetBuildConfigurationName(DllBuildConfig), showWindow));
+                if (VisualStudio.IsBuildSucceeded)
+                {
+                    LoadGameCodeDll();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Logger.Log(MessageType.Error, "Failed to build game code dll.");
+                throw;
+            }
+            
+        }
+
+        private void LoadGameCodeDll()
+        {
+            var configName = GetBuildConfigurationName(DllBuildConfig);
+            var dll = $@"{Path}x64\{configName}\{Name}.dll";
+
+            AvailableScripts = null;
+            if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
+            {
+                AvailableScripts = EngineAPI.GetScriptNames();
+                ActiveScene!.GameEntities!.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = true);
+                Logger.Log(MessageType.Info, "Game code DLL loaded successfully.");
+                return;
+            }
+
+            Logger.Log(MessageType.Warning, "Failed to load game code DLL file. Try to build the project first.");
+        }
+
+        private void UnloadGameCodeDll()
+        {
+            ActiveScene!.GameEntities!.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = false);
+            if (EngineAPI.UnloadGameCodeDll() != 0)
+            {
+                AvailableScripts = null;
+                Logger.Log(MessageType.Info, "Game code DLL unloaded successfully.");
+            }
+        }
+
+        private void SetCommands()
+        {
+            AddSceneCommand = GetAddSceneCommand();
+            RemoveSceneCommand = GetRemoveSceneCommand();
+
+            UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo(), x => UndoRedoManager.UndoList.Any());
+            RedoCommand = new RelayCommand<object>(x => UndoRedoManager.Redo(), x => UndoRedoManager.RedoList.Any());
+            SaveCommand = new RelayCommand<object>(x => Save(this));
+            BuildCommand = new RelayCommand<bool>(async x => await BuildGameCodeDll(x), x => !VisualStudio.IsDebugging() && VisualStudio.IsBuildDone);
+
+            OnPropertyChanged(nameof(AddSceneCommand));
+            OnPropertyChanged(nameof(RemoveSceneCommand));
+
+            OnPropertyChanged(nameof(UndoCommand));
+            OnPropertyChanged(nameof(RedoCommand));
+            OnPropertyChanged(nameof(SaveCommand));
+            OnPropertyChanged(nameof(BuildCommand));
+        }
+
         [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
+        private async void OnDeserialized(StreamingContext context)
         {
             if (_scenes != null)
             {
@@ -124,13 +236,10 @@ namespace Editor.GameProject
 
             Debug.Assert(Scenes != null);
             ActiveScene = Scenes.FirstOrDefault(x => x.IsActive);
+            Debug.Assert(ActiveScene != null);
 
-            AddSceneCommand = GetAddSceneCommand();
-            RemoveSceneCommand = GetRemoveSceneCommand();
-
-            UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo());
-            RedoCommand = new RelayCommand<object>(x => UndoRedoManager.Redo());
-            SaveCommand = new RelayCommand<object>(x => Save(this));
+            await BuildGameCodeDll(false);
+            SetCommands();
         }
     }
 }

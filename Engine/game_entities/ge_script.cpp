@@ -11,16 +11,29 @@ namespace
 	dsVECTOR<geSCRIPT_ID> freeIds;
 
 	// We need to create out own implementation of unordered_map
-	using dsSCRIPT_REGISTERY = std::unordered_map<size_t, geSCRIPT_CREATOR>;
-	dsSCRIPT_REGISTERY& Registery() 
+	using dsSCRIPT_REGISTRY = std::unordered_map<size_t, geSCRIPT_CREATOR>;
+	dsSCRIPT_REGISTRY& Registry() 
 	{
 		// NOTE: we put static variable in a function because of
 		//		the initializetion order in static data. This way, we can
 		//		be certain that the data is initialized before accessing it.
 
-		static dsSCRIPT_REGISTERY registery;
-		return registery;
+		static dsSCRIPT_REGISTRY registry;
+		return registry;
 	}
+
+
+	#ifdef USE_WITH_EDITOR
+		dsVECTOR<std::string>& ScriptNames()
+		{
+			// NOTE: we put static variable in a function because of
+			//		the initializetion order in static data. This way, we can
+			//		be certain that the data is initialized before accessing it.
+
+			static dsVECTOR<std::string> names;
+			return names;
+		}
+	#endif
 
 
 	bool geIsScriptExists(geSCRIPT_ID id)
@@ -40,11 +53,29 @@ namespace
 
 U8 apiRegisterScript(size_t tag, geSCRIPT_CREATOR func)
 {
-	bool result{ Registery().insert(dsSCRIPT_REGISTERY::value_type(tag, func)).second };
+	bool result{ Registry().insert(dsSCRIPT_REGISTRY::value_type(tag, func)).second };
 	assert(result);
 
 	return result;
 }
+
+
+geSCRIPT_CREATOR apiGetScriptCreator(size_t tag)
+{
+	auto script = Registry().find(tag);
+	assert(script != Registry().end() && script->first == tag);
+
+	return script->second;
+}
+
+
+#ifdef USE_WITH_EDITOR
+	U8 apiAddScriptName(const char* name)
+	{
+		ScriptNames().emplace_back(name);
+		return true;
+	}
+#endif
 
 
 geSCRIPT_COMPONENT geCreateScript(geSCRIPT_INIT_INFO info, geENTITY entity)
@@ -69,10 +100,10 @@ geSCRIPT_COMPONENT geCreateScript(geSCRIPT_INIT_INFO info, geENTITY entity)
 	}
 
 	assert(idIsValid(id));
+	const idID_TYPE index{ (idID_TYPE)entityScripts.size() };
 	entityScripts.emplace_back(info.scriptCreator(entity));
 	assert(entityScripts.back()->GetID() == entity.GetID());
-
-	const idID_TYPE index{ (idID_TYPE)entityScripts.size() };
+	
 	idMapping[idGetIndex(id)] = index;
 
 	return geSCRIPT_COMPONENT{ id };
@@ -92,3 +123,23 @@ void geRemoveScript(geSCRIPT_COMPONENT component)
 	idMapping[idGetIndex(lastId)] = index;
 	idMapping[idGetIndex(id)] = ID_INVALID_ID;
 }
+
+
+#ifdef USE_WITH_EDITOR
+	#include <atlsafe.h>
+
+	extern "C" __declspec(dllexport)
+	LPSAFEARRAY apiGetScriptNames()
+	{
+		const U32 size{ (U32)ScriptNames().size() };
+		CComSafeArray<BSTR> names(size);
+
+		for (int i = 0; i < size; i++)
+		{
+			names.SetAt(i, A2BSTR_EX(ScriptNames()[i].c_str()), false);
+		}
+
+		return names.Detach();
+	}
+
+#endif

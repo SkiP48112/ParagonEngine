@@ -6,13 +6,47 @@
     xmlns:local="clr-namespace:Editor.Editors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Editor.Components"
+    d:DataContext="{d:DesignInstance Type=vm:MSGameEntity,
+                                     IsDesignTimeCreatable=True}"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    Background="{StaticResource Editor.Window.GrayBrush3}"
     mc:Ignorable="d">
     <UserControl.Resources>
+        <local:NullableBoolToBoolConverter x:Key="nullableBoolToBoolConverter" />
+
         <DataTemplate DataType="{x:Type vm:MSCTransform}">
             <local:TransformComponentView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MSCScript}">
+            <local:ScriptComponentView />
+        </DataTemplate>
+
+        <ContextMenu x:Key="addComponentMenu" IsOpen="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ToggleButton}}}">
+            <MenuItem Header="Geometry" />
+            <MenuItem Header="Physics">
+                <MenuItem Header="Rigidbody" />
+            </MenuItem>
+            <MenuItem Header="Script" ItemsSource="{Binding SelectedEntities[0].ParentScene.Project.AvailableScripts}">
+                <MenuItem.Style>
+                    <Style TargetType="{x:Type MenuItem}">
+                        <Setter Property="Padding" Value="5,3,2,3" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedEntities[0].ParentScene.Project.AvailableScripts}" Value="{x:Null}">
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Style>
+                <MenuItem.ItemContainerStyle>
+                    <Style TargetType="{x:Type MenuItem}">
+                        <Setter Property="Padding" Value="5,3,2,3" />
+                        <Setter Property="Header" Value="{Binding}" />
+                        <EventSetter Event="Click" Handler="OnAddScriptComponent" />
+                    </Style>
+                </MenuItem.ItemContainerStyle>
+            </MenuItem>
+        </ContextMenu>
     </UserControl.Resources>
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -25,13 +59,17 @@
                 </Style.Triggers>
             </Style>
         </ScrollViewer.Style>
-        <StackPanel>
-            <Border Height="32">
+        <StackPanel VerticalAlignment="Top" Background="{StaticResource Editor.Window.GrayBrush4}">
+            <Border Height="32" Background="{StaticResource Editor.Window.GrayBrush3}">
                 <ToggleButton
                     x:Name="addComponent"
                     Margin="5,0,0,0"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Center"
+                    ClickMode="Press"
+                    Focusable="False"
+                    IsEnabled="{Binding IsEnabled, Converter={StaticResource nullableBoolToBoolConverter}}"
+                    PreviewMouseLeftButtonDown="OnAddComponentButton_PreviewBouseLeftButtonDown">
                     <ToggleButton.Content>
                         <DockPanel>
                             <TextBlock Margin="5,0,0,0" Text="Add Component" />
@@ -45,7 +83,11 @@
                     </ToggleButton.Content>
                 </ToggleButton>
             </Border>
-            <Grid>
+            <Grid
+                Height="32"
+                Margin="0,1"
+                Background="{StaticResource Editor.Window.GrayBrush3}"
+                SnapsToDevicePixels="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="78" />
                     <ColumnDefinition />
@@ -54,14 +96,19 @@
                 <TextBlock
                     Grid.Column="0"
                     Margin="5,0,0,0"
+                    Style="{StaticResource LightTextBlockStyle}"
                     Text="Name" />
                 <TextBox
                     Grid.Column="1"
                     GotKeyboardFocus="OnNameTextBox_GotKeyboardFocus"
+                    IsEnabled="{Binding IsEnabled, Converter={StaticResource nullableBoolToBoolConverter}}"
                     LostKeyboardFocus="OnNameTextBox_LostKeyboardFocus"
                     Text="{Binding Name}" />
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <TextBlock Margin="5,0,0,0" Text="Enabled" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        Style="{StaticResource LightTextBlockStyle}"
+                        Text="Enabled" />
                     <CheckBox
                         Margin="5,0,0,0"
                         VerticalAlignment="Center"
@@ -69,7 +116,11 @@
                         IsChecked="{Binding IsEnabled, Mode=OneWay}" />
                 </StackPanel>
             </Grid>
-            <ItemsControl ItemsSource="{Binding Components}">
+            <ItemsControl
+                IsEnabled="{Binding IsEnabled, Converter={StaticResource nullableBoolToBoolConverter}}"
+                IsTabStop="False"
+                ItemsSource="{Binding Components}"
+                SnapsToDevicePixels="True">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel />

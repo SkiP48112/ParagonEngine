@@ -53,10 +53,11 @@
     <Grid>
         <ScrollViewer
             x:Name="scrollViewer"
+            Margin="0,32,0,0"
             Background="{StaticResource Editor.Window.GrayBrush2}"
             HorizontalScrollBarVisibility="Auto"
             VerticalScrollBarVisibility="Auto" />
-        <ItemsControl ItemsSource="{Binding Source={x:Static local:Logger.FilteredMessages}}">
+        <ItemsControl Margin="0,32,0,0" ItemsSource="{Binding Source={x:Static local:Logger.FilteredMessages}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel />

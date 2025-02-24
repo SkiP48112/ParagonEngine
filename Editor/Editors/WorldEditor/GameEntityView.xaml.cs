@@ -1,10 +1,26 @@
 ﻿using Editor.Components;
+using Editor.GameProject;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows.Controls;
-
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 
 namespace Editor.Editors
 {
+    public class NullableBoolToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool b && b == true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool b && b == true;
+        }
+    }
+
     public partial class GameEntityView : UserControl
     {
         private Action? _undoAction;
@@ -81,6 +97,63 @@ namespace Editor.Editors
 
             var redoAction = GetIsEnabledAction();
             GameProject.Project.AddNewUndoRedoAction(viewModel.IsEnabled == true ? "Enable game entity" : "Disable game entity", undoAction, redoAction);
+        }
+
+        private void OnAddComponentButton_PreviewBouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var menu = FindResource("addComponentMenu") as ContextMenu;
+            Debug.Assert(menu != null);
+
+            var button = sender as ToggleButton;
+            Debug.Assert(button != null);
+
+            button.IsChecked = true;
+
+            menu.Placement = PlacementMode.Bottom;
+            menu.PlacementTarget = button;
+            menu.MinWidth = button.ActualWidth;
+            menu.IsOpen = true;
+        }
+
+        private void OnAddScriptComponent(object sender, System.Windows.RoutedEventArgs e)
+        {
+            AddComponent(ComponentType.Script, ((MenuItem)sender).Header.ToString()!);
+        }
+
+        private void AddComponent(ComponentType type, object data)
+        {
+            var creationFunction = ComponentFactory.GetCreationFunction(type);
+            var changedEntities = new List<(GameEntity entity, Component component)>();
+            var viewModel = (MSEntity)DataContext;
+
+            foreach(var entity in viewModel.SelectedEntities)
+            {
+                var component = creationFunction(entity, data);
+                if (entity.AddComponent(component))
+                {
+                    changedEntities.Add((entity, component));
+                }
+            }
+
+            if (changedEntities.Any())
+            {
+                viewModel.Refresh();
+
+                Project.AddNewUndoRedoAction
+                (
+                    $"Add {type} component",
+                    () =>
+                    {
+                        changedEntities.ForEach(x => x.entity.RemoveComponent(x.component));
+                        ((MSEntity)DataContext).Refresh();
+                    },
+                    () =>
+                    {
+                        changedEntities.ForEach(x => x.entity.AddComponent(x.component));
+                        ((MSEntity)DataContext).Refresh();
+                    }
+                );
+            }
         }
     }
 }

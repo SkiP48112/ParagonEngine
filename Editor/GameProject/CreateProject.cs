@@ -99,7 +99,7 @@ namespace Editor.GameProject
                     template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
 
                     template.ProjectPath = Path.GetFullPath(Path.Combine(fileDirectoryPath, template.File));
-                    template.Screenshot = File.ReadAllBytes(template.ScreenshotPath);
+                    template.TemplatePath = fileDirectoryPath;
 
                     _projectTemplates.Add(template);
                 }
@@ -158,11 +158,13 @@ namespace Editor.GameProject
 
                 Debug.Assert(template.ProjectPath != null, $"Project Path can't be null in project template {template.Type}");
                 var projectXml = File.ReadAllText(template.ProjectPath);
-                projectXml = string.Format(projectXml, ProjectName, ProjectPath);
+                projectXml = string.Format(projectXml, ProjectName, path);
                 
                 var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{ProjectConsts.PROJECT_EXTENSION}"));
                 
                 File.WriteAllText(projectPath, projectXml);
+
+                CreateMSVCSolution(template, path);
 
                 return path;
             }
@@ -172,6 +174,30 @@ namespace Editor.GameProject
                 Logger.Log(MessageType.Error, $"Failed to create {ProjectName}");
                 throw;
             }
+        }
+
+        private void CreateMSVCSolution(ProjectTemplate template, string path)
+        {
+            Debug.Assert(template.TemplatePath != null);
+            Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCSolution")));
+            Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCProject")));
+
+            var engineAPIPath = Path.Combine(MainWindow.ParagonPath, @"Engine\engine_api\");
+            Debug.Assert(Directory.Exists(engineAPIPath));
+
+            var projectNameParam = ProjectName;
+            var projectGuidParam = "{" + Guid.NewGuid().ToString().ToUpper() + "}";
+            var solutionGuidParam = "{" + Guid.NewGuid().ToString().ToUpper() + "}";
+            var includePathParam = engineAPIPath;
+            var librariesPathParam = MainWindow.ParagonPath;
+
+            var solution = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCSolution"));
+            solution = string.Format(solution, projectNameParam, projectGuidParam, solutionGuidParam);
+            File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"{projectNameParam}.sln")), solution);
+
+            var project = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
+            project = string.Format(project, projectNameParam, projectGuidParam, includePathParam, librariesPathParam);
+            File.WriteAllText(Path.GetFullPath(Path.Combine(path, $@"GameCode\{projectNameParam}.vcxproj")), project);
         }
 
         private bool ValidateProjectPath()
