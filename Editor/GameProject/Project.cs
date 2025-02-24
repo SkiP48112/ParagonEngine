@@ -30,6 +30,9 @@ namespace Editor.GameProject
         public ICommand? SaveCommand { get; private set; }
         public ICommand? BuildCommand { get; private set; }
 
+        public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
+        public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
+
         private int _buildConfig;
         [DataMember]
         public int BuildConfig
@@ -45,8 +48,19 @@ namespace Editor.GameProject
             }
         }
 
-        public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
-        public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
+        private string[]? _availableScripts;
+        public string[]? AvailableScripts
+        {
+            get => _availableScripts;
+            set
+            {
+                if(_availableScripts != value)
+                {
+                    _availableScripts = value;
+                    OnPropertyChanged(nameof(AvailableScripts));
+                }
+            }
+        }
 
         private Scene? _activeScene;
         public Scene? ActiveScene
@@ -167,8 +181,11 @@ namespace Editor.GameProject
         {
             var configName = GetBuildConfigurationName(DllBuildConfig);
             var dll = $@"{Path}x64\{configName}\{Name}.dll";
+
+            AvailableScripts = null;
             if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
             {
+                AvailableScripts = EngineAPI.GetScriptNames();
                 Logger.Log(MessageType.Info, "Game code DLL loaded successfully.");
                 return;
             }
@@ -180,6 +197,7 @@ namespace Editor.GameProject
         {
             if (EngineAPI.UnloadGameCodeDll() != 0)
             {
+                AvailableScripts = null;
                 Logger.Log(MessageType.Info, "Game code DLL unloaded successfully.");
             }
         }

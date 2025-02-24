@@ -23,6 +23,19 @@ namespace
 	}
 
 
+	#ifdef USE_WITH_EDITOR
+		dsVECTOR<std::string>& ScriptNames()
+		{
+			// NOTE: we put static variable in a function because of
+			//		the initializetion order in static data. This way, we can
+			//		be certain that the data is initialized before accessing it.
+
+			static dsVECTOR<std::string> names;
+			return names;
+		}
+	#endif
+
+
 	bool geIsScriptExists(geSCRIPT_ID id)
 	{
 		assert(idIsValid(id));
@@ -45,6 +58,24 @@ U8 apiRegisterScript(size_t tag, geSCRIPT_CREATOR func)
 
 	return result;
 }
+
+
+geSCRIPT_CREATOR apiGetScriptCreator(size_t tag)
+{
+	auto script = Registry().find(tag);
+	assert(script != Registry().end() && script->first == tag);
+
+	return script->second;
+}
+
+
+#ifdef USE_WITH_EDITOR
+	U8 apiAddScriptName(const char* name)
+	{
+		ScriptNames().emplace_back(name);
+		return true;
+	}
+#endif
 
 
 geSCRIPT_COMPONENT geCreateScript(geSCRIPT_INIT_INFO info, geENTITY entity)
@@ -92,3 +123,23 @@ void geRemoveScript(geSCRIPT_COMPONENT component)
 	idMapping[idGetIndex(lastId)] = index;
 	idMapping[idGetIndex(id)] = ID_INVALID_ID;
 }
+
+
+#ifdef USE_WITH_EDITOR
+	#include <atlsafe.h>
+
+	extern "C" __declspec(dllexport)
+	LPSAFEARRAY apiGetScriptNames()
+	{
+		const U32 size{ (U32)ScriptNames().size() };
+		CComSafeArray<BSTR> names(size);
+
+		for (int i = 0; i < size; i++)
+		{
+			names.SetAt(i, A2BSTR_EX(ScriptNames()[i].c_str()), false);
+		}
+
+		return names.Detach();
+	}
+
+#endif

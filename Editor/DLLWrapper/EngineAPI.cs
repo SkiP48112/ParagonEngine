@@ -15,9 +15,16 @@ namespace Editor.EngineAPIStructs
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    class ScriptComponent
+    {
+        public IntPtr ScriptCreator;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     class GameEntityDesc
     {
         public TransformComponent Transform = new TransformComponent();
+        public ScriptComponent Script = new ScriptComponent();
     }
 }
 
@@ -32,6 +39,13 @@ namespace Editor.DLLWrapper
 
         [DllImport(_engineDll)]
         public static extern int UnloadGameCodeDll();
+
+        [DllImport(_engineDll)]
+        public static extern IntPtr GetScriptCreator(string name);
+
+        [DllImport(_engineDll)]
+        [return: MarshalAs(UnmanagedType.SafeArray)]
+        public static extern string[] GetScriptNames();
 
         internal static class EntityAPI
         {
@@ -50,6 +64,12 @@ namespace Editor.DLLWrapper
                     desc.Transform.Rotation = component.Rotation;
                     desc.Transform.Scale = component.Scale;
                 }
+
+                //script
+                {
+                    //var c = entity.GetComponent<Script>();
+                }
+
 
                 return CreateGameEntity(desc);
             }

@@ -1,6 +1,5 @@
 ﻿using Editor.Utilities;
 using System.Numerics;
-using System.Runtime.Serialization;
 
 namespace Editor.Components
 {

@@ -1,7 +1,9 @@
 #include "common.h"
 #include "app_common_headers.h"
+#include "..\Engine\engine_api\api_game_entity.h"
 
-#ifndef WIN32_MEAN_AND_LEAN
+
+#ifndef WIN32_
 	#define WIN32_MEAN_AND_LEAN
 #endif // !WIN32_MEAN_AND_LEAN
 
@@ -10,6 +12,12 @@
 namespace
 {
 	HMODULE gameCodeDll{ nullptr };
+
+	using geSCRIPT_CREATOR_PTR = geSCRIPT_CREATOR(*)(size_t);
+	geSCRIPT_CREATOR_PTR apiGetScriptCreatorPtr{ nullptr };
+
+	using LPSAFEARRAY_PTR = LPSAFEARRAY(*)(void);
+	LPSAFEARRAY_PTR apiGetScriptNamesPtr{ nullptr };
 }
 
 EDITOR_INTERFACE
@@ -23,7 +31,10 @@ U32 LoadGameCodeDll(const char* dllPath)
 	gameCodeDll = LoadLibraryA(dllPath);
 	assert(gameCodeDll);
 
-	return gameCodeDll ? TRUE : FALSE;
+	apiGetScriptNamesPtr = (LPSAFEARRAY_PTR)GetProcAddress(gameCodeDll, "apiGetScriptNames");
+	apiGetScriptCreatorPtr = (geSCRIPT_CREATOR_PTR)GetProcAddress(gameCodeDll, "apiGetScriptCreator");
+
+	return (gameCodeDll && apiGetScriptNamesPtr && apiGetScriptCreatorPtr) ? TRUE : FALSE;
 }
 
 EDITOR_INTERFACE
@@ -40,4 +51,18 @@ U32 UnloadGameCodeDll()
 
 	gameCodeDll = nullptr;
 	return TRUE;
+}
+
+
+EDITOR_INTERFACE
+geSCRIPT_CREATOR GetScriptCreator(const char* name)
+{
+	return (gameCodeDll && apiGetScriptCreatorPtr) ? apiGetScriptCreatorPtr(dsSTRING_HASH()(name)) : nullptr;
+}
+
+
+EDITOR_INTERFACE
+LPSAFEARRAY GetScriptNames()
+{
+	return (gameCodeDll && apiGetScriptNamesPtr) ? apiGetScriptNamesPtr() : nullptr;
 }

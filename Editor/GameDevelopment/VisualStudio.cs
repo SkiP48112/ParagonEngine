@@ -210,7 +210,7 @@ namespace Editor.GameDevelopment
 
                     try
                     {
-                        foreach (var pdbFile in Directory.GetFiles(Path.Combine($"{project.Path}", $@"x64\{buildConfiguration}", "*.pdb")))
+                        foreach (var pdbFile in Directory.GetFiles(Path.Combine($"{project.Path}", $@"x64\{buildConfiguration}"), "*.pdb"))
                         {
                             File.Delete(pdbFile);
                         }
@@ -222,15 +222,11 @@ namespace Editor.GameDevelopment
 
                     _vsInstance.Solution.SolutionBuild.SolutionConfigurations.Item(buildConfiguration).Activate();
                     _vsInstance.ExecuteCommand("Build.BuildSolution");
-
-                    return;
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message);
                     Debug.WriteLine($"Attempt {i}: failed to build {project.Name}");
-
-                    Logger.Log(MessageType.Error, $"Attempt {i}: faild to build {project.Name}");
                     Thread.Sleep(1000);
                 }
             }
