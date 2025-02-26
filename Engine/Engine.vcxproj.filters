@@ -24,6 +24,7 @@
     <ClCompile Include="game_entities\ge_entity.cpp" />
     <ClCompile Include="game_entities\ge_transform.cpp" />
     <ClCompile Include="game_entities\ge_script.cpp" />
-    <ClCompile Include="core\main.cpp" />
+    <ClCompile Include="core\core_main.cpp" />
+    <ClCompile Include="core\core_engine.cpp" />
   </ItemGroup>
 </Project>

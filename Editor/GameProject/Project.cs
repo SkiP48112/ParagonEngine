@@ -26,10 +26,15 @@ namespace Editor.GameProject
 
         public ICommand? AddSceneCommand { get; private set; }
         public ICommand? RemoveSceneCommand { get; private set; }
+
         public ICommand? UndoCommand { get; private set; }
         public ICommand? RedoCommand { get; private set; }
         public ICommand? SaveCommand { get; private set; }
+
         public ICommand? BuildCommand { get; private set; }
+        public ICommand? StartDebugCommand { get; private set; }
+        public ICommand? StartDebugWithoutDebuggingCommand { get; private set; }
+        public ICommand? StopDebugCommand { get; private set; }
 
         public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
         public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
@@ -159,6 +164,43 @@ namespace Editor.GameProject
             }, x => !x.IsActive);
         }
 
+        private void SaveToBinary()
+        {
+            var buildConfiguration = GetBuildConfigurationName(StandAloneBuildConfig);
+            var bin = $@"{Path}x64\{buildConfiguration}\game.bin";
+
+            using (var bw = new BinaryWriter(File.Open(bin, FileMode.Create, FileAccess.Write)))
+            {
+                bw.Write(ActiveScene!.GameEntities!.Count);
+                foreach(var entity in ActiveScene.GameEntities)
+                {
+                    bw.Write(0); // entity type {reserved for later updates}
+                    bw.Write(entity.Components!.Count);
+                    foreach (var component in entity.Components)
+                    {
+                        bw.Write((int)component.ToEnumType());
+                        component.WriteToBinary(bw);
+                    }
+                }
+            }
+        }
+
+        private async Task RunGame(bool isDebug)
+        {
+            var buildConfiguration = GetBuildConfigurationName(StandAloneBuildConfig);
+            await Task.Run(() => VisualStudio.BuildSolution(this, buildConfiguration, isDebug));
+            if (VisualStudio.IsBuildSucceeded)
+            {
+                SaveToBinary();
+                await Task.Run(() => VisualStudio.RunGame(this, buildConfiguration, isDebug));
+            }
+        }
+
+        private async Task StopGame()
+        {
+            await Task.Run(() => VisualStudio.StopGame());
+        }
+
         private async Task BuildGameCodeDll(bool showWindow = true)
         {
             try
@@ -214,7 +256,11 @@ namespace Editor.GameProject
             UndoCommand = new RelayCommand<object>(x => UndoRedoManager.Undo(), x => UndoRedoManager.UndoList.Any());
             RedoCommand = new RelayCommand<object>(x => UndoRedoManager.Redo(), x => UndoRedoManager.RedoList.Any());
             SaveCommand = new RelayCommand<object>(x => Save(this));
+
             BuildCommand = new RelayCommand<bool>(async x => await BuildGameCodeDll(x), x => !VisualStudio.IsDebugging() && VisualStudio.IsBuildDone);
+            StartDebugCommand = new RelayCommand<object>(async x => await RunGame(true), x => !VisualStudio.IsDebugging() && VisualStudio.IsBuildDone);
+            StartDebugWithoutDebuggingCommand = new RelayCommand<object>(async x => await RunGame(false), x => !VisualStudio.IsDebugging() && VisualStudio.IsBuildDone);
+            StopDebugCommand = new RelayCommand<object>(async x => await StopGame(), x => VisualStudio.IsDebugging());
 
             OnPropertyChanged(nameof(AddSceneCommand));
             OnPropertyChanged(nameof(RemoveSceneCommand));
@@ -222,7 +268,11 @@ namespace Editor.GameProject
             OnPropertyChanged(nameof(UndoCommand));
             OnPropertyChanged(nameof(RedoCommand));
             OnPropertyChanged(nameof(SaveCommand));
+
             OnPropertyChanged(nameof(BuildCommand));
+            OnPropertyChanged(nameof(StartDebugCommand));
+            OnPropertyChanged(nameof(StartDebugWithoutDebuggingCommand));
+            OnPropertyChanged(nameof(StopDebugCommand));
         }
 
         [OnDeserialized]
