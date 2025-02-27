@@ -19,6 +19,7 @@
     <ClInclude Include="data_structures\ds_deque.h" />
     <ClInclude Include="engine_api\api_script_component.h" />
     <ClInclude Include="game_entities\ge_script.h" />
+    <ClInclude Include="resources\res_content_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_entities\ge_entity.cpp" />
@@ -26,5 +27,6 @@
     <ClCompile Include="game_entities\ge_script.cpp" />
     <ClCompile Include="core\core_main.cpp" />
     <ClCompile Include="core\core_engine.cpp" />
+    <ClCompile Include="resources\res_content_loader.cpp" />
   </ItemGroup>
 </Project>
