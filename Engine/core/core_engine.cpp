@@ -1,17 +1,26 @@
+#ifndef SHIPPING
+
+#include <thread>
+#include "..\resources\res_content_loader.h"
+#include "..\game_entities\ge_script.h"
+
+
 bool coreInitialize()
 {
-	// TODO: Implements engine initialize logic
-	return true;
+	return resLoadGame();
 }
 
 
 void coreUpdate()
 {
-	// TODO: Implements engine update logic
+	geUpdateScripts(10.0f);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 
 void coreShutdown()
 {
-	// TODO: Implements engine shutdown logic
+	resUnloadGame();
 }
+
+#endif

@@ -1,4 +1,6 @@
 #include <fstream>
+#include <Windows.h>
+#include <filesystem>
 
 #include "res_content_loader.h"
 #include "..\game_entities\ge_entity.h"
@@ -88,6 +90,23 @@ namespace
 	}
 
 
+
+	bool SetDirectory()
+	{
+		wchar_t path[MAX_PATH];
+		const U32 length = GetModuleFileName(0, &path[0], MAX_PATH);
+		if (!length || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+		{
+			return false;
+		}
+
+		std::filesystem::path p(path);
+		SetCurrentDirectory(p.parent_path().wstring().c_str());
+
+		return true;
+	}
+
+
 	using resCOMPONENT_READER = bool(*)(const U8*&, geENTITY_INFO&);
 	resCOMPONENT_READER componentReaders[]
 	{
@@ -101,6 +120,11 @@ namespace
 
 bool resLoadGame()
 {
+	if (!SetDirectory())
+	{
+		return false;
+	}
+
 	std::ifstream gameStream("game.bin", std::ios::in | std::ios::binary);
 	dsVECTOR<U8> buffer(std::istreambuf_iterator<char>(gameStream), {});
 	assert(buffer.size());

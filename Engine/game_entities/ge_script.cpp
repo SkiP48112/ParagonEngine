@@ -124,6 +124,14 @@ void geRemoveScript(geSCRIPT_COMPONENT component)
 	idMapping[idGetIndex(id)] = ID_INVALID_ID;
 }
 
+void geUpdateScripts(float dt)
+{
+	for (auto& ptr : entityScripts)
+	{
+		ptr->Update(dt);
+	}
+}
+
 
 #ifdef USE_WITH_EDITOR
 	#include <atlsafe.h>
