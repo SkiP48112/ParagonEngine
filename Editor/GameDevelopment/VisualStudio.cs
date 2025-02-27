@@ -232,6 +232,32 @@ namespace Editor.GameDevelopment
             }
         }
 
+        public static void RunGame(Project project, string configName, bool isDebug)
+        {
+            if(CanRunGame())
+            {
+                _vsInstance!.ExecuteCommand(isDebug ? "Debug.Start" : "Debug.StartWithoutDebugging");
+            }
+        }
+
+        public static void StopGame()
+        {
+            if (CanStopGame())
+            {
+                _vsInstance!.ExecuteCommand("Debug.StopDebugging");
+            }
+        }
+
+        private static bool CanRunGame()
+        {
+            return _vsInstance != null && !IsDebugging() && IsBuildDone && IsBuildSucceeded;
+        }
+
+        private static bool CanStopGame()
+        {
+            return _vsInstance != null && IsDebugging();
+        }
+
         private static void OnBuildSolutionBegin(string project, string projectConfig, string platform, string solutionConfig)
         {
             _vsInstance!.Events.BuildEvents.OnBuildProjConfigBegin -= OnBuildSolutionBegin;

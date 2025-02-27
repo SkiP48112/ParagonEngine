@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using System.Runtime.Serialization;
 
 namespace Editor.Components
@@ -58,6 +59,21 @@ namespace Editor.Components
         public override IMSComponent GetMultiselectionComponent(MSEntity msEntity)
         {
             return new MSCTransform(msEntity);
+        }
+
+        public override void WriteToBinary(BinaryWriter bw)
+        {
+            bw.Write(_position.X);
+            bw.Write(_position.Y);
+            bw.Write(_position.Z);
+
+            bw.Write(_rotation.X);
+            bw.Write(_rotation.Y);
+            bw.Write(_rotation.Z);
+
+            bw.Write(_scale.X);
+            bw.Write(_scale.Y);
+            bw.Write(_scale.Z);
         }
     }
 }

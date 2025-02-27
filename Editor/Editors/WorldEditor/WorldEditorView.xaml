@@ -34,6 +34,16 @@
             Key="F7"
             Command="{Binding BuildCommand}"
             CommandParameter="{StaticResource True}" />
+        <KeyBinding Key="F5" Command="{Binding StartDebugCommand}" />
+        <KeyBinding
+            Key="F5"
+            Command="{Binding StartDebugWithoutDebuggingCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Key="F5"
+            Command="{Binding StopDebugCommand}"
+            Modifiers="Shift" />
+
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>

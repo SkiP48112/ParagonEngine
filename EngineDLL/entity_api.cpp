@@ -15,15 +15,15 @@ namespace
 			using namespace DirectX;
 			geTRANSFORM_INIT_INFO info;
 
-			memcpy(&info.position[0], &position[0], sizeof(F32) * _countof(position));
-			memcpy(&info.scale[0], &scale[0], sizeof(F32) * _countof(scale));
+			memcpy(&info.position[0], &position[0], sizeof(position));
+			memcpy(&info.scale[0], &scale[0], sizeof(scale));
 
 			XMFLOAT3A rot{ &rotation[0] };
 			XMVECTOR quat{ XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3A(&rot)) };
 
 			XMFLOAT4A rotQuat{};
 			XMStoreFloat4A(&rotQuat, quat);
-			memcpy(&info.rotation[0], &rotQuat.x, sizeof(F32) * _countof(info.rotation));
+			memcpy(&info.rotation[0], &rotQuat.x, sizeof(info.rotation));
 
 			return info;
 		}

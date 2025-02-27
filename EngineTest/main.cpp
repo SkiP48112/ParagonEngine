@@ -5,9 +5,9 @@
 
 
 #if TEST_ENTITY_AND_COMPONENTS
-#include "test_entity_and_components.h"
+	#include "test_entity_and_components.h"
 #else
-#error One of the test need to be enabled
+	#error One of the test need to be enabled
 #endif
 
 int main()
