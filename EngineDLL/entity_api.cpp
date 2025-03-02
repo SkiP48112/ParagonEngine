@@ -1,19 +1,19 @@
 #include "common.h"
 #include "app_common_headers.h"
-#include "id.h"
-#include "..\Engine\game_entities\ge_entity.h"
-#include "..\Engine\game_entities\ge_transform.h"
-#include "..\Engine\game_entities\ge_script.h"
+#include "app_id.h"
+#include "..\Engine\game_systems\gs_entity.h"
+#include "..\Engine\game_systems\gs_transform.h"
+#include "..\Engine\game_systems\gs_script.h"
 
 
 namespace
 {
 	struct apiTRANSFORM_COMPONENT
 	{
-		geTRANSFORM_INIT_INFO ToInitInfo()
+		gsTRANSFORM_INIT_INFO ToInitInfo()
 		{
 			using namespace DirectX;
-			geTRANSFORM_INIT_INFO info;
+			gsTRANSFORM_INIT_INFO info;
 
 			memcpy(&info.position[0], &position[0], sizeof(position));
 			memcpy(&info.scale[0], &scale[0], sizeof(scale));
@@ -36,11 +36,11 @@ namespace
 
 	struct apiSCRIPT_COMPONENT
 	{
-		geSCRIPT_CREATOR scriptCreator;
+		gsSCRIPT_CREATOR scriptCreator;
 
-		geSCRIPT_INIT_INFO ToInitInfo()
+		gsSCRIPT_INIT_INFO ToInitInfo()
 		{
-			geSCRIPT_INIT_INFO info;
+			gsSCRIPT_INIT_INFO info;
 			info.scriptCreator = scriptCreator;
 			return info;
 		}
@@ -54,9 +54,9 @@ namespace
 	};
 
 
-	geENTITY EntityFromID(idID_TYPE id)
+	gsENTITY EntityFromID(idID_TYPE id)
 	{
-		return geENTITY(geENTITY_ID{ id });
+		return gsENTITY(gsENTITY_ID{ id });
 	}
 }
 
@@ -67,16 +67,16 @@ idID_TYPE CreateGameEntity(apiGAME_ENTITY_DESC* pDesc)
 	assert(pDesc);
 	apiGAME_ENTITY_DESC& desc{ *pDesc };
 
-	geTRANSFORM_INIT_INFO transformInfo{ desc.transform.ToInitInfo() };
-	geSCRIPT_INIT_INFO scriptInfo{ desc.script.ToInitInfo() };
+	gsTRANSFORM_INIT_INFO transformInfo{ desc.transform.ToInitInfo() };
+	gsSCRIPT_INIT_INFO scriptInfo{ desc.script.ToInitInfo() };
 
-	geENTITY_INFO entityInfo
+	gsENTITY_INFO entityInfo
 	{ 
 		&transformInfo,
 		&scriptInfo
 	};
 
-	return geCreateGameEntity(entityInfo).GetID();
+	return gsCreateGameEntity(entityInfo).GetID();
 }
 
 
@@ -84,5 +84,5 @@ EDITOR_INTERFACE
 void RemoveGameEntity(idID_TYPE id)
 {
 	assert(idIsValid(id));
-	geRemoveGameEntity(geENTITY_ID{ id });
+	gsRemoveGameEntity(gsENTITY_ID{ id });
 }

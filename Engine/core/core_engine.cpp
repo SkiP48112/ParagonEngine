@@ -2,7 +2,7 @@
 
 #include <thread>
 #include "..\resources\res_content_loader.h"
-#include "..\game_entities\ge_script.h"
+#include "..\game_systems\gs_script.h"
 
 
 bool coreInitialize()
@@ -13,7 +13,7 @@ bool coreInitialize()
 
 void coreUpdate()
 {
-	geUpdateScripts(10.0f);
+	gsUpdateScripts(10.0f);
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 

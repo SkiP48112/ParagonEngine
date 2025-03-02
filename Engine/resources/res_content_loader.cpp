@@ -1,18 +1,17 @@
 #include <fstream>
 #include <Windows.h>
 #include <filesystem>
-
 #include "res_content_loader.h"
-#include "..\game_entities\ge_entity.h"
-#include "..\game_entities\ge_transform.h"
-#include "..\game_entities\ge_script.h"
+#include "..\game_systems\gs_entity.h"
+#include "..\game_systems\gs_transform.h"
+#include "..\game_systems\gs_script.h"
 
 
 #ifndef SHIPPING
 
 namespace
 {
-	enum geCOMPONENT_TYPE
+	enum gsCOMPONENT_TYPE
 	{
 		TRANSFORM,
 		SCRIPT,
@@ -21,9 +20,10 @@ namespace
 	};
 
 
-	dsVECTOR<geENTITY> entities;
-	geTRANSFORM_INIT_INFO transformInfo;
-	geSCRIPT_INIT_INFO scriptInfo;
+	dsVECTOR<gsENTITY> entities;
+	gsTRANSFORM_INIT_INFO transformInfo;
+	gsSCRIPT_INIT_INFO scriptInfo;
+
 
 	const U32 ReadFromBuffer(const U8*& pBufferData)
 	{
@@ -34,7 +34,7 @@ namespace
 	}
 
 
-	bool ReadTransform(const U8*& data, geENTITY_INFO& info)
+	bool ReadTransform(const U8*& data, gsENTITY_INFO& info)
 	{
 		using namespace DirectX;
 		F32 rotation[3];
@@ -62,7 +62,7 @@ namespace
 	}
 
 
-	bool ReadScript(const U8*& data, geENTITY_INFO& info)
+	bool ReadScript(const U8*& data, gsENTITY_INFO& info)
 	{
 		assert(!info.script);
 
@@ -107,14 +107,15 @@ namespace
 	}
 
 
-	using resCOMPONENT_READER = bool(*)(const U8*&, geENTITY_INFO&);
+	using resCOMPONENT_READER = bool(*)(const U8*&, gsENTITY_INFO&);
 	resCOMPONENT_READER componentReaders[]
 	{
 		ReadTransform,
 		ReadScript
 	};
 
-	static_assert(_countof(componentReaders) == geCOMPONENT_TYPE::COUNT);
+
+	static_assert(_countof(componentReaders) == gsCOMPONENT_TYPE::COUNT);
 }
 
 
@@ -139,7 +140,7 @@ bool resLoadGame()
 
 	for (U32 entityIdx = 0; entityIdx < numEntities; ++entityIdx)
 	{
-		geENTITY_INFO info;
+		gsENTITY_INFO info;
 		const U32 entityType = ReadFromBuffer(bufferPtr);
 		
 		const U32 numComponents = ReadFromBuffer(bufferPtr);
@@ -151,7 +152,7 @@ bool resLoadGame()
 		for (U32 componentIdx = 0; componentIdx < numComponents; ++componentIdx)
 		{
 			const U32 componentType = ReadFromBuffer(bufferPtr);
-			assert(componentType < geCOMPONENT_TYPE::COUNT);
+			assert(componentType < gsCOMPONENT_TYPE::COUNT);
 
 			if (!componentReaders[componentType](bufferPtr, info))
 			{
@@ -160,7 +161,7 @@ bool resLoadGame()
 		}
 
 		assert(info.transform);
-		geENTITY entity(geCreateGameEntity(info));
+		gsENTITY entity(gsCreateGameEntity(info));
 		if (!entity.IsValid())
 		{
 			return false;
@@ -178,7 +179,7 @@ void resUnloadGame()
 {
 	for (auto entity : entities)
 	{
-		geRemoveGameEntity(entity.GetID());
+		gsRemoveGameEntity(entity.GetID());
 	}
 }
 

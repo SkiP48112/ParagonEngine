@@ -15,45 +15,39 @@ namespace Editor.GameDevelopment
             @"#include ""{0}.h""
 
 namespace {1} {{
-REGISTER_SCRIPT({0});
+    REGISTER_SCRIPT({0});
 
 
-void {0}::BeginPlay()
-{{
+    void {0}::BeginPlay()
+    {{
 
-}}
-
-
-void {0}::Update(float dt)
-{{
-
-}}
+    }}
 
 
+    void {0}::Update(float dt)
+    {{
+
+    }}
 }}";
 
         private static readonly string _hCode =
             @"#pragma once
 
 namespace {1} {{
-
-
-class {0} : public geENTITY_SCRIPT
-{{
-public:
-    constexpr explicit {0}(geENTITY entity)
-        : geENTITY_SCRIPT(entity)
+    class {0} : public gsENTITY_SCRIPT
     {{
-
-    }}
-
-    void BeginPlay() override;
-    void Update(float dt) override;
-
-private:
-}};
-
-
+    public:
+        constexpr explicit {0}(gsENTITY entity)
+            : gsENTITY_SCRIPT(entity)
+        {{
+    
+        }}
+    
+        void BeginPlay() override;
+        void Update(float dt) override;
+    
+    private:
+    }};
 }}";
 
         private static readonly string _namespace = GetNamespaceFromProjectName();

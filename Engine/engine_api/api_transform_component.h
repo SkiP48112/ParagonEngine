@@ -1,25 +1,25 @@
 #pragma once
 
-#include "..\game_entities\ge_common.h"
+#include "..\game_systems\gs_common.h"
 
 
-DEFINE_TYPED_ID(geTRANSFORM_ID);
+DEFINE_TYPED_ID(gsTRANSFORM_ID);
 
 
-class geTRANSFORM_COMPONENT final
+class gsTRANSFORM_COMPONENT final
 {
 public:
-	constexpr explicit geTRANSFORM_COMPONENT(geTRANSFORM_ID id) 
+	constexpr explicit gsTRANSFORM_COMPONENT(gsTRANSFORM_ID id) 
 		: id{ id }
 	{
 	}
 
-	constexpr geTRANSFORM_COMPONENT() 
+	constexpr gsTRANSFORM_COMPONENT() 
 		: id{ ID_INVALID_ID }
 	{
 	}
 
-	constexpr geTRANSFORM_ID GetID() const
+	constexpr gsTRANSFORM_ID GetID() const
 	{
 		return id;
 	}
@@ -35,5 +35,5 @@ public:
 	mVECTOR3 GetScale() const;
 
 private:
-	geTRANSFORM_ID id;
+	gsTRANSFORM_ID id;
 };
