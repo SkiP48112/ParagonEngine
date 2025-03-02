@@ -1,5 +1,5 @@
-#include "ge_transform.h"
-#include "ge_entity.h"
+#include "gs_transform.h"
+#include "gs_entity.h"
 
 
 namespace
@@ -10,10 +10,10 @@ namespace
 }
 
 
-geTRANSFORM_COMPONENT geCreateTransform(geTRANSFORM_INIT_INFO info, geENTITY entity)
+gsTRANSFORM_COMPONENT gsCreateTransform(gsTRANSFORM_INIT_INFO info, gsENTITY entity)
 {
 	assert(entity.IsValid());
-	const idID_TYPE entityIndex{ idGetIndex(entity.GetID()) };
+	const idID_TYPE entityIndex = idGetIndex(entity.GetID());
 
 	if (positions.size() > entityIndex)
 	{
@@ -29,31 +29,31 @@ geTRANSFORM_COMPONENT geCreateTransform(geTRANSFORM_INIT_INFO info, geENTITY ent
 		scales.emplace_back(info.scale);
 	}
 
-	return geTRANSFORM_COMPONENT{ geTRANSFORM_ID{ entity.GetID() } };
+	return gsTRANSFORM_COMPONENT{ gsTRANSFORM_ID{ entity.GetID() } };
 }
 
 
-void geRemoveTrasnform(geTRANSFORM_COMPONENT component)
+void gsRemoveTrasnform(gsTRANSFORM_COMPONENT component)
 {
 	assert(component.IsValid());
 }
 
 
-mVECTOR3 geTRANSFORM_COMPONENT::GetPosition() const
+mVECTOR3 gsTRANSFORM_COMPONENT::GetPosition() const
 {
 	assert(IsValid());
 	return positions[idGetIndex(id)];
 }
 
 
-mVECTOR4 geTRANSFORM_COMPONENT::GetRotation() const
+mVECTOR4 gsTRANSFORM_COMPONENT::GetRotation() const
 {
 	assert(IsValid());
 	return rotations[idGetIndex(id)];
 }
 
 
-mVECTOR3 geTRANSFORM_COMPONENT::GetScale() const
+mVECTOR3 gsTRANSFORM_COMPONENT::GetScale() const
 {
 	assert(IsValid());
 	return scales[idGetIndex(id)];

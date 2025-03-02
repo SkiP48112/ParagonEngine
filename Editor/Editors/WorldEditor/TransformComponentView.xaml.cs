@@ -10,7 +10,7 @@ namespace Editor.Editors
 {
     public partial class TransformComponentView : UserControl
     {
-        private Action? _undoAction = null;
+        private Action _undoAction = null;
         private bool _propertyChanged = false;
 
         public TransformComponentView()
@@ -25,7 +25,7 @@ namespace Editor.Editors
             ((MSCTransform)DataContext).PropertyChanged += (s, e) => _propertyChanged = true;
         }
 
-        private Action? GetAction(Func<Transform, (Transform transform, Vector3)> selector, Action<(Transform transform, Vector3)> forEachAction)
+        private Action GetAction(Func<Transform, (Transform transform, Vector3)> selector, Action<(Transform transform, Vector3)> forEachAction)
         {
             var viewModel = DataContext as MSCTransform;
             if (viewModel == null)
@@ -43,11 +43,11 @@ namespace Editor.Editors
             });
         }
 
-        private Action? GetPositionAction() => GetAction((x) => (x, x.Position), (x) => x.transform.Position = x.Item2);
-        private Action? GetRotationAction() => GetAction((x) => (x, x.Rotation), (x) => x.transform.Rotation = x.Item2);
-        private Action? GetScaleAction() => GetAction((x) => (x, x.Scale), (x) => x.transform.Scale = x.Item2);
+        private Action GetPositionAction() => GetAction((x) => (x, x.Position), (x) => x.transform.Position = x.Item2);
+        private Action GetRotationAction() => GetAction((x) => (x, x.Rotation), (x) => x.transform.Rotation = x.Item2);
+        private Action GetScaleAction() => GetAction((x) => (x, x.Scale), (x) => x.transform.Scale = x.Item2);
 
-        private void RecordActions(Action? redoAction, string name)
+        private void RecordActions(Action redoAction, string name)
         {
             if (!_propertyChanged)
             {
@@ -61,35 +61,35 @@ namespace Editor.Editors
             Project.AddNewUndoRedoAction(name, _undoAction, redoAction);
         }
 
-        private void OnPositionVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
+        private void OnPositionVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _propertyChanged = false;
             _undoAction = GetPositionAction();
         }
 
-        private void OnPositionVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
+        private void OnPositionVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             RecordActions(GetPositionAction(), "PositionChanged");
         }
 
-        private void OnRotationVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
+        private void OnRotationVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _propertyChanged = false;
             _undoAction = GetRotationAction();
         }
 
-        private void OnRotationVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
+        private void OnRotationVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             RecordActions(GetRotationAction(), "RotationChanged");
         }
 
-        private void OnScaleVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs? e)
+        private void OnScaleVectorBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _propertyChanged = false;
             _undoAction = GetScaleAction();
         }
 
-        private void OnScaleVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs? e)
+        private void OnScaleVectorBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             RecordActions(GetScaleAction(), "ScaleChanged");
         }

@@ -34,7 +34,7 @@ namespace Editor.GameProject
             }
         }
 
-        public static Project? Open(ProjectData data)
+        public static Project Open(ProjectData data)
         {
             ReadProjectData();
             var project = _gameProjects.FirstOrDefault(x => x.FullPath == data.FullPath);

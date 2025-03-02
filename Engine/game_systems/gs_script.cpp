@@ -1,17 +1,16 @@
-#include "ge_script.h"
-#include "ge_entity.h"
+#include "gs_script.h"
 
 
 namespace
 {
-	dsVECTOR<geSCRIPT_PTR> entityScripts;
-	dsVECTOR<idID_TYPE>	idMapping;
+	dsVECTOR<gsSCRIPT_PTR> scripts;
+	dsVECTOR<idID_TYPE> idMapping;
 
 	dsVECTOR<idGENERATION_TYPE> generations;
-	dsVECTOR<geSCRIPT_ID> freeIds;
+	dsVECTOR<gsSCRIPT_ID> freeIds;
 
 	// We need to create out own implementation of unordered_map
-	using dsSCRIPT_REGISTRY = std::unordered_map<size_t, geSCRIPT_CREATOR>;
+	using dsSCRIPT_REGISTRY = std::unordered_map<size_t, gsSCRIPT_CREATOR>;
 	dsSCRIPT_REGISTRY& Registry() 
 	{
 		// NOTE: we put static variable in a function because of
@@ -36,31 +35,31 @@ namespace
 	#endif
 
 
-	bool geIsScriptExists(geSCRIPT_ID id)
+	bool gsIsScriptExists(gsSCRIPT_ID id)
 	{
 		assert(idIsValid(id));
-		const idID_TYPE index{ idGetIndex(id) };
+		const idID_TYPE index = idGetIndex(id);
 
-		assert(index < generations.size() && idMapping[index] < entityScripts.size());
+		assert(index < generations.size() && idMapping[index] < scripts.size());
 		assert(generations[index] == idGetGeneration(id));
 
 		return (generations[index] == idGetGeneration(id)) &&
-			entityScripts[idMapping[index]] &&
-			entityScripts[idMapping[index]]->IsValid();
+			scripts[idMapping[index]] &&
+			scripts[idMapping[index]]->IsValid();
 	}
 }
 
 
-U8 apiRegisterScript(size_t tag, geSCRIPT_CREATOR func)
+U8 apiRegisterScript(size_t tag, gsSCRIPT_CREATOR func)
 {
-	bool result{ Registry().insert(dsSCRIPT_REGISTRY::value_type(tag, func)).second };
+	bool result = Registry().insert(dsSCRIPT_REGISTRY::value_type(tag, func)).second;
 	assert(result);
 
 	return result;
 }
 
 
-geSCRIPT_CREATOR apiGetScriptCreator(size_t tag)
+gsSCRIPT_CREATOR apiGetScriptCreator(size_t tag)
 {
 	auto script = Registry().find(tag);
 	assert(script != Registry().end() && script->first == tag);
@@ -78,55 +77,55 @@ geSCRIPT_CREATOR apiGetScriptCreator(size_t tag)
 #endif
 
 
-geSCRIPT_COMPONENT geCreateScript(geSCRIPT_INIT_INFO info, geENTITY entity)
+gsSCRIPT_COMPONENT gsCreateScript(gsSCRIPT_INIT_INFO info, gsENTITY entity)
 {
 	assert(entity.IsValid());
 	assert(info.scriptCreator);
 
-	geSCRIPT_ID id{};
+	gsSCRIPT_ID id;
 	if (freeIds.size() > ID_MIN_DELETED_ELEMENTS)
 	{
 		id = freeIds.front();
 		freeIds.pop_back();
 
-		id = geSCRIPT_ID{ idNewGeneration(id) };
+		id = gsSCRIPT_ID(idNewGeneration(id));
 		++generations[idGetIndex(id)];
 	}
 	else
 	{
-		id = geSCRIPT_ID{ (idID_TYPE)idMapping.size() };
+		id = gsSCRIPT_ID((idID_TYPE)idMapping.size());
 		idMapping.emplace_back();
 		generations.push_back(0);
 	}
 
 	assert(idIsValid(id));
-	const idID_TYPE index{ (idID_TYPE)entityScripts.size() };
-	entityScripts.emplace_back(info.scriptCreator(entity));
-	assert(entityScripts.back()->GetID() == entity.GetID());
+	const idID_TYPE index = (idID_TYPE)scripts.size();
+	scripts.emplace_back(info.scriptCreator(entity));
+	assert(scripts.back()->GetID() == entity.GetID());
 	
 	idMapping[idGetIndex(id)] = index;
 
-	return geSCRIPT_COMPONENT{ id };
+	return gsSCRIPT_COMPONENT{ id };
 }
 
 
-void geRemoveScript(geSCRIPT_COMPONENT component)
+void gsRemoveScript(gsSCRIPT_COMPONENT component)
 {
-	assert(component.IsValid() && geIsScriptExists(component.GetID()));
+	assert(component.IsValid() && gsIsScriptExists(component.GetID()));
 	
-	const geSCRIPT_ID id{ component.GetID() };
-	const idID_TYPE index{ idMapping[idGetIndex(id)] };
-	const geSCRIPT_ID lastId{ entityScripts.back()->GetScript().GetID() };
+	const gsSCRIPT_ID id = component.GetID();
+	const idID_TYPE index = idMapping[idGetIndex(id)];
+	const gsSCRIPT_ID lastId = scripts.back()->GetScript().GetID();
 
-	dsEraseUnordered(entityScripts, index);
+	dsEraseUnordered(scripts, index);
 
 	idMapping[idGetIndex(lastId)] = index;
 	idMapping[idGetIndex(id)] = ID_INVALID_ID;
 }
 
-void geUpdateScripts(float dt)
+void gsUpdateScripts(float dt)
 {
-	for (auto& ptr : entityScripts)
+	for (auto& ptr : scripts)
 	{
 		ptr->Update(dt);
 	}
@@ -142,7 +141,7 @@ void geUpdateScripts(float dt)
 		const U32 size{ (U32)ScriptNames().size() };
 		CComSafeArray<BSTR> names(size);
 
-		for (int i = 0; i < size; i++)
+		for (U32 i = 0; i < size; i++)
 		{
 			names.SetAt(i, A2BSTR_EX(ScriptNames()[i].c_str()), false);
 		}

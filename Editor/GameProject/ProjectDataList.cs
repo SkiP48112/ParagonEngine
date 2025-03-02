@@ -6,6 +6,6 @@ namespace Editor.GameProject
     public class ProjectDataList
     {
         [DataMember]
-        public List<ProjectData>? Projects { get; set; }
+        public List<ProjectData> Projects { get; set; }
     }
 }

@@ -9,6 +9,9 @@ namespace Editor.GameProject
     [DataContract]
     class Scene : ViewModelBase
     {
+        [DataMember]
+        public Project Project { get; private set; }
+
         private string _name = string.Empty;
         [DataMember]
         public string Name
@@ -23,9 +26,6 @@ namespace Editor.GameProject
                 }
             }
         }
-
-        [DataMember]
-        public Project Project { get; private set; }
 
         private bool _isActive;
         [DataMember]
@@ -42,12 +42,12 @@ namespace Editor.GameProject
             }
         }
 
-        public ICommand? AddGameEntityCommand { get; private set; }
-        public ICommand? RemoveGameEntityCommand { get; private set; }
+        public ICommand AddGameEntityCommand { get; private set; }
+        public ICommand RemoveGameEntityCommand { get; private set; }
 
         [DataMember(Name = nameof(GameEntities))]
         private readonly ObservableCollection<GameEntity> _gameEntities = new ObservableCollection<GameEntity>();
-        public ReadOnlyObservableCollection<GameEntity>? GameEntities { get; private set; }
+        public ReadOnlyObservableCollection<GameEntity> GameEntities { get; private set; }
 
         public Scene(Project project, string name)
         {

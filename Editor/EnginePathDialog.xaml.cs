@@ -5,7 +5,7 @@ namespace Editor
 {
     public partial class EnginePathDialog : Window
     {
-        public string? ParagonPath { get; private set; }
+        public string ParagonPath { get; private set; }
 
         public EnginePathDialog()
         {

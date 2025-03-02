@@ -1,40 +1,40 @@
-#include "ge_entity.h"
-#include "ge_transform.h"
-#include "ge_script.h"
+#include "gs_entity.h"
+#include "gs_transform.h"
+#include "gs_script.h"
 
 
 namespace
 {
-	dsVECTOR<geTRANSFORM_COMPONENT> transforms;
-	dsVECTOR<geSCRIPT_COMPONENT> scripts;
+	dsVECTOR<gsTRANSFORM_COMPONENT> transforms;
+	dsVECTOR<gsSCRIPT_COMPONENT> scripts;
 
 	dsVECTOR<idGENERATION_TYPE> generations;
-	dsDEQUE<geENTITY_ID> freeIds;
+	dsDEQUE<gsENTITY_ID> freeIds;
 }
 
 
-geENTITY geCreateGameEntity(geENTITY_INFO info)
+gsENTITY gsCreateGameEntity(gsENTITY_INFO info)
 {
 	// Every game entity must have a transform component
 	assert(info.transform); 
 	if (!info.transform)
 	{
-		return geENTITY{};
+		return gsENTITY();
 	}
 
-	geENTITY_ID id;
+	gsENTITY_ID id;
 	if (freeIds.size() > ID_MIN_DELETED_ELEMENTS)
 	{
 		id = freeIds.front();
-		assert(!geIsAlive(id));
+		assert(!gsIsAlive(id));
 
 		freeIds.pop_front();
-		id = geENTITY_ID{ idNewGeneration(id) };
+		id = gsENTITY_ID(idNewGeneration(id));
 		++generations[idGetIndex(id)];
 	}
 	else
 	{
-		id = geENTITY_ID{(idID_TYPE)generations.size()};
+		id = gsENTITY_ID((idID_TYPE)generations.size());
 		generations.push_back(0);
 
 		// Resize components
@@ -43,22 +43,22 @@ geENTITY geCreateGameEntity(geENTITY_INFO info)
 		scripts.emplace_back();
 	}
 
-	const geENTITY newEntity{ id };
-	const idID_TYPE index{ idGetIndex(id) };
+	const gsENTITY newEntity(id);
+	const idID_TYPE index = idGetIndex(id);
 
 	// Create transform component
 	assert(!transforms[index].IsValid());
-	transforms[index] = geCreateTransform(*info.transform, newEntity);
+	transforms[index] = gsCreateTransform(*info.transform, newEntity);
 	if (!transforms[index].IsValid())
 	{
-		return {};
+		return gsENTITY();
 	}
 
 	// Create script component
 	if (info.script && info.script->scriptCreator)
 	{
 		assert(!scripts[index].IsValid());
-		scripts[index] = geCreateScript(*info.script, newEntity);
+		scripts[index] = gsCreateScript(*info.script, newEntity);
 		assert(scripts[index].IsValid());
 	}
 
@@ -66,28 +66,28 @@ geENTITY geCreateGameEntity(geENTITY_INFO info)
 }
 
 
-void geRemoveGameEntity(geENTITY_ID id)
+void gsRemoveGameEntity(gsENTITY_ID id)
 {
-	const idID_TYPE index{ idGetIndex(id) };
-	assert(geIsAlive(id));
+	const idID_TYPE index = idGetIndex(id);
+	assert(gsIsAlive(id));
 
 	if (scripts[index].IsValid())
 	{
-		geRemoveScript(scripts[index]);
+		gsRemoveScript(scripts[index]);
 		scripts[index] = {};
 	}
 
-	geRemoveTrasnform(transforms[index]);
+	gsRemoveTrasnform(transforms[index]);
 	transforms[index] = {};
 
 	freeIds.push_back(id);
 }
 
 
-bool geIsAlive(geENTITY_ID id)
+bool gsIsAlive(gsENTITY_ID id)
 {
 	assert(idIsValid(id));
-	const idID_TYPE index{ idGetIndex(id) };
+	const idID_TYPE index = idGetIndex(id);
 
 	assert(index < generations.size());
 	assert(generations[index] == idGetGeneration(id));
@@ -96,19 +96,19 @@ bool geIsAlive(geENTITY_ID id)
 }
 
 
-geTRANSFORM_COMPONENT geENTITY::GetTransform() const
+gsTRANSFORM_COMPONENT gsENTITY::GetTransform() const
 {
-	assert(geIsAlive(id));
+	assert(gsIsAlive(id));
 
-	const idID_TYPE index{  idGetIndex(id) };
+	const idID_TYPE index = idGetIndex(id);
 	return transforms[index];
 }
 
 
-geSCRIPT_COMPONENT geENTITY::GetScript() const
+gsSCRIPT_COMPONENT gsENTITY::GetScript() const
 {
-	assert(geIsAlive(id));
+	assert(gsIsAlive(id));
 
-	const idID_TYPE index{ idGetIndex(id) };
+	const idID_TYPE index = idGetIndex(id);
 	return scripts[index];
 }

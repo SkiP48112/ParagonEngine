@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Editor.Components
 {
@@ -11,13 +12,7 @@ namespace Editor.Components
         {
             Debug.Assert(msEntity.SelectedEntities.Any() == true);
             SelectedComponents = msEntity.SelectedEntities.Select(entity => entity.GetComponent<T>()).ToList()!;
-            PropertyChanged += (s, e) =>
-            {
-                if (_enableUpdates)
-                {
-                    UpdateComponents(e.PropertyName);
-                }
-            };
+            PropertyChanged += OnPropertyChanged;
         }
 
         public void Refresh()
@@ -27,7 +22,17 @@ namespace Editor.Components
             _enableUpdates = true;
         }
 
-        protected abstract bool UpdateComponents(string? propertyName);
+        protected abstract bool UpdateComponents(string propertyName);
         protected abstract bool UpdateMSComponent();
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            if (!_enableUpdates)
+            {
+                return;
+            }
+
+            UpdateComponents(args.PropertyName);
+        }
     }
 }

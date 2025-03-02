@@ -3,8 +3,8 @@
 #include <iostream>
 #include <ctime>
 #include "test.h"
-#include "..\Engine\game_entities\ge_entity.h"
-#include "..\Engine\game_entities\ge_transform.h"
+#include "..\Engine\game_systems\gs_entity.h"
+#include "..\Engine\game_systems\gs_transform.h"
 
 
 class testENTITY_AND_COMPONENTS : public testTEST
@@ -45,15 +45,15 @@ private:
 			count = 1000;
 		}
 
-		geTRANSFORM_INIT_INFO transformInfo{};
-		geENTITY_INFO entityInfo{ &transformInfo };
+		gsTRANSFORM_INIT_INFO transformInfo{};
+		gsENTITY_INFO entityInfo{ &transformInfo };
 		while (count > 0)
 		{
-			geENTITY entity{ geCreateGameEntity(entityInfo) };
+			gsENTITY entity{ gsCreateGameEntity(entityInfo) };
 			assert(entity.IsValid() && idIsValid(entity.GetID()));
 
 			entities.push_back(entity);
-			assert(geIsAlive(entity.GetID()));
+			assert(gsIsAlive(entity.GetID()));
 
 			added++;
 			count--;
@@ -71,13 +71,13 @@ private:
 		while (count > 0)
 		{
 			const U32 index{ (U32)rand() % (U32)entities.size() };
-			const geENTITY entity{ entities[index] };
+			const gsENTITY entity{ entities[index] };
 			assert(entity.IsValid() && idIsValid(entity.GetID()));
 			if (entity.IsValid())
 			{
-				geRemoveGameEntity(entity.GetID());
+				gsRemoveGameEntity(entity.GetID());
 				entities.erase(entities.begin() + index);
-				assert(!geIsAlive(entity.GetID()));
+				assert(!gsIsAlive(entity.GetID()));
 			}
 
 			removed++;
@@ -92,7 +92,7 @@ private:
 	}
 
 private:
-	dsVECTOR<geENTITY> entities;
+	dsVECTOR<gsENTITY> entities;
 
 	U32 added{ 0 };
 	U32 removed{ 0 };

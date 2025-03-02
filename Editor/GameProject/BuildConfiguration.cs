@@ -7,5 +7,4 @@
         DebugEditor,
         ReleaseEditor
     }
-
 }

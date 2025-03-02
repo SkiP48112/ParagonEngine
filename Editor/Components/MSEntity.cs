@@ -1,5 +1,6 @@
 ﻿using Editor.Utilities;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Editor.Components
@@ -48,48 +49,12 @@ namespace Editor.Components
             Components = new ReadOnlyObservableCollection<IMSComponent>(_components);
             SelectedEntities = entities;
 
-            PropertyChanged += (s, e) =>
-            {
-                if (!_enableUpdates)
-                {
-                    return;
-                }
-
-                UpdateGameEntities(e.PropertyName);
-            };
+            PropertyChanged += OnPropertyChanged;
         }
 
-        public T? GetMSComponent<T>() where T : IMSComponent
+        public T GetMSComponent<T>() where T : IMSComponent
         {
             return (T)Components.FirstOrDefault(x => x.GetType() == typeof(T));
-        }
-
-        public void Refresh()
-        {
-            _enableUpdates = false;
-            UpdateMSGameEntity();
-            MakeComponentList();
-            _enableUpdates = true;
-        }
-
-        private void MakeComponentList()
-        {
-            _components.Clear();
-            var firstEntity = SelectedEntities.FirstOrDefault();
-            if(firstEntity == null || firstEntity.Components == null)
-            {
-                return;
-            }
-
-            foreach(var component in firstEntity.Components)
-            {
-                var type = component.GetType();
-                if(!SelectedEntities.Skip(1).Any(entity => entity.GetComponent(type) == null))
-                {
-                    Debug.Assert(Components.FirstOrDefault(x => x.GetType() == type) == null);
-                    _components.Add(component.GetMultiselectionComponent(this));
-                }
-            }
         }
 
         public static float? GetMixedValue<T>(List<T> objects, Func<T, float> getProperty)
@@ -120,7 +85,7 @@ namespace Editor.Components
             return value;
         }
 
-        public static string? GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
+        public static string GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
         {
             var value = getProperty(objects.First());
             foreach (var obj in objects.Skip(1))
@@ -134,7 +99,35 @@ namespace Editor.Components
             return value;
         }
 
-        protected virtual bool UpdateGameEntities(string? propertyName)
+        public void Refresh()
+        {
+            _enableUpdates = false;
+            UpdateMSGameEntity();
+            MakeComponentList();
+            _enableUpdates = true;
+        }
+
+        private void MakeComponentList()
+        {
+            _components.Clear();
+            var firstEntity = SelectedEntities.FirstOrDefault();
+            if(firstEntity == null || firstEntity.Components == null)
+            {
+                return;
+            }
+
+            foreach(var component in firstEntity.Components)
+            {
+                var type = component.GetType();
+                if(!SelectedEntities.Skip(1).Any(entity => entity.GetComponent(type) == null))
+                {
+                    Debug.Assert(Components.FirstOrDefault(x => x.GetType() == type) == null);
+                    _components.Add(component.GetMultiselectionComponent(this));
+                }
+            }
+        }
+
+        protected virtual bool UpdateGameEntities(string propertyName)
         {
             switch (propertyName)
             {
@@ -156,6 +149,16 @@ namespace Editor.Components
             Name = GetMixedValue(SelectedEntities, new Func<GameEntity, string>(x => x.Name)) ?? string.Empty;
 
             return true;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            if (!_enableUpdates)
+            {
+                return;
+            }
+
+            UpdateGameEntities(args.PropertyName);
         }
     }
 }

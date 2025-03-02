@@ -12,6 +12,43 @@ namespace Editor.Components
     [KnownType(typeof(Script))]
     class GameEntity : ViewModelBase
     {
+        private bool _isEnabled = true;
+        [DataMember]
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                if (_isEnabled != value)
+                {
+                    _isEnabled = value;
+                    OnPropertyChanged(nameof(IsEnabled));
+                }
+            }
+        }
+
+        private string _name = string.Empty;
+        [DataMember]
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (_name != value)
+                {
+                    _name = value;
+                    OnPropertyChanged(nameof(Name));
+                }
+            }
+        }
+
+        [DataMember]
+        public Scene ParentScene { get; set; }
+
+        [DataMember(Name = nameof(Components))]
+        private readonly ObservableCollection<Component> _components = new ObservableCollection<Component>();
+        public ReadOnlyObservableCollection<Component> Components { get; private set; }
+
         private int _entityId = ID.INVALID_ID;
         public int EntityId
         {
@@ -51,43 +88,6 @@ namespace Editor.Components
             }
         }
 
-        private bool _isEnabled = true;
-        [DataMember]
-        public bool IsEnabled
-        {
-            get => _isEnabled;
-            set
-            {
-                if (_isEnabled != value)
-                {
-                    _isEnabled = value;
-                    OnPropertyChanged(nameof(IsEnabled));
-                }
-            }
-        }
-
-        private string _name = string.Empty;
-        [DataMember]
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                if (_name != value)
-                {
-                    _name = value;
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
-        }
-
-        [DataMember]
-        public Scene ParentScene { get; set; }
-
-        [DataMember(Name = nameof(Components))]
-        private readonly ObservableCollection<Component> _components = new ObservableCollection<Component>();
-        public ReadOnlyObservableCollection<Component>? Components { get; private set; }
-
         public GameEntity(Scene scene)
         {
             Debug.Assert(scene != null);
@@ -97,29 +97,32 @@ namespace Editor.Components
             OnDeserialized(new StreamingContext());
         }
 
-        public Component? GetComponent(Type type) => Components?.FirstOrDefault(x => x.GetType() == type);
-        public T? GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
+        public Component GetComponent(Type type)
+        {
+            return Components?.FirstOrDefault(x => x.GetType() == type);
+        }
+
+        public T GetComponent<T>() where T : Component
+        {
+            return GetComponent(typeof(T)) as T;
+        }
 
         public bool AddComponent(Component component)
         {
-            Debug.Assert(component != null);
+            Debug.Assert(component != null, "Can't add null component.");
             if(_components.Any(x => x.GetType() == component.GetType()))
             {
                 Logger.Log(MessageType.Warning, $"Entity {Name} already has a component of type {component.GetType().Name}");
                 return false;
             }
 
-
-            IsActive = false;
-            _components.Add(component);
-            IsActive = true;
-
+            AddComponentInternal(component);
             return true;
         }
 
         public void RemoveComponent(Component component)
         {
-            Debug.Assert(component != null);
+            Debug.Assert(component != null, "Can't remove null component.");
             if(component is Transform)
             {
                 Logger.Log(MessageType.Warning, $"Can't remove transform component from {Name}.");
@@ -132,6 +135,18 @@ namespace Editor.Components
                 return;
             }
 
+            RemoveComponentInternal(component);
+        }
+
+        private void AddComponentInternal(Component component)
+        {
+            IsActive = false;
+            _components.Add(component);
+            IsActive = true;
+        }
+
+        private void RemoveComponentInternal(Component component)
+        {
             IsActive = false;
             _components.Remove(component);
             IsActive = true;
@@ -146,6 +161,5 @@ namespace Editor.Components
                 OnPropertyChanged(nameof(Components));
             }
         }
-
     }
 }

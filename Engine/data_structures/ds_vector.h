@@ -24,6 +24,6 @@
 
 		v.clear();
 	}
-#endif // USE_STL_VECTOR
+#endif
 
 	// TODO: write my own implementation of stl contrainers

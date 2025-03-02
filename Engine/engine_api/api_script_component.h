@@ -1,25 +1,25 @@
 #pragma once
 
-#include "..\game_entities\ge_common.h"
+#include "..\game_systems\gs_common.h"
 
 
-DEFINE_TYPED_ID(geSCRIPT_ID);
+DEFINE_TYPED_ID(gsSCRIPT_ID);
 
 
-class geSCRIPT_COMPONENT final
+class gsSCRIPT_COMPONENT final
 {
 public:
-	constexpr explicit geSCRIPT_COMPONENT(geSCRIPT_ID id) 
+	constexpr explicit gsSCRIPT_COMPONENT(gsSCRIPT_ID id) 
 		: id{ id }
 	{
 	}
 
-	constexpr geSCRIPT_COMPONENT() 
+	constexpr gsSCRIPT_COMPONENT() 
 		: id{ ID_INVALID_ID }
 	{
 	}
 
-	constexpr geSCRIPT_ID GetID() const
+	constexpr gsSCRIPT_ID GetID() const
 	{
 		return id;
 	}
@@ -30,5 +30,5 @@ public:
 	}
 
 private:
-	geSCRIPT_ID id;
+	gsSCRIPT_ID id;
 };

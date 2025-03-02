@@ -1,27 +1,27 @@
 #pragma once
 
 #include "api_transform_component.h"
-#include "..\game_entities\ge_common.h"
 #include "api_script_component.h"
+#include "..\game_systems\gs_common.h"
 
 
-DEFINE_TYPED_ID(geENTITY_ID);
+DEFINE_TYPED_ID(gsENTITY_ID);
 
 
-class geENTITY
+class gsENTITY
 {
 public:
-	constexpr explicit geENTITY(geENTITY_ID id) 
+	constexpr explicit gsENTITY(gsENTITY_ID id) 
 		: id { id } 
 	{ 
 	}
 
-	constexpr geENTITY() 
+	constexpr gsENTITY() 
 		: id { ID_INVALID_ID }
 	{ 
 	}
 	
-	constexpr geENTITY_ID GetID() const 
+	constexpr gsENTITY_ID GetID() const 
 	{ 
 		return id; 
 	}
@@ -31,18 +31,18 @@ public:
 		return idIsValid(id);  
 	}
 
-	geTRANSFORM_COMPONENT GetTransform() const;
-	geSCRIPT_COMPONENT GetScript() const;
+	gsTRANSFORM_COMPONENT GetTransform() const;
+	gsSCRIPT_COMPONENT GetScript() const;
 
 private:
-	geENTITY_ID id;
+	gsENTITY_ID id;
 };
 
 
-class geENTITY_SCRIPT : public geENTITY
+class gsENTITY_SCRIPT : public gsENTITY
 {
 public:
-	~geENTITY_SCRIPT() = default;
+	~gsENTITY_SCRIPT() = default;
 
 	virtual void BeginPlay()
 	{
@@ -53,56 +53,56 @@ public:
 	}
 
 protected:
-	constexpr explicit geENTITY_SCRIPT(geENTITY entity)
-		:geENTITY{ entity.GetID() }
+	constexpr explicit gsENTITY_SCRIPT(gsENTITY entity)
+		:gsENTITY{ entity.GetID() }
 	{
 	}
 };
 
 
-using geSCRIPT_PTR = std::unique_ptr<geENTITY_SCRIPT>;
-using geSCRIPT_CREATOR = geSCRIPT_PTR(*)(geENTITY entity);
+using gsSCRIPT_PTR = std::unique_ptr<gsENTITY_SCRIPT>;
+using gsSCRIPT_CREATOR = gsSCRIPT_PTR(*)(gsENTITY entity);
 using dsSTRING_HASH = std::hash<std::string>;
 
 
-U8 apiRegisterScript(size_t, geSCRIPT_CREATOR);
+U8 apiRegisterScript(size_t, gsSCRIPT_CREATOR);
 
 #ifdef USE_WITH_EDITOR
 extern "C" __declspec(dllexport)
 #endif
-geSCRIPT_CREATOR apiGetScriptCreator(size_t tag);
+gsSCRIPT_CREATOR apiGetScriptCreator(size_t tag);
 
 
-template<class geSCRIPT_CLASS>
-geSCRIPT_PTR apiCreateScript(geENTITY entity)
+template<class gsSCRIPT_CLASS>
+gsSCRIPT_PTR apiCreateScript(gsENTITY entity)
 {
 	assert(entity.IsValid());
-	return std::make_unique<geSCRIPT_CLASS>(entity);
+	return std::make_unique<gsSCRIPT_CLASS>(entity);
 }
 
 #ifdef USE_WITH_EDITOR
 U8 apiAddScriptName(const char* name);
 
-#define REGISTER_SCRIPT(TYPE)															\
-		namespace																		\
-		{																				\
-			const U8 _reg_##TYPE														\
-			{																			\
+#define REGISTER_SCRIPT(TYPE)																			\
+		namespace																							\
+		{																										\
+			const U8 _reg_##TYPE																			\
+			{																									\
 				apiRegisterScript( dsSTRING_HASH()(#TYPE), &apiCreateScript<TYPE>)		\
-			};																			\
-			const U8 _name_##TYPE														\
-			{																			\
-				apiAddScriptName(#TYPE)												\
-			};																			\
+			};																									\
+			const U8 _name_##TYPE																		\
+			{																									\
+				apiAddScriptName(#TYPE)																	\
+			};																									\
 		}
 
 #else
-#define REGISTER_SCRIPT(TYPE)															\
-		namespace																		\
-		{																				\
-			const U8 _reg_##TYPE														\
-			{																			\
+#define REGISTER_SCRIPT(TYPE)																			\
+		namespace																							\
+		{																										\
+			const U8 _reg_##TYPE																			\
+			{																									\
 				apiRegisterScript( dsSTRING_HASH()(#TYPE), &apiCreateScript<TYPE>)		\
-			};																			\
+			};																									\
 		}
 #endif
