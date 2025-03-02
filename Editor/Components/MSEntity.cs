@@ -59,7 +59,7 @@ namespace Editor.Components
             };
         }
 
-        public T? GetMSComponent<T>() where T : IMSComponent
+        public T GetMSComponent<T>() where T : IMSComponent
         {
             return (T)Components.FirstOrDefault(x => x.GetType() == typeof(T));
         }
@@ -120,7 +120,7 @@ namespace Editor.Components
             return value;
         }
 
-        public static string? GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
+        public static string GetMixedValue<T>(List<T> objects, Func<T, string> getProperty)
         {
             var value = getProperty(objects.First());
             foreach (var obj in objects.Skip(1))
@@ -134,7 +134,7 @@ namespace Editor.Components
             return value;
         }
 
-        protected virtual bool UpdateGameEntities(string? propertyName)
+        protected virtual bool UpdateGameEntities(string propertyName)
         {
             switch (propertyName)
             {

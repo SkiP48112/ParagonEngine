@@ -9,7 +9,7 @@ namespace Editor.GameDevelopment
 {
     static class VisualStudio
     {
-        private static EnvDTE80.DTE2? _vsInstance = null;
+        private static EnvDTE80.DTE2 _vsInstance = null;
         private static readonly string _progID = "VisualStudio.DTE.17.0";
 
         public static bool IsBuildSucceeded { get; private set; } = true;

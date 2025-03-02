@@ -7,9 +7,9 @@ namespace Editor.Components
     [DataContract]
     class Script : Component
     {
-        private string? _name = string.Empty;
+        private string _name = string.Empty;
         [DataMember]
-        public string? Name
+        public string Name
         {
             get => _name;
             set

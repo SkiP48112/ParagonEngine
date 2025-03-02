@@ -19,22 +19,22 @@ namespace Editor.GameProject
 
         public string FullPath => $@"{Path}{Name}{ProjectConsts.PROJECT_EXTENSION}";
         public string Solution => $@"{Path}{Name}.sln";
-        public static Project? CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
+        public static Project CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
 
         private static readonly string[] _buildConfigurationNames = { "Debug", "Release", "DebugEditor", "ReleaseEditor" };
 
-        public ICommand? AddSceneCommand { get; private set; }
-        public ICommand? RemoveSceneCommand { get; private set; }
+        public ICommand AddSceneCommand { get; private set; }
+        public ICommand RemoveSceneCommand { get; private set; }
 
-        public ICommand? UndoCommand { get; private set; }
-        public ICommand? RedoCommand { get; private set; }
-        public ICommand? SaveCommand { get; private set; }
+        public ICommand UndoCommand { get; private set; }
+        public ICommand RedoCommand { get; private set; }
+        public ICommand SaveCommand { get; private set; }
 
-        public ICommand? BuildCommand { get; private set; }
-        public ICommand? StartDebugCommand { get; private set; }
-        public ICommand? StartDebugWithoutDebuggingCommand { get; private set; }
-        public ICommand? StopDebugCommand { get; private set; }
+        public ICommand BuildCommand { get; private set; }
+        public ICommand StartDebugCommand { get; private set; }
+        public ICommand StartDebugWithoutDebuggingCommand { get; private set; }
+        public ICommand StopDebugCommand { get; private set; }
 
         public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
         public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
@@ -54,8 +54,8 @@ namespace Editor.GameProject
             }
         }
 
-        private string[]? _availableScripts;
-        public string[]? AvailableScripts
+        private string[] _availableScripts;
+        public string[] AvailableScripts
         {
             get => _availableScripts;
             set
@@ -68,8 +68,8 @@ namespace Editor.GameProject
             }
         }
 
-        private Scene? _activeScene;
-        public Scene? ActiveScene
+        private Scene _activeScene;
+        public Scene ActiveScene
         {
             get => _activeScene;
             set
@@ -85,7 +85,7 @@ namespace Editor.GameProject
 
         [DataMember(Name = "Scenes")]
         private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
-        public ReadOnlyObservableCollection<Scene>? Scenes
+        public ReadOnlyObservableCollection<Scene> Scenes
         {
             get;
             private set;
@@ -105,7 +105,7 @@ namespace Editor.GameProject
             UndoRedoManager.Add(new UndoRedoAction(undo, redo, name));
         }
 
-        public static Project? Load(string path)
+        public static Project Load(string path)
         {
             Debug.Assert(File.Exists(path));
             return Serializer.FromFile<Project>(path);

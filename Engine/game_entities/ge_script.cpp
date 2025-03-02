@@ -142,7 +142,7 @@ void geUpdateScripts(float dt)
 		const U32 size{ (U32)ScriptNames().size() };
 		CComSafeArray<BSTR> names(size);
 
-		for (int i = 0; i < size; i++)
+		for (U32 i = 0; i < size; i++)
 		{
 			names.SetAt(i, A2BSTR_EX(ScriptNames()[i].c_str()), false);
 		}

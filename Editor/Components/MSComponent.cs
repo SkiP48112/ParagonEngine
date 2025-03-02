@@ -27,7 +27,7 @@ namespace Editor.Components
             _enableUpdates = true;
         }
 
-        protected abstract bool UpdateComponents(string? propertyName);
+        protected abstract bool UpdateComponents(string propertyName);
         protected abstract bool UpdateMSComponent();
     }
 }

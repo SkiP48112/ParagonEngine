@@ -23,10 +23,10 @@ namespace Editor.Editors
 
     public partial class GameEntityView : UserControl
     {
-        private Action? _undoAction;
-        private string? _propertyName;
+        private Action _undoAction;
+        private string _propertyName;
 
-        public static GameEntityView? Instance { get; private set; }
+        public static GameEntityView Instance { get; private set; }
 
         public GameEntityView()
         {

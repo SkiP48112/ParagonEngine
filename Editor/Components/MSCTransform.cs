@@ -136,7 +136,7 @@ namespace Editor.Components
             Refresh();
         }
 
-        protected override bool UpdateComponents(string? propertyName)
+        protected override bool UpdateComponents(string propertyName)
         {
             switch (propertyName)
             {

@@ -2,8 +2,8 @@
 {
     sealed class MSCScript : MSComponent<Script>
     {
-        private string? _name = string.Empty;
-        public string? Name
+        private string _name = string.Empty;
+        public string Name
         {
             get => _name;
             set
@@ -21,9 +21,9 @@
             Refresh();
         }
 
-        protected override bool UpdateComponents(string? propertyName)
+        protected override bool UpdateComponents(string propertyName)
         {
-            if(propertyName == nameof(Name))
+            if(propertyName == nameof (Name))
             {
                 SelectedComponents.ForEach(component => component.Name = _name);
                 return true;
@@ -34,7 +34,7 @@
 
         protected override bool UpdateMSComponent()
         {
-            Name = MSEntity.GetMixedValue(SelectedComponents, new Func<Script, string>(x => x.Name));
+            Name = MSEntity.GetMixedValue(SelectedComponents, new Func<Script, string>(x => x.Name!));
             return true;
         }
     }

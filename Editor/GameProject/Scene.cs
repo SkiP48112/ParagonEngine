@@ -42,12 +42,12 @@ namespace Editor.GameProject
             }
         }
 
-        public ICommand? AddGameEntityCommand { get; private set; }
-        public ICommand? RemoveGameEntityCommand { get; private set; }
+        public ICommand AddGameEntityCommand { get; private set; }
+        public ICommand RemoveGameEntityCommand { get; private set; }
 
         [DataMember(Name = nameof(GameEntities))]
         private readonly ObservableCollection<GameEntity> _gameEntities = new ObservableCollection<GameEntity>();
-        public ReadOnlyObservableCollection<GameEntity>? GameEntities { get; private set; }
+        public ReadOnlyObservableCollection<GameEntity> GameEntities { get; private set; }
 
         public Scene(Project project, string name)
         {
