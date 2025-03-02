@@ -97,8 +97,15 @@ namespace Editor.Components
             OnDeserialized(new StreamingContext());
         }
 
-        public Component GetComponent(Type type) => Components?.FirstOrDefault(x => x.GetType() == type);
-        public T GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
+        public Component GetComponent(Type type)
+        {
+            return Components?.FirstOrDefault(x => x.GetType() == type);
+        }
+
+        public T GetComponent<T>() where T : Component
+        {
+            return GetComponent(typeof(T)) as T;
+        }
 
         public bool AddComponent(Component component)
         {

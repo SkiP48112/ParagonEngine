@@ -61,7 +61,6 @@ namespace Editor.Utilities
                 cmd.Redo();
                 _isAddEnabled = false;
 
-
                 _undoList.Add(cmd);
             }
         }

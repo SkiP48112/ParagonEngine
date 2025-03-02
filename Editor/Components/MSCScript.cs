@@ -34,7 +34,7 @@
 
         protected override bool UpdateMSComponent()
         {
-            Name = MSEntity.GetMixedValue(SelectedComponents, new Func<Script, string>(x => x.Name!));
+            Name = MSEntity.GetMixedValue(SelectedComponents, new Func<Script, string>(x => x.Name));
             return true;
         }
     }

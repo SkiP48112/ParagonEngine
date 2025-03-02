@@ -9,6 +9,9 @@ namespace Editor.GameProject
     [DataContract]
     class Scene : ViewModelBase
     {
+        [DataMember]
+        public Project Project { get; private set; }
+
         private string _name = string.Empty;
         [DataMember]
         public string Name
@@ -23,9 +26,6 @@ namespace Editor.GameProject
                 }
             }
         }
-
-        [DataMember]
-        public Project Project { get; private set; }
 
         private bool _isActive;
         [DataMember]

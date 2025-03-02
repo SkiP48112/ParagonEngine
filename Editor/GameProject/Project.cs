@@ -14,15 +14,40 @@ namespace Editor.GameProject
     [DataContract(Name = "Game")]
     class Project : ViewModelBase
     {
-        [DataMember] public string Name { get; private set; } = ProjectConsts.DEFAULT_PROJECT_NAME;
-        [DataMember] public string Path { get; private set; }
+        [DataMember] 
+        public string Name { get; private set; } = ProjectConsts.DEFAULT_PROJECT_NAME;
+
+        [DataMember] 
+        public string Path { get; private set; }
+
+        private int _buildConfig;
+        [DataMember]
+        public int BuildConfig
+        {
+            get => _buildConfig;
+            set
+            {
+                if (_buildConfig != value)
+                {
+                    _buildConfig = value;
+                    OnPropertyChanged(nameof(BuildConfig));
+                }
+            }
+        }
+
+        [DataMember(Name = "Scenes")]
+        private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
+        public ReadOnlyObservableCollection<Scene> Scenes
+        {
+            get;
+            private set;
+        }
 
         public string FullPath => $@"{Path}{Name}{ProjectConsts.PROJECT_EXTENSION}";
         public string Solution => $@"{Path}{Name}.sln";
+
         public static Project CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();
-
-        private static readonly string[] _buildConfigurationNames = { "Debug", "Release", "DebugEditor", "ReleaseEditor" };
 
         public ICommand AddSceneCommand { get; private set; }
         public ICommand RemoveSceneCommand { get; private set; }
@@ -38,21 +63,7 @@ namespace Editor.GameProject
 
         public BuildConfiguration StandAloneBuildConfig => BuildConfig == 0 ? BuildConfiguration.Debug : BuildConfiguration.Release;
         public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
-
-        private int _buildConfig;
-        [DataMember]
-        public int BuildConfig
-        {
-            get => _buildConfig;
-            set
-            {
-                if(_buildConfig != value)
-                {
-                    _buildConfig = value;
-                    OnPropertyChanged(nameof(BuildConfig));
-                }
-            }
-        }
+        private static readonly string[] _buildConfigurationNames = { "Debug", "Release", "DebugEditor", "ReleaseEditor" };
 
         private string[] _availableScripts;
         public string[] AvailableScripts
@@ -81,14 +92,6 @@ namespace Editor.GameProject
                 }
             }
 
-        }
-
-        [DataMember(Name = "Scenes")]
-        private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
-        public ReadOnlyObservableCollection<Scene> Scenes
-        {
-            get;
-            private set;
         }
 
         public Project(string name, string path)
@@ -171,7 +174,7 @@ namespace Editor.GameProject
 
             using (var bw = new BinaryWriter(File.Open(bin, FileMode.Create, FileAccess.Write)))
             {
-                bw.Write(ActiveScene!.GameEntities!.Count);
+                bw.Write(ActiveScene.GameEntities.Count);
                 foreach(var entity in ActiveScene.GameEntities)
                 {
                     bw.Write(0); // entity type {reserved for later updates}
@@ -230,7 +233,7 @@ namespace Editor.GameProject
             if (File.Exists(dll) && EngineAPI.LoadGameCodeDll(dll) != 0)
             {
                 AvailableScripts = EngineAPI.GetScriptNames();
-                ActiveScene!.GameEntities!.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = true);
+                ActiveScene.GameEntities.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = true);
                 Logger.Log(MessageType.Info, "Game code DLL loaded successfully.");
                 return;
             }
@@ -240,7 +243,7 @@ namespace Editor.GameProject
 
         private void UnloadGameCodeDll()
         {
-            ActiveScene!.GameEntities!.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = false);
+            ActiveScene.GameEntities.Where(x => x.GetComponent<Script>() != null).ToList().ForEach(x => x.IsActive = false);
             if (EngineAPI.UnloadGameCodeDll() != 0)
             {
                 AvailableScripts = null;
