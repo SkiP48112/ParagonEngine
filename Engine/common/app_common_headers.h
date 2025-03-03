@@ -15,6 +15,7 @@
 
 // Common headers
 #include "app_primitive_types.h"
+#include "app_id.h"
 #include "..\data_structures\ds_vector.h"
 #include "..\data_structures\ds_deque.h"
 #include "..\math\m_vector2.h"

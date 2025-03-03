@@ -7,7 +7,7 @@ namespace
 	dsVECTOR<idID_TYPE> idMapping;
 
 	dsVECTOR<idGENERATION_TYPE> generations;
-	dsVECTOR<gsSCRIPT_ID> freeIds;
+	dsDEQUE<gsSCRIPT_ID> freeIds;
 
 	// We need to create out own implementation of unordered_map
 	using dsSCRIPT_REGISTRY = std::unordered_map<size_t, gsSCRIPT_CREATOR>;
@@ -86,7 +86,9 @@ gsSCRIPT_COMPONENT gsCreateScript(gsSCRIPT_INIT_INFO info, gsENTITY entity)
 	if (freeIds.size() > ID_MIN_DELETED_ELEMENTS)
 	{
 		id = freeIds.front();
-		freeIds.pop_back();
+		assert(!gsIsScriptExists(id));
+
+		freeIds.pop_front();
 
 		id = gsSCRIPT_ID(idNewGeneration(id));
 		++generations[idGetIndex(id)];
