@@ -76,6 +76,29 @@ namespace
       case WM_DESTROY:
          appGetWindowDescByHandle(hwnd).isClosed = true;
          break;
+      case WM_EXITSIZEMOVE:
+         desc = &appGetWindowDescByHandle(hwnd);
+         break;
+      case WM_SIZE:
+         if (wparam == SIZE_MAXIMIZED)
+         {
+            desc = &appGetWindowDescByHandle(hwnd);
+         }
+         break;
+      case WM_SYSCOMMAND:
+         if (wparam == SC_RESTORE)
+         {
+            desc = &appGetWindowDescByHandle(hwnd);
+         }
+         break;
+      default:
+         break;
+      }
+
+      if (desc)
+      {
+         assert(desc->hwnd);
+         GetClientRect(desc->hwnd, desc->isFullscreen ? &desc->fullscreenArea : &desc->clientArea);
       }
 
       LONG_PTR pLong = GetWindowLongPtr(hwnd, 0);
@@ -181,7 +204,7 @@ namespace
       AdjustWindowRect(&windowRect, desc.style, FALSE);
 
       const S32 width = windowRect.right - windowRect.left;
-      const S32 height = windowRect.top - windowRect.bottom;
+      const S32 height = windowRect.bottom - windowRect.top;
 
       MoveWindow(desc.hwnd, desc.topLeft.x, desc.topLeft.y, width, height, true);
    }
@@ -266,6 +289,12 @@ appWINDOW appCreateWindow(const appWINDOW_INIT_INFO* const initInfo)
    {
       return appWINDOW();
    }
+
+
+   // NOTE: RegisterClassEx() throws an error if we try to register same calss twice
+   //       So we reset last error, to fix this problem
+   // TODO: Find a more proper way to fix this problem
+   SetLastError(0);
 
    appWINDOW_ID id = (appWINDOW_ID)appAddToWindows(desc);
    SetWindowLongPtr(desc.hwnd, GWLP_USERDATA, (LONG_PTR)id);

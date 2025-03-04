@@ -7,7 +7,7 @@
 #include "..\Engine\game_systems\gs_transform.h"
 
 
-class testENTITY_AND_COMPONENTS : public testTEST
+class testENGINE_TEST : public testTEST
 {
 public:
 	bool Initialize() override
