@@ -31,15 +31,15 @@ public:
    const mVECTOR4_U32 GetSize() const;
    const U32 GetWidth() const;
    const U32 GetHeight() const;
+   void* GetHandle() const;
 
    bool IsFullscreen() const;
    bool IsClosed() const;
 
-   void SetCaption(const char* caption) const;
+   void SetCaption(const wchar_t* caption) const;
    void SetFullscreen(bool isFullscreen) const;
 
    void Resize(U32 width, U32 height) const;
-   void* Handle() const;
    
 private:
    appWINDOW_ID id{ ID_INVALID_ID };
