@@ -23,6 +23,7 @@
     <ClInclude Include="platform\app_window.h" />
     <ClInclude Include="platform\app_platform.h" />
     <ClInclude Include="platform\app_platform_types.h" />
+    <ClInclude Include="graphics\gr_renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_systems\gs_entity.cpp" />

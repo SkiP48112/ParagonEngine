@@ -139,17 +139,19 @@ namespace
    appWINDOW_DESC appCreateWindowInstance(const appWINDOW_INIT_INFO* const initInfo, WNDCLASSEX& wc, appWINDOW_HANDLE& parent)
    {
       appWINDOW_DESC desc;
-      RECT rc(desc.clientArea);
+      desc.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
 
-      AdjustWindowRect(&rc, desc.style, FALSE);
+      desc.clientArea.right = (initInfo && initInfo->width) ? desc.clientArea.left + initInfo->width : desc.clientArea.right;
+      desc.clientArea.bottom = (initInfo && initInfo->height) ? desc.clientArea.top + initInfo->height : desc.clientArea.bottom;
+
+      RECT rect(desc.clientArea);
+      AdjustWindowRect(&rect, desc.style, FALSE);
 
       const wchar_t* caption = (initInfo && initInfo->caption) ? initInfo->caption : L"Paragon Game";
-      const S32 left = (initInfo && initInfo->left) ? initInfo->left : desc.clientArea.left;
-      const S32 top = (initInfo && initInfo->top) ? initInfo->top : desc.clientArea.top;
-      const S32 width = (initInfo && initInfo->width) ? initInfo->width : rc.right - rc.left;
-      const S32 height = (initInfo && initInfo->height) ? initInfo->height : rc.bottom - rc.top;
-
-      desc.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
+      const S32 left = initInfo? initInfo->left : desc.topLeft.x;
+      const S32 top = initInfo ? initInfo->top : desc.topLeft.y;
+      const S32 width = rect.right - rect.left;
+      const S32 height = rect.bottom - rect.top;
 
       desc.hwnd = CreateWindowEx(
          0,                // extended style
@@ -294,7 +296,7 @@ appWINDOW appCreateWindow(const appWINDOW_INIT_INFO* const initInfo)
    // NOTE: RegisterClassEx() throws an error if we try to register same calss twice
    //       So we reset last error, to fix this problem
    // TODO: Find a more proper way to fix this problem
-   SetLastError(0);
+   DEBUG_OP(SetLastError(0));
 
    appWINDOW_ID id = (appWINDOW_ID)appAddToWindows(desc);
    SetWindowLongPtr(desc.hwnd, GWLP_USERDATA, (LONG_PTR)id);
@@ -320,19 +322,19 @@ void appRemoveWindow(appWINDOW_ID id)
 }
 
 
-#elif
+#else
 #error "used platform is not implented yet"
 #endif
 
 
-const mVECTOR4_U32 appWINDOW::GetSize() const
+mVECTOR4_U32 appWINDOW::GetSize() const
 {
    assert(IsValid());
    return appGetWindowSize(id);
 }
 
 
-const U32 appWINDOW::GetWidth() const
+U32 appWINDOW::GetWidth() const
 {
    assert(IsValid());
    mVECTOR4_U32 size = GetSize();
@@ -341,7 +343,7 @@ const U32 appWINDOW::GetWidth() const
 }
 
 
-const U32 appWINDOW::GetHeight() const
+U32 appWINDOW::GetHeight() const
 {
    assert(IsValid());
    mVECTOR4_U32 size = GetSize();

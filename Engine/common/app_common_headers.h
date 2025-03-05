@@ -23,3 +23,10 @@
 #include "..\math\m_vector4.h"
 #include "..\math\m_matr3.h"
 #include "..\math\m_matr4.h"
+
+
+#ifdef _DEBUG
+#define DEBUG_OP(x) x
+#else
+#define DEBUG_OP(x) (void(0))
+#endif

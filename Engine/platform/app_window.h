@@ -28,9 +28,9 @@ public:
       return idIsValid(id);
    }
 
-   const mVECTOR4_U32 GetSize() const;
-   const U32 GetWidth() const;
-   const U32 GetHeight() const;
+   mVECTOR4_U32 GetSize() const;
+   U32 GetWidth() const;
+   U32 GetHeight() const;
    void* GetHandle() const;
 
    bool IsFullscreen() const;
