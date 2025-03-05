@@ -20,6 +20,10 @@
     <ClInclude Include="engine_api\api_script_component.h" />
     <ClInclude Include="game_systems\gs_script.h" />
     <ClInclude Include="resources\res_content_loader.h" />
+    <ClInclude Include="platform\app_window.h" />
+    <ClInclude Include="platform\app_platform.h" />
+    <ClInclude Include="platform\app_platform_types.h" />
+    <ClInclude Include="graphics\gr_renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_systems\gs_entity.cpp" />
@@ -28,5 +32,6 @@
     <ClCompile Include="core\core_main.cpp" />
     <ClCompile Include="core\core_engine.cpp" />
     <ClCompile Include="resources\res_content_loader.cpp" />
+    <ClCompile Include="platform\app_platform.cpp" />
   </ItemGroup>
 </Project>

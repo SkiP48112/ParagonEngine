@@ -22,6 +22,10 @@
     <ClInclude Include="common\app_common_headers.h" />
     <ClInclude Include="common\app_primitive_types.h" />
     <ClInclude Include="common\app_id.h" />
+    <ClInclude Include="graphics\gr_renderer.h" />
+    <ClInclude Include="platform\app_platform.h" />
+    <ClInclude Include="platform\app_platform_types.h" />
+    <ClInclude Include="platform\app_window.h" />
     <ClInclude Include="resources\res_content_loader.h" />
     <ClInclude Include="engine_api\api_script_component.h" />
     <ClInclude Include="game_systems\gs_common.h" />
@@ -40,6 +44,7 @@
     <ClInclude Include="math\m_vector4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="platform\app_platform.cpp" />
     <ClCompile Include="resources\res_content_loader.cpp" />
     <ClCompile Include="core\core_engine.cpp" />
     <ClCompile Include="core\core_main.cpp" />

@@ -89,8 +89,7 @@ bool gsIsAlive(gsENTITY_ID id)
 	assert(idIsValid(id));
 	const idID_TYPE index = idGetIndex(id);
 
-	assert(index < generations.size());
-	assert(generations[index] == idGetGeneration(id));
+	assert(index < generations.size());;
 
 	return (generations[index] == idGetGeneration(id) && transforms[index].IsValid());
 }
