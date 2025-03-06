@@ -139,10 +139,10 @@ namespace
    appWINDOW_DESC appCreateWindowInstance(const appWINDOW_INIT_INFO* const initInfo, WNDCLASSEX& wc, appWINDOW_HANDLE& parent)
    {
       appWINDOW_DESC desc;
-      desc.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
 
       desc.clientArea.right = (initInfo && initInfo->width) ? desc.clientArea.left + initInfo->width : desc.clientArea.right;
       desc.clientArea.bottom = (initInfo && initInfo->height) ? desc.clientArea.top + initInfo->height : desc.clientArea.bottom;
+      desc.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
 
       RECT rect(desc.clientArea);
       AdjustWindowRect(&rect, desc.style, FALSE);
@@ -175,7 +175,7 @@ namespace
    const mVECTOR4_U32 appGetWindowSize(const appWINDOW_ID id)
    {
       appWINDOW_DESC& desc = appGetWindowDescById(id);
-      RECT area = desc.isFullscreen ? desc.fullscreenArea : desc.clientArea;
+      RECT& area = desc.isFullscreen ? desc.fullscreenArea : desc.clientArea;
 
       return { (U32)area.left, (U32)area.top, (U32)area.right, (U32)area.bottom };
    }
@@ -235,17 +235,14 @@ namespace
 
       desc.topLeft.x = rect.left;
       desc.topLeft.y = rect.top;
-      desc.style = NULL;
 
-      SetWindowLongPtr(desc.hwnd, GWL_STYLE, desc.style);
+      SetWindowLongPtr(desc.hwnd, GWL_STYLE, NULL);
       ShowWindow(desc.hwnd, SW_MAXIMIZE);
    }
 
 
    void appSetWindowNormalScreen(appWINDOW_DESC& desc)
    {
-      desc.style = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
-
       SetWindowLongPtr(desc.hwnd, GWL_STYLE, desc.style);
       appResizeWindow(desc, desc.clientArea);
       ShowWindow(desc.hwnd, SW_SHOWNORMAL);

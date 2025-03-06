@@ -1,6 +1,9 @@
 #include "common.h"
 #include "app_common_headers.h"
 #include "..\Engine\engine_api\api_game_entity.h"
+#include "..\platform\app_platform_types.h"
+#include "..\platform\app_platform.h"
+#include "..\graphics\gr_renderer.h"
 
 
 #ifndef WIN32_
@@ -18,6 +21,8 @@ namespace
 
 	using LPSAFEARRAY_PTR = LPSAFEARRAY(*)(void);
 	LPSAFEARRAY_PTR apiGetScriptNamesPtr{ nullptr };
+
+	dsVECTOR<grRENDER_SURFACE> surfaces;
 }
 
 EDITOR_INTERFACE
@@ -65,4 +70,37 @@ EDITOR_INTERFACE
 LPSAFEARRAY GetScriptNames()
 {
 	return (gameCodeDll && apiGetScriptNamesPtr) ? apiGetScriptNamesPtr() : nullptr;
+}
+
+
+EDITOR_INTERFACE
+U32 CreateRenderSurface(HWND host, S32 width, S32 height)
+{
+	assert(host);
+	appWINDOW_INIT_INFO info{ nullptr, host, nullptr, 0, 0, width, height };
+	
+	grRENDER_SURFACE surface{ appCreateWindow(&info), {} };
+	assert(surface.window.IsValid());
+
+	U32 surfaceIdx = surfaces.size();
+	surfaces.emplace_back(surface);
+	return surfaceIdx;
+}
+
+
+EDITOR_INTERFACE
+void RemoveRenderSurface(U32 idx)
+{
+	assert(idx < surfaces.size());
+	appRemoveWindow(surfaces[idx].window.GetID());
+
+	// TODO: Remove window from surfaces list when we have a free-list container
+}
+
+
+EDITOR_INTERFACE
+HWND GetWindowHandle(U32 idx)
+{
+	assert(idx < surfaces.size());
+	return (HWND)surfaces[idx].window.GetHandle();
 }
