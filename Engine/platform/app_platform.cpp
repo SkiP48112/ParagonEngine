@@ -216,6 +216,12 @@ namespace
    {
       appWINDOW_DESC& desc = appGetWindowDescById(id);
 
+      if (desc.style & WS_CHILD)
+      {
+         GetClientRect(desc.hwnd, &desc.clientArea);
+         return;
+      }
+
       // NOTE: we also resize while in fullscreen mode to support the case
       //       when the user changes the screen resolution
 

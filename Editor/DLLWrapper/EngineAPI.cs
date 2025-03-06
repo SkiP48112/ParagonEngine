@@ -58,6 +58,9 @@ namespace Editor.DLLWrapper
         [DllImport(_engineDll)]
         public static extern IntPtr GetWindowHandle(int idx);
 
+        [DllImport(_engineDll)]
+        public static extern IntPtr ResizeRenderSurface(int idx);
+
         internal static class EntityAPI
         {
             [DllImport(_engineDll)]

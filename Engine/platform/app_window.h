@@ -39,7 +39,7 @@ public:
    void SetCaption(const wchar_t* caption) const;
    void SetFullscreen(bool isFullscreen) const;
 
-   void Resize(U32 width, U32 height) const;
+   void Resize(U32 width = -1, U32 height = -1) const;
    
 private:
    appWINDOW_ID id{ ID_INVALID_ID };
