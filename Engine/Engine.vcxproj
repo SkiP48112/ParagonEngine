@@ -22,7 +22,9 @@
     <ClInclude Include="common\app_common_headers.h" />
     <ClInclude Include="common\app_primitive_types.h" />
     <ClInclude Include="common\app_id.h" />
+    <ClInclude Include="data_structures\ds_string.h" />
     <ClInclude Include="graphics\gr_renderer.h" />
+    <ClInclude Include="math\m_math.h" />
     <ClInclude Include="platform\app_platform.h" />
     <ClInclude Include="platform\app_platform_types.h" />
     <ClInclude Include="platform\app_window.h" />

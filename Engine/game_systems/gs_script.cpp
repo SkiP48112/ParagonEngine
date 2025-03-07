@@ -23,13 +23,13 @@ namespace
 
 
 	#ifdef USE_WITH_EDITOR
-		dsVECTOR<std::string>& ScriptNames()
+		dsVECTOR<dsSTRING>& ScriptNames()
 		{
 			// NOTE: we put static variable in a function because of
 			//		the initializetion order in static data. This way, we can
 			//		be certain that the data is initialized before accessing it.
 
-			static dsVECTOR<std::string> names;
+			static dsVECTOR<dsSTRING> names;
 			return names;
 		}
 	#endif
