@@ -6,6 +6,7 @@
 #include "..\math\m_vector4.h"
 #include "..\math\m_matr3.h"
 #include "..\math\m_matr4.h"
+#include "m_consts.h"
 
 
 template<typename T>

@@ -4,15 +4,15 @@
 
 namespace{
    
-   using atPRIMITIVE_MESH_CREATOR = void(*)(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
+   using atPRIMITIVE_MESH_CREATOR = void(*)(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
 
 
-   void atCreatePlane(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
-   void atCreateCube(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
-   void atCreateUvSphere(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
-   void atCreateIcoSphere(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
-   void atCreateCylinder(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
-   void atCreateCapsule(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info);
+   void atCreatePlane(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
+   void atCreateCube(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
+   void atCreateUvSphere(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
+   void atCreateIcoSphere(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
+   void atCreateCylinder(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
+   void atCreateCapsule(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
 
 
    atPRIMITIVE_MESH_CREATOR creators[]
@@ -39,10 +39,10 @@ namespace{
    };
 
 
-   atMESH atCreatePlane(
+   geomMESH atCreatePlane(
       const atPRIMITIVE_MESH_INIT_INFO& info,
       const U32 horizontalIndex = atAXIS::X,
-      const U32 verticalIndex = atAXIS::Y,
+      const U32 verticalIndex = atAXIS::Z,
       const bool flipWinding = false,
       const mVECTOR3 offset = { -0.5f, 0.0f, -0.5f },
       const mVECTOR2 uRange = { 0.0f, 1.0f },
@@ -60,7 +60,7 @@ namespace{
       const F32 uStep = (uRange.y - uRange.x) / horizontalCount;
       const F32 vStep = (vRange.y - vRange.x) / verticalCount;
 
-      atMESH mesh;
+      geomMESH mesh;
       dsVECTOR<mVECTOR2> uvs;
 
       for (U32 i = 0; i <= verticalCount; ++i)
