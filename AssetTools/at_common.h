@@ -1,5 +1,6 @@
 #pragma once
 
+#include <combaseapi.h>
 #include "app_common_headers.h"
 
 

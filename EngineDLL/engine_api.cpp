@@ -6,11 +6,12 @@
 #include "..\graphics\gr_renderer.h"
 
 
-#ifndef WIN32_
-	#define WIN32_MEAN_AND_LEAN
-#endif // !WIN32_MEAN_AND_LEAN
+#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+#endif // !WIN32_LEAN_AND_MEAN
 
 #include <Windows.h>
+#include <atlsafe.h>
 
 namespace
 {

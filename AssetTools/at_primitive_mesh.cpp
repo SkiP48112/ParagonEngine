@@ -112,6 +112,7 @@ namespace{
       const U32 numIndices = 3 * 2 * horizontalCount * verticalCount;
       assert(mesh.rawIndices.size() == numIndices);
 
+      mesh.uvSets.resize(1);
       for (U32 i = 0; i < numIndices; ++i)
       {
          mesh.uvSets[0].emplace_back(uvs[mesh.rawIndices[i]]);

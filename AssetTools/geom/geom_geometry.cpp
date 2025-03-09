@@ -67,8 +67,7 @@ namespace
             {
                for (U32 k = j + 1; k < numRefs; ++k)
                {
-                  // NOTT: This value represents the cosine of the angle between normals
-                  F32 n = 0.0f;
+                  F32 cosBetweenNormals = 0.0f;
                   XMVECTOR n2 = XMLoadFloat3(&mesh.normals[refs[k]]);
                   if (!isSoftEdge)
                   {
@@ -76,10 +75,10 @@ namespace
                      //       it can possibly change in this loop iteration. We assume unit length
                      //       for u2.
                      //       cos(angle) == dot(n1, n2) / (||n1|| * ||n2||)
-                     XMStoreFloat(&n, XMVector3Dot(n1, n2) * XMVector3ReciprocalLength(n1));
+                     XMStoreFloat(&cosBetweenNormals, XMVector3Dot(n1, n2) * XMVector3ReciprocalLength(n1));
                   }
 
-                  if (isSoftEdge || n > cosAngle)
+                  if (isSoftEdge || cosBetweenNormals > cosAngle)
                   {
                      n1 + n2;
 
@@ -147,7 +146,7 @@ namespace
    {
       const U32 numVertices = (U32)mesh.vertices.size();
       assert(numVertices);
-      
+
       mesh.packedVerticesStatic.reserve(numVertices);
       for (U32 i = 0; i < numVertices; ++i)
       {
@@ -160,24 +159,24 @@ namespace
          // TODO: pack tangents in sign and in x/y components
 
          mesh.packedVerticesStatic.emplace_back
-            (
-               geomPACKED_VERTEX_STATIC
-               {
-                  vertex.position,
-                  {0, 0, 0},
-                  signs,
-                  {normalX, normalY },
-                  {},
-                  vertex.uv
-               }
-            );
+         (
+            geomPACKED_VERTEX_STATIC
+            {
+               vertex.position,
+               {0, 0, 0},
+               signs,
+               {normalX, normalY },
+               {},
+               vertex.uv
+            }
+         );
       }
    }
 
 
    void geomProcessVertices(geomMESH& mesh, const geomIMPORT_SETTINGS& settings)
    {
-      assert(mesh.rawIndices.size() % 3  == 0);
+      assert(mesh.rawIndices.size() % 3 == 0);
       if (settings.calculateNormals || mesh.normals.empty())
       {
          geomRecalculateNormals(mesh);
@@ -191,6 +190,133 @@ namespace
       }
 
       geomPackVerticesStatic(mesh);
+   }
+
+
+   U64 geomGetMeshSize(const geomMESH& mesh)
+   {
+      const U64 numVertices = mesh.vertices.size();
+      const U64 vertexBufferSize = sizeof(geomPACKED_VERTEX_STATIC) * numVertices;
+
+      const U64 indexSize = numVertices < (1 << 16) ? sizeof(16) : sizeof(32);
+      const U64 indexBufferSize = indexSize * mesh.indices.size();
+
+      const U64 size
+      {
+         U32_SIZE +            // name length
+         mesh.name.size() +   // room for mesh name string
+         U32_SIZE +            // mesh id
+         U32_SIZE +            // vertex size
+         U32_SIZE +            // number of vertices
+         U32_SIZE +            // index size (16 bits or 32 bits)
+         U32_SIZE +            // number if indices
+         sizeof(F32) +        // LOD threshold
+         vertexBufferSize +   // room for vertices
+         indexBufferSize      // room for indices
+      };
+
+      return size;
+   }
+
+
+   void geomPackMeshData(const geomMESH& mesh, U8* const buffer, U64& bufferIdx)
+   {
+      U32 storage = 0;
+
+      // mesh name
+      storage = (U32)mesh.name.size();
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      memcpy(&buffer[bufferIdx], mesh.name.c_str(), storage);
+      bufferIdx += storage;
+
+      // LOD id
+      storage = mesh.lodId;
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      // vertex size
+      constexpr U32 vertexSize = sizeof(geomPACKED_VERTEX_STATIC);
+      storage = vertexSize;
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      // number of vertices
+      const U32 numVertices = (U32)mesh.vertices.size();
+      storage = numVertices;
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      // index size (16 bits or 32 bits)
+      const U32 indexSize = (numVertices < (1 << 16)) ? sizeof(U16) : sizeof(U32);
+      storage = indexSize;
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      // number of indices
+      const U32 numIndices = (U32)mesh.indices.size();
+      storage = numIndices;
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      // LOD threshold
+      memcpy(&buffer[bufferIdx], &mesh.lodTreshhold, F32_SIZE);
+      bufferIdx += F32_SIZE;
+
+      // vertex data
+      storage = vertexSize * numVertices;
+      memcpy(&buffer[bufferIdx], mesh.packedVerticesStatic.data(), storage);
+      bufferIdx += storage;
+
+      // index data
+      storage = indexSize * numIndices;
+      void* data = (void*)mesh.indices.data();
+      dsVECTOR<U16> indices;
+
+      if (indexSize == U16_SIZE)
+      {
+         indices.resize(numIndices);
+         for (U32 i = 0; i < numIndices; ++i)
+         {
+            indices[i] = (U16)mesh.indices[i];
+         }
+
+         data = (void*)indices.data();
+      }
+
+      memcpy(&buffer[bufferIdx], data, storage);
+      bufferIdx += storage;
+   }
+
+
+   U64 scnGetSceneSize(const scnSCENE& scene)
+   {
+      U64 size
+      {
+         U32_SIZE +               // name length
+         scene.name.size() +      // room for scene name string
+         U32_SIZE                 // amount of LODs
+      };
+
+      for (auto& lod : scene.lodGroups)
+      {
+         U64 lodSize
+         {
+            U32_SIZE +            // LOD name length
+            lod.name.size() +     // roof for LOD name string
+            U32_SIZE              // amount of meshed in current LOD
+         };
+
+         for (auto& mesh : lod.meshes)
+         {
+            lodSize += geomGetMeshSize(mesh);
+         }
+
+         size += lodSize;
+      }
+
+      return size;
    }
 }
 
@@ -209,4 +335,47 @@ void scnProcessScene(scnSCENE& scene, const geomIMPORT_SETTINGS& settings)
 
 void scnPackData(const scnSCENE& scene, scnDATA& data)
 {
+   const U64 sceneSize = scnGetSceneSize(scene);
+
+   data.bufferSize = (U32)sceneSize;
+   data.buffer = (U8*)CoTaskMemAlloc(sceneSize);
+   assert(data.buffer);
+
+   U8* const buffer = data.buffer;
+   U64 bufferIdx = 0;
+   U32 storage = 0;
+
+   // scene name
+   storage = (U32)scene.name.size();
+   memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+   bufferIdx += U32_SIZE;
+
+   memcpy(&buffer[bufferIdx], scene.name.c_str(), storage);
+   bufferIdx += storage;
+
+   // number of LODs
+   storage = (U32)scene.lodGroups.size();
+   memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+   bufferIdx += U32_SIZE;
+
+   for (auto& lod : scene.lodGroups)
+   {
+      // LOD name
+      storage = (U32)lod.name.size();
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      memcpy(&buffer[bufferIdx], lod.name.c_str(), storage);
+      bufferIdx += storage;
+
+      // number of meshes in current LOD
+      storage = (U32)lod.meshes.size();
+      memcpy(&buffer[bufferIdx], &storage, U32_SIZE);
+      bufferIdx += U32_SIZE;
+
+      for (auto& mesh : lod.meshes)
+      {
+         geomPackMeshData(mesh, buffer, bufferIdx);
+      }
+   }
 }
