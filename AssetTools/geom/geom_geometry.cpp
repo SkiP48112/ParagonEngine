@@ -95,7 +95,83 @@ namespace
             XMStoreFloat3(&vertex.normal, XMVector3Normalize(n1));
          }
       }
+   }
 
+
+   void geomProcessUVs(geomMESH& mesh)
+   {
+      dsVECTOR<geomVERTEX> oldVertices;
+      oldVertices.swap(mesh.vertices);
+
+      dsVECTOR<U32> oldIndices(mesh.indices.size());
+      oldIndices.swap(mesh.indices);
+
+      const U32 numVertices = (U32)oldVertices.size();
+      const U32 numIndices = (U32)oldIndices.size();
+
+      dsVECTOR<dsVECTOR<U32>> idxRef(numVertices);
+      for (U32 i = 0; i < numIndices; ++i)
+      {
+         idxRef[oldIndices[i]].emplace_back(i);
+      }
+
+      for (U32 i = 0; i < numVertices /* numIndices??? */; ++i)
+      {
+         dsVECTOR<U32>& refs = idxRef[i];
+         U32 numRefs = (U32)refs.size();
+
+         for (U32 j = 0; j < numRefs; ++j)
+         {
+            mesh.indices[refs[j]] = (U32)mesh.vertices.size();
+            geomVERTEX& vertex = oldVertices[oldIndices[refs[j]]];
+            vertex.uv = mesh.uvSets[0][refs[j]];
+            mesh.vertices.emplace_back(vertex);
+
+            for (U32 k = j + 1; k < numRefs; ++k)
+            {
+               mVECTOR2& uv1 = mesh.uvSets[0][refs[k]];
+               if (XMScalarNearEqual(vertex.uv.x, uv1.x, M_EPSILON) && XMScalarNearEqual(vertex.uv.y, uv1.y, M_EPSILON))
+               {
+                  mesh.indices[refs[k]] = mesh.indices[refs[j]];
+                  refs.erase(refs.begin() + k);
+                  --numRefs;
+                  --k;
+               }
+            }
+         }
+      }
+   }
+
+
+   void geomPackVerticesStatic(geomMESH& mesh)
+   {
+      const U32 numVertices = (U32)mesh.vertices.size();
+      assert(numVertices);
+      
+      mesh.packedVerticesStatic.reserve(numVertices);
+      for (U32 i = 0; i < numVertices; ++i)
+      {
+         geomVERTEX& vertex = mesh.vertices[i];
+
+         const U8 signs = (U8)((vertex.normal.z > 0.0f) << 1);
+         const U16 normalX = (U16)mPackFloat<16>(vertex.normal.x, -1.0f, 1.0f);
+         const U16 normalY = (U16)mPackFloat<16>(vertex.normal.y, -1.0f, 1.0f);
+
+         // TODO: pack tangents in sign and in x/y components
+
+         mesh.packedVerticesStatic.emplace_back
+            (
+               geomPACKED_VERTEX_STATIC
+               {
+                  vertex.position,
+                  {0, 0, 0},
+                  signs,
+                  {normalX, normalY },
+                  {},
+                  vertex.uv
+               }
+            );
+      }
    }
 
 

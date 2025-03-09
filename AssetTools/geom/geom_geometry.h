@@ -22,6 +22,18 @@ struct geomVERTEX
 };
 
 
+struct geomPACKED_VERTEX_STATIC
+{
+   mVECTOR3 position;
+   U8 reserved[3];
+   U8 tSign; // bit 0: tangent handedness * (tangent.z sign), bit 1: normal.z sign (0 means -, 1 means +)
+
+   U16 normal[2];
+   U16 tangent[2];
+   mVECTOR2 uv;
+};
+
+
 struct geomMESH
 {
    // Initial data
@@ -36,6 +48,12 @@ struct geomMESH
    // Intermediate data
    dsVECTOR<geomVERTEX> vertices;
    dsVECTOR<U32> indices;
+
+   // Output data
+   dsSTRING name;
+   dsVECTOR<geomPACKED_VERTEX_STATIC> packedVerticesStatic;
+   F32 lodTreshhold = -1.0f;
+   F32 lodId = U32_INVALID_ID;
 };
 
 

@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="at_primitive_mesh.cpp" />
+    <ClCompile Include="geom\geom_geometry.cpp" />
   </ItemGroup>
 </Project>
