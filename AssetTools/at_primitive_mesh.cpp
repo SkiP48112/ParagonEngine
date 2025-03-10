@@ -164,7 +164,7 @@ namespace{
 
 
 EDITOR_INTERFACE
-void atCreatePrimitiveMesh(scnDATA* data, atPRIMITIVE_MESH_INIT_INFO* info)
+void CreatePrimitiveMesh(scnDATA* data, atPRIMITIVE_MESH_INIT_INFO* info)
 {
    assert(data && info);
    assert(info->type < atPRIMITIVE_MESH_TYPE::COUNT);
