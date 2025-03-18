@@ -62,7 +62,7 @@ protected:
 
 using gsSCRIPT_PTR = std::unique_ptr<gsENTITY_SCRIPT>;
 using gsSCRIPT_CREATOR = gsSCRIPT_PTR(*)(gsENTITY entity);
-using dsSTRING_HASH = std::hash<std::string>;
+using dsSTRING_HASH = std::hash<dsSTRING>;
 
 
 U8 apiRegisterScript(size_t, gsSCRIPT_CREATOR);

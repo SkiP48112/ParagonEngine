@@ -24,6 +24,8 @@
     <ClInclude Include="platform\app_platform.h" />
     <ClInclude Include="platform\app_platform_types.h" />
     <ClInclude Include="graphics\gr_renderer.h" />
+    <ClInclude Include="data_structures\ds_string.h" />
+    <ClInclude Include="math\m_math.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_systems\gs_entity.cpp" />

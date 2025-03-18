@@ -295,7 +295,6 @@ appWINDOW appCreateWindow(const appWINDOW_INIT_INFO* const initInfo)
       return appWINDOW();
    }
 
-
    // NOTE: RegisterClassEx() throws an error if we try to register same calss twice
    //       So we reset last error, to fix this problem
    // TODO: Find a more proper way to fix this problem

@@ -6,7 +6,6 @@
 #include <assert.h>
 #include <typeInfo>
 #include <memory>
-#include <string>
 #include <unordered_map>
 
 #if defined(_WIN64)
@@ -18,11 +17,8 @@
 #include "app_id.h"
 #include "..\data_structures\ds_vector.h"
 #include "..\data_structures\ds_deque.h"
-#include "..\math\m_vector2.h"
-#include "..\math\m_vector3.h"
-#include "..\math\m_vector4.h"
-#include "..\math\m_matr3.h"
-#include "..\math\m_matr4.h"
+#include "..\data_structures\ds_string.h"
+#include "..\math\m_math.h"
 
 
 #ifdef _DEBUG
