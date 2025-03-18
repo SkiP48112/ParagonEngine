@@ -1,7 +1,10 @@
 ﻿
+using Editor.Common.Helpers;
+using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.Serialization;
+using System.IO;
+using System.Text;
 
 namespace Editor.Assets
 {
@@ -18,7 +21,7 @@ namespace Editor.Assets
     class Mesh : ViewModelBase
     {
         private int _vertexSize;
-        private int VertexSize
+        public int VertexSize
         {
             get => _vertexSize;
             set
@@ -32,7 +35,7 @@ namespace Editor.Assets
         }
 
         private int _vertexCount;
-        private int VertexCount
+        public int VertexCount
         {
             get => _vertexCount;
             set
@@ -46,7 +49,7 @@ namespace Editor.Assets
         }
 
         private int _indexSize;
-        private int IndexSize
+        public int IndexSize
         {
             get => _indexSize;
             set
@@ -60,7 +63,7 @@ namespace Editor.Assets
         }
 
         private int _indexCount;
-        private int IndexCount
+        public int IndexCount
         {
             get => _indexCount;
             set
@@ -94,7 +97,7 @@ namespace Editor.Assets
         }
 
         private float _lodThreshold;
-        private float LodThreshold
+        public float LodThreshold
         {
             get => _lodThreshold;
             set
@@ -131,13 +134,120 @@ namespace Editor.Assets
 
     class Geometry : Asset
     {
+        private readonly List<LODGroup> _lodGroups = new List<LODGroup>();
+
+        public LODGroup GetLODGroup(int lodGroup = 0)
+        {
+            Debug.Assert(lodGroup >= 0 && lodGroup < _lodGroups.Count, $"Can't find lod group with index = {lodGroup}.");
+            return _lodGroups.Any() ? _lodGroups[lodGroup] : null;
+        }
+
         public Geometry() : base(AssetType.Mesh)
         {
         }
 
         public void FromRawData(byte[] data)
         {
-            Debug.Assert(data?.Length > 0);
+            Debug.Assert(data?.Length > 0, "Can't read from geometry data due it's length is less or equals zero.");
+            _lodGroups.Clear();
+
+            using var reader = new BinaryReader(new MemoryStream(data));
+            
+            // skip scene name string
+            var s = reader.ReadInt32();
+            reader.BaseStream.Position += s;
+
+            // get number of LODs
+            var numLODGroups = reader.ReadInt32();
+            Debug.Assert(numLODGroups > 0, "Can't read amount of LODs");
+
+            for (int i = 0; i < numLODGroups; ++i)
+            {
+                // get LOD group's name
+                s = reader.ReadInt32();
+                string lodGroupName = string.Empty;
+
+                if (s > 0)
+                {
+                    var nameBytes = reader.ReadBytes(s);
+                    lodGroupName = Encoding.UTF8.GetString(nameBytes);
+                }
+                else
+                {
+                    lodGroupName = $"lod_{ AssetHelper.GetRandomString() }";
+                }
+
+                // get number of meshes in this LOD group
+                var numMeshes = reader.ReadInt32();
+                Debug.Assert(numMeshes > 0, "Can't read amount of meshes from asset data.");
+
+                var lods = ReadMeshLODs(numMeshes, reader);
+                var lodGroup = new LODGroup() { Name = lodGroupName };
+                lods.ForEach(l => lodGroup.LODs.Add(l));
+
+                _lodGroups.Add(lodGroup);
+            }
+        }
+
+        private static List<MeshLOD> ReadMeshLODs(int numMeshes, BinaryReader reader)
+        {
+            var lodIds = new List<int>();
+            var lodList = new List<MeshLOD>();
+
+            for (int i = 0; i < numMeshes; ++i)
+            {
+                ReadMeshes(reader, lodIds, lodList);
+            }
+
+            return lodList;
+        }
+
+        private static void ReadMeshes(BinaryReader reader, List<int> lodIds, List<MeshLOD> lodList)
+        {
+            // get mesh name
+            var s = reader.ReadInt32();
+            string meshName = string.Empty;
+
+            if (s > 0)
+            {
+                var nameBytes = reader.ReadBytes(s);
+                meshName = Encoding.UTF8.GetString(nameBytes);
+            }
+            else
+            {
+                meshName = $"mesh_{AssetHelper.GetRandomString()}";
+            }
+
+            var mesh = new Mesh();
+
+            var lodId = reader.ReadInt32();
+
+            mesh.VertexSize = reader.ReadInt32();
+            mesh.VertexCount = reader.ReadInt32();
+
+            mesh.IndexSize = reader.ReadInt32();
+            mesh.IndexCount = reader.ReadInt32();
+
+            var lodThreshold = reader.ReadSingle();
+            var vertexBufferSize = mesh.VertexSize * mesh.VertexCount;
+            var indexBufferSize = mesh.IndexSize * mesh.IndexCount;
+
+            mesh.Vertices = reader.ReadBytes(vertexBufferSize);
+            mesh.Indices = reader.ReadBytes(indexBufferSize);
+
+            MeshLOD lod;
+            if(ID.IsValid(lodId) && lodIds.Contains(lodId))
+            {
+                lod = lodList[lodIds.IndexOf(lodId)];
+                Debug.Assert(lod != null);
+            }
+            else
+            {
+                lodIds.Add(lodId);
+                lod = new MeshLOD() { Name = meshName, LodThreshold = lodThreshold };
+            }
+
+            lod.Meshes.Add(mesh);
         }
     }
 }
