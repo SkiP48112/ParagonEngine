@@ -16,9 +16,6 @@ namespace Editor.Utilities
     public partial class RenderSurfaceView : UserControl, IDisposable
     {
         private RenderSurfaceHost _host = null;
-        private bool _canResize = true;
-        private bool _isMoved = false;
-
         private bool _disposedValue;
 
         public RenderSurfaceView()
@@ -34,15 +31,6 @@ namespace Editor.Utilities
             _host = new RenderSurfaceHost(ActualWidth, ActualHeight);
             _host.MessageHook += new HwndSourceHook(HostMessageFilter);
             Content = _host;
-
-            var window = this.FindVisualParent<Window>();
-            Debug.Assert(window != null, "Can't find any window");
-
-            var helper = new WindowInteropHelper(window);
-            if (helper.Handle != IntPtr.Zero)
-            {
-                HwndSource.FromHwnd(helper.Handle)?.AddHook(HwndMessageHook);
-            }
         }
 
         private IntPtr HostMessageFilter(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -50,10 +38,6 @@ namespace Editor.Utilities
             switch ((Win32Msg)msg)
             {
                 case Win32Msg.WM_SIZE:
-                    if (_canResize)
-                    {
-                        _host.Resize();
-                    }
                     break;
                 case Win32Msg.WM_SIZING:
                     throw new Exception();
@@ -62,31 +46,6 @@ namespace Editor.Utilities
                 case Win32Msg.WM_EXITSIZEMOVE:
                     throw new Exception();
 
-                default:
-                    break;
-            }
-
-            return IntPtr.Zero;
-        }
-
-        private nint HwndMessageHook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
-        {
-            switch ((Win32Msg)msg)
-            {
-                case Win32Msg.WM_SIZING:
-                    _canResize = false;
-                    _isMoved = false;
-                    break;
-                case Win32Msg.WM_ENTERSIZEMOVE:
-                    _isMoved = true;
-                    break;
-                case Win32Msg.WM_EXITSIZEMOVE:
-                    _canResize = true;
-                    if (!_isMoved)
-                    {
-                        _host.Resize();
-                    }
-                    break;
                 default:
                     break;
             }

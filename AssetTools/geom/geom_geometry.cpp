@@ -378,4 +378,6 @@ void scnPackData(const scnSCENE& scene, scnDATA& data)
          geomPackMeshData(mesh, buffer, bufferIdx);
       }
    }
+
+   assert(sceneSize == bufferIdx);
 }
