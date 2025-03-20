@@ -9,7 +9,7 @@ namespace
    void geomRecalculateNormals(geomMESH& mesh)
    {
       const U32 numIndices = (U32)mesh.rawIndices.size();
-      mesh.normals.reserve(numIndices);
+      mesh.normals.resize(numIndices);
 
       for (U32 i = 0; i < numIndices; ++i)
       {
@@ -198,7 +198,7 @@ namespace
       const U64 numVertices = mesh.vertices.size();
       const U64 vertexBufferSize = sizeof(geomPACKED_VERTEX_STATIC) * numVertices;
 
-      const U64 indexSize = numVertices < (1 << 16) ? sizeof(16) : sizeof(32);
+      const U64 indexSize = numVertices < (1 << 16) ? sizeof(U16) : sizeof(U32);
       const U64 indexBufferSize = indexSize * mesh.indices.size();
 
       const U64 size
@@ -304,7 +304,7 @@ namespace
          U64 lodSize
          {
             U32_SIZE +            // LOD name length
-            lod.name.size() +     // roof for LOD name string
+            lod.name.size() +     // rooM for LOD name string
             U32_SIZE              // amount of meshed in current LOD
          };
 

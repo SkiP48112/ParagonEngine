@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:utl="clr-namespace:Editor.Utilities.Controls"
+    xmlns:ed="clr-namespace:Editor.Editors"
     Title="Primitive Mesh"
     Width="800"
     Height="600"
@@ -17,7 +18,10 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-
+    <Window.DataContext>
+        <ed:GeometryEditor/>
+    </Window.DataContext>
+    
     <Window.Resources>
         <ObjectDataProvider
             x:Key="dataFromEnum"
@@ -111,9 +115,9 @@
                                 <TextBox
                                     Width="30"
                                     DockPanel.Dock="Right"
-                                    Text="{Binding Path=Value, ElementName=ySliderPlane}" />
+                                    Text="{Binding Path=Value, ElementName=zSliderPlane}" />
                                 <Slider
-                                    x:Name="ySliderPlane"
+                                    x:Name="zSliderPlane"
                                     HorizontalAlignment="Stretch"
                                     Interval="1"
                                     IsSnapToTickEnabled="True"
@@ -147,7 +151,7 @@
                                     VerticalAlignment="Center"
                                     DockPanel.Dock="Left"
                                     Text="Width" />
-                                <utl:ScalarBox x:Name="widthScalarBoxName" Value="1" />
+                                <utl:ScalarBox x:Name="widthScalarBoxPlane" Value="1" ValueChanged="OnScalarBox_ValueChanged"/>
                             </DockPanel>
                             <DockPanel Margin="5,5,5,0">
                                 <TextBlock
@@ -155,7 +159,7 @@
                                     VerticalAlignment="Center"
                                     DockPanel.Dock="Left"
                                     Text="Length" />
-                                <utl:ScalarBox x:Name="LengthScalarBoxName" Value="1" />
+                                <utl:ScalarBox x:Name="lengthScalarBoxPlane" Value="1" ValueChanged="OnScalarBox_ValueChanged"/>
                             </DockPanel>
                         </StackPanel>
                     </Border>
@@ -175,6 +179,13 @@
             </StackPanel>
 
             <!--  CUBE SETTINGS  -->
+
+            <ed:GeometryView DataContext="{Binding MeshRenderer}" Grid.Column="1"/>
+            <StackPanel Grid.Column="1" Margin="5" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" IsHitTestVisible="False">
+                <TextBlock Text="{Binding MeshRenderer.CameraPosition.X, StringFormat=G5}"/>
+                <TextBlock Text="{Binding MeshRenderer.CameraPosition.Y, StringFormat=G5}" Margin="10, 0"/>
+                <TextBlock Text="{Binding MeshRenderer.CameraPosition.Z, StringFormat=G5}"/>
+            </StackPanel>
         </Grid>
     </DockPanel>
 </Window>

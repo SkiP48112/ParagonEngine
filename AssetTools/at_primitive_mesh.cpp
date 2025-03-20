@@ -177,4 +177,7 @@ void CreatePrimitiveMesh(scnDATA* data, atPRIMITIVE_MESH_INIT_INFO* info)
    creators[info->type](scene, *info);
 
    data->settings.calculateNormals = 1;
+
+   scnProcessScene(scene, data->settings);
+   scnPackData(scene, *data);
 }
