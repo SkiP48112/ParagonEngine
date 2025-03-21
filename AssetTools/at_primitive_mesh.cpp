@@ -63,9 +63,9 @@ namespace{
       geomMESH mesh;
       dsVECTOR<mVECTOR2> uvs;
 
-      for (U32 i = 0; i <= verticalCount; ++i)
+      for (U32 j = 0; j <= verticalCount; ++j)
       {
-         for (U32 j = 0; j <= horizontalCount; ++j)
+         for (U32 i = 0; i <= horizontalCount; ++i)
          {
             mVECTOR3 position(offset);
             F32* const asArray = &position.x;
@@ -78,7 +78,7 @@ namespace{
             mVECTOR2 uv{ uRange.x, 1.0f - vRange.x };
 
             uv.x += i * uStep;
-            uv.y += j * vStep;
+            uv.y -= j * vStep;
 
             uvs.emplace_back(uv);
          }
@@ -89,7 +89,8 @@ namespace{
       const U32 rowLength = horizontalCount + 1;
       for (U32 j = 0; j < verticalCount; ++j)
       {
-         for (U32 i = j; i < horizontalCount; ++i)
+         U32 k = 0;
+         for (U32 i = k; i < horizontalCount; ++i)
          {
             const U32 index[4]
             {
@@ -107,6 +108,7 @@ namespace{
             mesh.rawIndices.emplace_back(index[flipWinding ? 3 : 1]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 1 : 3]);
          }
+         ++k;
       }
 
       const U32 numIndices = 3 * 2 * horizontalCount * verticalCount;

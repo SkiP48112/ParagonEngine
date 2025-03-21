@@ -206,7 +206,7 @@ namespace Editor.Editors
                         // Read normals
                         var nrmX = reader.ReadUInt16() * intervals - 1.0f;
                         var nrmY = reader.ReadUInt16() * intervals - 1.0f;
-                        var nrmZ = Math.Sqrt(Math.Clamp(1.0f - (nrmX * nrmX + nrmY * nrmY), 0.0f, 1.0f)) * ((signs & 0x2) - 1);
+                        var nrmZ = Math.Sqrt(Math.Clamp(1.0f - (nrmX * nrmX + nrmY * nrmY), 0.0f, 1.0f)) * ((signs & 0x2) - 1.0f);
                         
                         var normal = new Vector3D(nrmX, nrmY, nrmZ);
                         normal.Normalize();

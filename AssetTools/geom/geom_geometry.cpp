@@ -59,7 +59,8 @@ namespace
          for (U32 j = 0; j < numRefs; ++j)
          {
             mesh.indices[refs[j]] = (U32)mesh.vertices.size();
-            geomVERTEX& vertex = mesh.vertices.emplace_back();
+            geomVERTEX& vertex(mesh.vertices.emplace_back());
+
             vertex.position = mesh.positions[mesh.rawIndices[refs[j]]];
 
             XMVECTOR n1 = XMLoadFloat3(&mesh.normals[refs[j]]);
@@ -78,7 +79,7 @@ namespace
                      XMStoreFloat(&cosBetweenNormals, XMVector3Dot(n1, n2) * XMVector3ReciprocalLength(n1));
                   }
 
-                  if (isSoftEdge || cosBetweenNormals > cosAngle)
+                  if (isSoftEdge || cosBetweenNormals >= cosAngle)
                   {
                      n1 + n2;
 
@@ -107,6 +108,7 @@ namespace
 
       const U32 numVertices = (U32)oldVertices.size();
       const U32 numIndices = (U32)oldIndices.size();
+      assert(numVertices && numIndices);
 
       dsVECTOR<dsVECTOR<U32>> idxRef(numVertices);
       for (U32 i = 0; i < numIndices; ++i)
@@ -114,7 +116,7 @@ namespace
          idxRef[oldIndices[i]].emplace_back(i);
       }
 
-      for (U32 i = 0; i < numVertices /* numIndices??? */; ++i)
+      for (U32 i = 0; i < numVertices; ++i)
       {
          dsVECTOR<U32>& refs = idxRef[i];
          U32 numRefs = (U32)refs.size();
