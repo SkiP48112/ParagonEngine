@@ -9,7 +9,13 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <Grid>
+    <Grid Background="Transparent"
+          MouseMove="OnGrid_MouseMove"
+          MouseWheel="OnGrid_MouseWheel"
+          MouseLeftButtonDown="OnGrid_MouseLeftButtonDown"
+          MouseLeftButtonUp="OnGrid_MouseLeftButtonUp"
+          MouseRightButtonDown="OnGrid_MouseRightButtonDown"
+          MouseRightButtonUp="OnGrid_MouseRightButtonUp">
         <Viewport3D x:Name="viewport" IsHitTestVisible="False">
             <Viewport3D.Camera>
                 <PerspectiveCamera
@@ -17,7 +23,7 @@
                     FieldOfView="45"
                     LookDirection="{Binding CameraDirection}"
                     NearPlaneDistance="0.001"
-                    Position="{Binding OfficeCameraPosition}"
+                    Position="{Binding OffsetCameraPosition}"
                     UpDirection="0,1,0" />
             </Viewport3D.Camera>
 
