@@ -4,6 +4,7 @@
 
 namespace{
    
+   using namespace DirectX;
    using atPRIMITIVE_MESH_CREATOR = void(*)(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO&);
 
 
@@ -127,6 +128,154 @@ namespace{
    }
 
 
+   geomMESH atCreateUvSphere(const atPRIMITIVE_MESH_INIT_INFO& info)
+   {
+      const U32 azimuthalCount = mClamp(info.segments[atAXIS::X], 3U, 64U);
+      const U32 polarCount = mClamp(info.segments[atAXIS::Y], 2U, 64U);
+
+      //NOTE: In spherical coordinates azimuthal angle represents horizontal movement and goes from 0 to 2PI
+      //      Polar angle represents vertical movement  and goes from 0 to PI
+      const F32 azimuthalStep = 2 * M_PI / azimuthalCount;
+      const F32 polarStep = M_PI / polarCount;
+
+      const U32 numVertices = 2 + azimuthalCount * (polarCount - 1);
+      const U32 numIndices = 2 * 3 * azimuthalCount + 2 * 3 * azimuthalCount * (polarCount - 2);
+
+      geomMESH mesh;
+      mesh.name = "uv_sphere";
+      mesh.positions.resize(numVertices);
+
+      U32 counter = 0;
+      mesh.positions[counter++] = { 0.0f, info.size.y, 0.0f };
+
+      for (U32 j = 1; j <= polarCount - 1; ++j)
+      {
+         const F32 polar = j * polarStep;
+         for (U32 i = 0; i < azimuthalCount; ++i)
+         {
+            const F32 azimuth = i * azimuthalStep;
+
+            // x =  r * sin(theta) * cos(phi)
+            // y =  r * cos(theta)
+            // z = -r * sin(theta) * sin(phi)
+            mesh.positions[counter++] =
+            {
+               info.size.x * XMScalarSin(polar) * XMScalarCos(azimuth),
+               info.size.y * XMScalarCos(polar),
+               -info.size.z * XMScalarSin(polar) * XMScalarSin(azimuth),
+            };
+         }
+      }
+
+      mesh.positions[counter++] = { 0.0f, -info.size.y, 0.0f };
+      assert(numVertices == counter);
+
+      counter = 0;
+      mesh.rawIndices.resize(numIndices);
+      dsVECTOR<mVECTOR2> uvs(numIndices);
+
+      const F32 invPolarCount = 1.0f / polarCount;
+      const F32 invAzimuthalCount = 1.0f / azimuthalCount;
+
+      for (U32 i = 0; i < azimuthalCount - 1; ++i)
+      {
+         uvs[counter] = {(2 * i + 1) * 0.5f * invAzimuthalCount, 1.0f}; 
+         mesh.rawIndices[counter++] = 0;
+
+         uvs[counter] = {i * invAzimuthalCount, 1.0f - invPolarCount};
+         mesh.rawIndices[counter++] = i + 1;
+
+         uvs[counter] = { (i + 1) * invAzimuthalCount, 1.0f - invPolarCount };
+         mesh.rawIndices[counter++] = i + 2;
+
+      }
+
+      uvs[counter] = { 1.0f - 0.5f * invAzimuthalCount, 1.0f };
+      mesh.rawIndices[counter++] = 0;
+
+      uvs[counter] = { 1.0f - invAzimuthalCount, 1.0f - invPolarCount };
+      mesh.rawIndices[counter++] = azimuthalCount;
+
+      uvs[counter] = { 1.0f, 1.0f - invPolarCount };
+      mesh.rawIndices[counter++] = 1;
+
+      for (U32 j = 0; j < polarCount - 2; ++j)
+      {
+         for (U32 i = 0; i < azimuthalCount - 1; ++i)
+         {
+            const U32 index[4]{
+               1 + i + j * azimuthalCount,
+               1 + i + (j + 1) * azimuthalCount,
+               1 + (i + 1) + (j + 1) * azimuthalCount,
+               1 + (i + 1) + j * azimuthalCount
+            };
+
+            uvs[counter] = {i * invAzimuthalCount, 1.0f - (j + 1) * invPolarCount};
+            mesh.rawIndices[counter++] = index[0];
+            uvs[counter] = { i * invAzimuthalCount, 1.0f - (j + 2) * invPolarCount };
+            mesh.rawIndices[counter++] = index[1];
+            uvs[counter] = { (i + 1) * invAzimuthalCount, 1.0f - (j + 2) * invPolarCount };
+            mesh.rawIndices[counter++] = index[2];
+
+            uvs[counter] = { i * invAzimuthalCount, 1.0f - (j + 1) * invPolarCount };
+            mesh.rawIndices[counter++] = index[0];
+            uvs[counter] = { (i + 1) * invAzimuthalCount, 1.0f - (j + 2) * invPolarCount };
+            mesh.rawIndices[counter++] = index[2];
+            uvs[counter] = { (i + 1) * invAzimuthalCount, 1.0f - (j + 1) * invPolarCount };
+            mesh.rawIndices[counter++] = index[3];
+         }
+
+         const U32 index[4]{
+            azimuthalCount + j * azimuthalCount,
+            azimuthalCount + (j + 1) * azimuthalCount,
+            1 + (j + 1) * azimuthalCount,
+            1 + j * azimuthalCount
+         };
+
+         uvs[counter] = { 1.0f - invAzimuthalCount, 1.0f - (j + 1) * invPolarCount };
+         mesh.rawIndices[counter++] = index[0];
+         uvs[counter] = { 1.0f - invAzimuthalCount, 1.0f - (j + 2) * invPolarCount };
+         mesh.rawIndices[counter++] = index[1];
+         uvs[counter] = { 1.0f, 1.0f - (j + 2) * invPolarCount };
+         mesh.rawIndices[counter++] = index[2];
+
+         uvs[counter] = { 1.0f - invAzimuthalCount, 1.0f - (j + 1) * invPolarCount };
+         mesh.rawIndices[counter++] = index[0];
+         uvs[counter] = { 1.0f, 1.0f - (j + 2) * invPolarCount };
+         mesh.rawIndices[counter++] = index[2];
+         uvs[counter] = { 1.0f, 1.0f - (j + 1) * invPolarCount };
+         mesh.rawIndices[counter++] = index[3];
+      }
+
+      const U32 bottomIndex = (U32)mesh.positions.size() - 1;
+      for (U32 i = 0; i < azimuthalCount - 1; ++i)
+      {
+         uvs[counter] = { (2 * i + 1) * 0.5f * invAzimuthalCount, 0.0f };
+         mesh.rawIndices[counter++] = bottomIndex;
+
+         uvs[counter] = { (i + 1) * invAzimuthalCount, invPolarCount };
+         mesh.rawIndices[counter++] = bottomIndex - azimuthalCount + i + 1;
+
+         uvs[counter] = { i * invAzimuthalCount, invPolarCount };
+         mesh.rawIndices[counter++] = bottomIndex - azimuthalCount + i;
+      }
+
+      uvs[counter] = { 1.0f - 0.5f * invAzimuthalCount, 0.0f };
+      mesh.rawIndices[counter++] = bottomIndex;
+
+      uvs[counter] = { 1.0f, invPolarCount };
+      mesh.rawIndices[counter++] = bottomIndex - azimuthalCount ;
+
+      uvs[counter] = { 1.0f - invAzimuthalCount, invPolarCount };
+      mesh.rawIndices[counter++] = bottomIndex - 1;
+
+      assert(counter == numIndices);
+
+      mesh.uvSets.emplace_back(uvs);
+      return mesh;
+   }
+
+
    void atCreatePlane(scnSCENE& scene, const atPRIMITIVE_MESH_INIT_INFO& info)
    {
       geomLOD_GROUP lodGroup;
@@ -137,31 +286,35 @@ namespace{
    }
 
 
-   void atCreateCube(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info)
+   void atCreateCube(scnSCENE& scene, const atPRIMITIVE_MESH_INIT_INFO& info)
    {
 
    }
 
 
-   void atCreateUvSphere(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info)
+   void atCreateUvSphere(scnSCENE& scene, const atPRIMITIVE_MESH_INIT_INFO& info)
+   {
+      geomLOD_GROUP lodGroup;
+      lodGroup.name = "uv_sphere";
+      lodGroup.meshes.emplace_back(atCreateUvSphere(info));
+
+      scene.lodGroups.emplace_back(lodGroup);
+   }
+
+
+   void atCreateIcoSphere(scnSCENE& scene, const atPRIMITIVE_MESH_INIT_INFO& info)
    {
 
    }
 
 
-   void atCreateIcoSphere(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info)
+   void atCreateCylinder(scnSCENE& scene, const atPRIMITIVE_MESH_INIT_INFO& info)
    {
 
    }
 
 
-   void atCreateCylinder(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info)
-   {
-
-   }
-
-
-   void atCreateCapsule(scnSCENE&, const atPRIMITIVE_MESH_INIT_INFO& info)
+   void atCreateCapsule(scnSCENE& scene, const atPRIMITIVE_MESH_INIT_INFO& info)
    {
 
    }

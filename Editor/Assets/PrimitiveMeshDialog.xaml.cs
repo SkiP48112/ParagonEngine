@@ -31,7 +31,9 @@ namespace Editor.Assets
         {
             var uris = new List<Uri>
             {
-                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/PlaneTexture.png")
+                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/uvs_texture_8.png"),
+                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/uvs_texture_6.png"),
+                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/uvs_texture_combined.png")
             };
 
             _textures.Clear();
@@ -88,6 +90,20 @@ namespace Editor.Assets
             return info;
         }
 
+        private PrimitiveInitInfo GetUvSphereInitInfo()
+        {
+            var info = new PrimitiveInitInfo() { Type = PrimitiveMeshType.UvSphere };
+
+            info.SegmentX = (int)xSliderUvSphere.Value;
+            info.SegmentY = (int)ySliderUvSphere.Value;
+
+            info.Size.X = GetScalarBoxValue(xScalarBoxUvSphere, 0.001f);
+            info.Size.Y = GetScalarBoxValue(yScalarBoxUvSphere, 0.001f);
+            info.Size.X = GetScalarBoxValue(zScalarBoxUvSphere, 0.001f);
+
+            return info;
+        }
+
         private void UpdatePrimitive()
         {
             if (!IsInitialized)
@@ -97,18 +113,19 @@ namespace Editor.Assets
 
             var primitiveType = (PrimitiveMeshType)primTypeComboBox.SelectedItem;
             var info = new PrimitiveInitInfo();
+            var smoothingAngle = 0;
 
             switch (primitiveType)
             {
                 case PrimitiveMeshType.Plane:
-                    {
-                        info = GetPlaneInitInfo();
-                        break;
-                    }
+                     info = GetPlaneInitInfo();
+                     break;
                 case PrimitiveMeshType.Cube:
                     return;
                 case PrimitiveMeshType.UvSphere:
-                    return;
+                    info = GetUvSphereInitInfo();
+                    smoothingAngle = (int)angleSliderUvSphere.Value;
+                    break;
                 case PrimitiveMeshType.IcoSphere:
                     return;
                 case PrimitiveMeshType.Cylinder:
@@ -120,6 +137,8 @@ namespace Editor.Assets
             }
 
             var geometry = new Geometry();
+            geometry.ImportSettings.SmoothingAngle = smoothingAngle;
+
             AssetToolsAPI.CreatePrimitiveMesh(geometry, info);
 
             var geometryEditor = (GeometryEditor)DataContext;

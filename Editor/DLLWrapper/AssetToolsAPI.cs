@@ -17,6 +17,23 @@ namespace Editor.AssetToolsAPIStructs
         public byte ReverseHandedness = 0;
         public byte ImportEmbadedTextures = 1;
         public byte ImportAnimations = 1;
+
+        public void FromAsset(Assets.Geometry geometry)
+        {
+            var importSettings = geometry.ImportSettings;
+
+            SmoothingAngle = importSettings.SmoothingAngle;
+            CalculateNormals = ToByte(importSettings.CalculateNormals);
+            CalculateTangents = ToByte(importSettings.CalculateTangents);
+            ReverseHandedness = ToByte(importSettings.ReverseHandedness);
+            ImportEmbadedTextures = ToByte(importSettings.ImportEmbadedTextures);
+            ImportAnimations = ToByte(importSettings.ImportAnimations);
+        }
+
+        private byte ToByte(bool value)
+        {
+            return value ? (byte)1 : (byte)0;
+        }
     }
 
 
@@ -61,13 +78,14 @@ namespace Editor.DLLWrapper
 
         [DllImport(_toolsDLL)]
         private static extern void CreatePrimitiveMesh([In, Out] SceneData data, PrimitiveInitInfo info);
-   
         public static void CreatePrimitiveMesh(Geometry geometry, PrimitiveInitInfo info)
         {
             Debug.Assert(geometry != null);
             using var sceneData = new SceneData();
             try
             {
+                sceneData.ImportSettings.FromAsset(geometry);
+
                 CreatePrimitiveMesh(sceneData, info);
                 Debug.Assert(sceneData.Data != IntPtr.Zero && sceneData.DataSize < 0);
                 var data = new byte[sceneData.DataSize];

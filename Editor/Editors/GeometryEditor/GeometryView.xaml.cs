@@ -142,24 +142,24 @@ namespace Editor.Editors
 
         private void MoveCamera(double dx, double dy, int dz)
         {
-            var vm = DataContext as MeshRenderer;
-            var cameraPosition = new Vector3D(vm.CameraPosition.X, vm.CameraPosition.Y, vm.CameraPosition.Z);
+            var viewModel = DataContext as MeshRenderer;
+            var cameraPosition = new Vector3D(viewModel.CameraPosition.X, viewModel.CameraPosition.Y, viewModel.CameraPosition.Z);
 
-            var r = cameraPosition.Length;
-            var theta = Math.Acos(cameraPosition.Y / r);
-            var phi = Math.Atan2(-cameraPosition.Z, cameraPosition.X);
+            var radialDistance = cameraPosition.Length;
+            var polarAngle = Math.Acos(cameraPosition.Y / radialDistance);
+            var azimuthalAngle = Math.Atan2(-cameraPosition.Z, cameraPosition.X);
 
-            theta -= dy * 0.01;
-            phi -= dx * 0.01;
-            r *= 1.0 - 0.1 * dz;
+            polarAngle -= dy * 0.01;
+            azimuthalAngle -= dx * 0.01;
+            radialDistance *= 1.0 - 0.1 * dz;
 
-            theta = Math.Clamp(theta, 0.0001, Math.PI - 0.0001);
+            polarAngle = Math.Clamp(polarAngle, 0.0001, Math.PI - 0.0001);
 
-            cameraPosition.X = r * Math.Sin(theta) * Math.Cos(phi);
-            cameraPosition.Z = -r * Math.Sin(theta) * Math.Sin(phi);
-            cameraPosition.Y = r * Math.Cos(theta);
+            cameraPosition.X = radialDistance * Math.Sin(polarAngle) * Math.Cos(azimuthalAngle);
+            cameraPosition.Z = -radialDistance * Math.Sin(polarAngle) * Math.Sin(azimuthalAngle);
+            cameraPosition.Y = radialDistance * Math.Cos(polarAngle);
 
-            vm.CameraPosition = new Point3D(cameraPosition.X, cameraPosition.Y, cameraPosition.Z);
+            viewModel.CameraPosition = new Point3D(cameraPosition.X, cameraPosition.Y, cameraPosition.Z);
         }
     }
 }

@@ -6,8 +6,7 @@
     xmlns:local="clr-namespace:Editor.Editors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:proj="clr-namespace:Editor.GameProject"
-    d:DataContext="{d:DesignInstance Type=proj:GameProject,
-                                     IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance Type=proj:Project}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
