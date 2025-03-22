@@ -132,9 +132,107 @@ namespace Editor.Assets
         public ObservableCollection<MeshLOD> LODs { get; } = new ObservableCollection<MeshLOD>();
     }
 
+    class GeometryImportSettings : ViewModelBase
+    {
+        private float _smoothingAngle;
+        public float SmoothingAngle
+        {
+            get => _smoothingAngle;
+            set
+            {
+                if (_smoothingAngle != value)
+                {
+                    _smoothingAngle = value;
+                    OnPropertyChanged(nameof(SmoothingAngle));
+                }
+            }
+        }
+
+        private bool _calculateNormals;
+        public bool CalculateNormals
+        {
+            get => _calculateNormals;
+            set
+            {
+                if(_calculateNormals != value)
+                {
+                    _calculateNormals = value;
+                    OnPropertyChanged(nameof(CalculateNormals));
+                }
+            }
+        }
+
+        private bool _calculateTangents;
+        public bool CalculateTangents
+        {
+            get => _calculateTangents;
+            set
+            {
+                if (_calculateTangents != value)
+                {
+                    _calculateTangents = value;
+                    OnPropertyChanged(nameof(CalculateTangents));
+                }
+            }
+        }
+
+        private bool _reverseHandedness;
+        public bool ReverseHandedness
+        {
+            get => _reverseHandedness;
+            set
+            {
+                if (_reverseHandedness != value)
+                {
+                    _reverseHandedness = value;
+                    OnPropertyChanged(nameof(ReverseHandedness));
+                }
+            }
+        }
+
+        private bool _importEmbadedTextures;
+        public bool ImportEmbadedTextures
+        {
+            get => _importEmbadedTextures;
+            set
+            {
+                if (_importEmbadedTextures != value)
+                {
+                    _importEmbadedTextures = value;
+                    OnPropertyChanged(nameof(ImportEmbadedTextures));
+                }
+            }
+        }
+
+        private bool _importAnimations;
+        public bool ImportAnimations
+        {
+            get => _importAnimations;
+            set
+            {
+                if (_importAnimations != value)
+                {
+                    _importAnimations = value;
+                    OnPropertyChanged(nameof(ImportAnimations));
+                }
+            }
+        }
+
+        public GeometryImportSettings()
+        {
+            _smoothingAngle = 178.0f;
+            _calculateNormals = false;
+            _calculateTangents = false;
+            _reverseHandedness = false;
+            _importEmbadedTextures = true;
+            _importAnimations = true;
+        }
+    }
+
     class Geometry : Asset
     {
         private readonly List<LODGroup> _lodGroups = new List<LODGroup>();
+        public GeometryImportSettings ImportSettings { get; } = new GeometryImportSettings();
 
         public LODGroup GetLODGroup(int lodGroup = 0)
         {

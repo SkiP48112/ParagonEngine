@@ -6,6 +6,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+	<XamlDebuggingInformation>True</XamlDebuggingInformation>
 	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PlatformTarget>x64</PlatformTarget>
     <BaseOutputPath>..\</BaseOutputPath>
@@ -14,11 +15,39 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\PrimitiveMeshView\PlaneTexture.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_0.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_1.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_2.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_3.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_4.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_5.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_6.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_7.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_8.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_9.png" />
+    <Resource Include="Resources\PrimitiveMeshView\uvs_texture_combined.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\PrimitiveMeshView\iluha.png" />
+    <Resource Include="Resources\PrimitiveMeshView\slavik.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\PrimitiveMeshView\kseksha.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\PrimitiveMeshView\uv_texture_with_checkmarks.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\PrimitiveMeshView\artem.png" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="Resources\PrimitiveMeshView\uv_texture_with_checkmarks.png" />
   </ItemGroup>
 
   <ItemGroup>
