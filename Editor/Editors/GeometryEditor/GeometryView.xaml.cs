@@ -75,7 +75,7 @@ namespace Editor.Editors
             viewport.Children.Add(visual);
         }
 
-        private void OnGrid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnGrid_MouseMove(object sender,MouseEventArgs e)
         {
             if(!_isCapturedLeft && !_isCapturedRight)
             {
@@ -89,7 +89,7 @@ namespace Editor.Editors
             {
                 MoveCamera(delta.X, delta.Y, 0);
             }
-            else if(_isCapturedLeft && _isCapturedRight)
+            else if(!_isCapturedLeft && _isCapturedRight)
             {
                 var vm = DataContext as MeshRenderer;
                 var cp = vm.CameraPosition;
@@ -101,12 +101,12 @@ namespace Editor.Editors
             _clickPosition = pos;
         }
 
-        private void OnGrid_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void OnGrid_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             MoveCamera(0, 0, Math.Sign(e.Delta));
         }
 
-        private void OnGrid_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnGrid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _clickPosition = e.GetPosition(this);
             _isCapturedLeft = true;
@@ -114,7 +114,7 @@ namespace Editor.Editors
             Mouse.Capture(sender as UIElement);
         }
 
-        private void OnGrid_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             _isCapturedLeft = false;
             if (!_isCapturedRight)
@@ -123,7 +123,7 @@ namespace Editor.Editors
             }
         }
 
-        private void OnGrid_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnGrid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             _clickPosition = e.GetPosition(this);
             _isCapturedRight = true;
@@ -131,7 +131,7 @@ namespace Editor.Editors
             Mouse.Capture(sender as UIElement);
         }
 
-        private void OnGrid_MouseRightButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             _isCapturedRight = false;
             if (!_isCapturedLeft)
@@ -143,11 +143,11 @@ namespace Editor.Editors
         private void MoveCamera(double dx, double dy, int dz)
         {
             var vm = DataContext as MeshRenderer;
-            var v = new Vector3D(vm.CameraPosition.X, vm.CameraPosition.Y, vm.CameraPosition.Z);
+            var cameraPosition = new Vector3D(vm.CameraPosition.X, vm.CameraPosition.Y, vm.CameraPosition.Z);
 
-            var r = v.Length;
-            var theta = Math.Acos(v.Y / r);
-            var phi = Math.Atan2(-v.Z, v.X);
+            var r = cameraPosition.Length;
+            var theta = Math.Acos(cameraPosition.Y / r);
+            var phi = Math.Atan2(-cameraPosition.Z, cameraPosition.X);
 
             theta -= dy * 0.01;
             phi -= dx * 0.01;
@@ -155,11 +155,11 @@ namespace Editor.Editors
 
             theta = Math.Clamp(theta, 0.0001, Math.PI - 0.0001);
 
-            v.X = r * Math.Sin(theta) * Math.Cos(phi);
-            v.Z = -r * Math.Sin(theta) * Math.Sin(phi);
-            v.Y = r * Math.Cos(theta);
+            cameraPosition.X = r * Math.Sin(theta) * Math.Cos(phi);
+            cameraPosition.Z = -r * Math.Sin(theta) * Math.Sin(phi);
+            cameraPosition.Y = r * Math.Cos(theta);
 
-            vm.CameraPosition = new Point3D(v.X, v.Y, v.Z);
+            vm.CameraPosition = new Point3D(cameraPosition.X, cameraPosition.Y, cameraPosition.Z);
         }
     }
 }
