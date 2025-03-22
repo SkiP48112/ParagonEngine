@@ -104,7 +104,7 @@ namespace{
             mesh.rawIndices.emplace_back(index[flipWinding ? 2 : 1]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 1 : 2]);
 
-            mesh.rawIndices.emplace_back(index[0]);
+            mesh.rawIndices.emplace_back(index[2]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 3 : 1]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 1 : 3]);
          }

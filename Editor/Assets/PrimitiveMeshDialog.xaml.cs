@@ -2,6 +2,7 @@
 using Editor.DLLWrapper;
 using Editor.Editors;
 using Editor.Utilities.Controls;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -33,7 +34,7 @@ namespace Editor.Assets
 
         private float GetScalarBoxValue(ScalarBox scalarBox, float min)
         {
-            float.TryParse(scalarBox.Value, out var result);
+            float.TryParse(scalarBox.Value, CultureInfo.InvariantCulture, out var result);
             return Math.Max(result, min);
         }
 
