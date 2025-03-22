@@ -60,7 +60,7 @@ namespace Editor.DLLWrapper
         private const string _toolsDLL = "AssetTools.dll";
 
         [DllImport(_toolsDLL)]
-        private static extern void CreatePrimitiveMesh([In, Out]SceneData data, PrimitiveInitInfo info);
+        private static extern void CreatePrimitiveMesh([In, Out] SceneData data, PrimitiveInitInfo info);
    
         public static void CreatePrimitiveMesh(Geometry geometry, PrimitiveInitInfo info)
         {

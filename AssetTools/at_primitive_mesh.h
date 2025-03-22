@@ -21,7 +21,7 @@ struct atPRIMITIVE_MESH_INIT_INFO
    atPRIMITIVE_MESH_TYPE type;
 
    U32 segments[3]{ 1, 1, 1 };
-   U32 lod = 0;
-
    mVECTOR3 size{ 1, 1, 1 };
+
+   U32 lod = 0;
 };

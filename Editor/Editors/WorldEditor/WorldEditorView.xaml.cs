@@ -1,4 +1,5 @@
-﻿using Editor.GameDevelopment;
+﻿using Editor.Assets;
+using Editor.GameDevelopment;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -22,6 +23,12 @@ namespace Editor.Editors
         private void OnCreateScriptButton_Click(object sender, RoutedEventArgs e)
         {
             new CreateScriptDialog().ShowDialog();
+        }
+
+        private void OnCreatePrimitiveMeshButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new PrimitiveMeshDialog();
+            dialog.ShowDialog();
         }
     }
 }

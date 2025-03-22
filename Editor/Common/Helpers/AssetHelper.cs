@@ -15,7 +15,7 @@ namespace Editor.Common.Helpers
             var n = length / 11;
             var sb = new StringBuilder();
 
-            for(int i = 0; i < n; ++i)
+            for(int i = 0; i <= n; ++i)
             {
                 sb.Append(Path.GetRandomFileName().Replace(".", ""));
             }

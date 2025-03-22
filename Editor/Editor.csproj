@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\PrimitiveMeshView\PlaneTexture.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 

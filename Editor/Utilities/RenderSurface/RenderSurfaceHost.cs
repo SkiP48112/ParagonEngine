@@ -1,7 +1,6 @@
 ﻿using Editor.DLLWrapper;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace Editor.Utilities
@@ -13,8 +12,12 @@ namespace Editor.Utilities
         private IntPtr _renderWindowHandle = IntPtr.Zero;
         private readonly int _width = 800;
         private readonly int _height = 800;
+        private readonly int VK_LBUTTON = 0x01;
 
         private DelayEventTimer _resizeDelayTimer;
+
+        [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int vKey);
 
         public RenderSurfaceHost(double width, double height)
         {
@@ -22,11 +25,8 @@ namespace Editor.Utilities
             _height = (int)height;
             _resizeDelayTimer = new DelayEventTimer(TimeSpan.FromMilliseconds(250.0));
             _resizeDelayTimer.Triggered += Resize;
-        }
 
-        public void Resize()
-        {
-            _resizeDelayTimer.Trigger();
+            SizeChanged += (s, e) => _resizeDelayTimer.Trigger();
         }
 
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
@@ -50,7 +50,7 @@ namespace Editor.Utilities
 
         private void Resize(object sender, DelayEventTimerArgs e)
         {
-            e.RepeatEvent = Mouse.LeftButton == MouseButtonState.Pressed;
+            e.RepeatEvent = GetAsyncKeyState(VK_LBUTTON) < 0;
             if (!e.RepeatEvent)
             {
                 EngineAPI.ResizeRenderSurface(SurfaceID);

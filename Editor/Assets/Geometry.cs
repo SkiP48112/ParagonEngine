@@ -245,6 +245,7 @@ namespace Editor.Assets
             {
                 lodIds.Add(lodId);
                 lod = new MeshLOD() { Name = meshName, LodThreshold = lodThreshold };
+                lodList.Add(lod);
             }
 
             lod.Meshes.Add(mesh);

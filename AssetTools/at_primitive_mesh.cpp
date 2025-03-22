@@ -63,9 +63,9 @@ namespace{
       geomMESH mesh;
       dsVECTOR<mVECTOR2> uvs;
 
-      for (U32 i = 0; i <= verticalCount; ++i)
+      for (U32 j = 0; j <= verticalCount; ++j)
       {
-         for (U32 j = 0; j <= horizontalCount; ++j)
+         for (U32 i = 0; i <= horizontalCount; ++i)
          {
             mVECTOR3 position(offset);
             F32* const asArray = &position.x;
@@ -75,10 +75,13 @@ namespace{
 
             mesh.positions.emplace_back(position.x * info.size.x, position.y * info.size.y, position.z * info.size.z);
 
-            mVECTOR2 uv{ uRange.x, 1.0f - vRange.x };
-
+            /*mVECTOR2 uv{ uRange.x, 1.0f - vRange.x };
             uv.x += i * uStep;
-            uv.y += j * vStep;
+            uv.y -= j * vStep;*/
+
+            mVECTOR2 uv{ 0.0f, 1.0f };
+            uv.x += (i % 2);
+            uv.y -= (j % 2);
 
             uvs.emplace_back(uv);
          }
@@ -89,7 +92,8 @@ namespace{
       const U32 rowLength = horizontalCount + 1;
       for (U32 j = 0; j < verticalCount; ++j)
       {
-         for (U32 i = j; i < horizontalCount; ++i)
+         U32 k = 0;
+         for (U32 i = k; i < horizontalCount; ++i)
          {
             const U32 index[4]
             {
@@ -103,10 +107,11 @@ namespace{
             mesh.rawIndices.emplace_back(index[flipWinding ? 2 : 1]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 1 : 2]);
 
-            mesh.rawIndices.emplace_back(index[0]);
+            mesh.rawIndices.emplace_back(index[2]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 3 : 1]);
             mesh.rawIndices.emplace_back(index[flipWinding ? 1 : 3]);
          }
+         ++k;
       }
 
       const U32 numIndices = 3 * 2 * horizontalCount * verticalCount;
@@ -177,4 +182,7 @@ void CreatePrimitiveMesh(scnDATA* data, atPRIMITIVE_MESH_INIT_INFO* info)
    creators[info->type](scene, *info);
 
    data->settings.calculateNormals = 1;
+
+   scnProcessScene(scene, data->settings);
+   scnPackData(scene, *data);
 }
