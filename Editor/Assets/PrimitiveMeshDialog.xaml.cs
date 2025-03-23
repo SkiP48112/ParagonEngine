@@ -99,7 +99,7 @@ namespace Editor.Assets
 
             info.Size.X = GetScalarBoxValue(xScalarBoxUvSphere, 0.001f);
             info.Size.Y = GetScalarBoxValue(yScalarBoxUvSphere, 0.001f);
-            info.Size.X = GetScalarBoxValue(zScalarBoxUvSphere, 0.001f);
+            info.Size.Z = GetScalarBoxValue(zScalarBoxUvSphere, 0.001f);
 
             return info;
         }
