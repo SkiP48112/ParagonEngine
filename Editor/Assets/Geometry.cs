@@ -1,10 +1,14 @@
 ﻿
 using Editor.Common.Helpers;
+using Editor.Editors;
 using Editor.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Editor.Assets
 {
@@ -227,6 +231,16 @@ namespace Editor.Assets
             _importEmbadedTextures = true;
             _importAnimations = true;
         }
+
+        public void ToBinary(BinaryWriter writer)
+        {
+            writer.Write(SmoothingAngle);
+            writer.Write(CalculateNormals);
+            writer.Write(CalculateTangents);
+            writer.Write(ReverseHandedness);
+            writer.Write(ImportEmbadedTextures);
+            writer.Write(ImportAnimations);
+        }
     }
 
     class Geometry : Asset
@@ -347,6 +361,117 @@ namespace Editor.Assets
             }
 
             lod.Meshes.Add(mesh);
+        }
+
+        public override IEnumerable<string> Save(string file)
+        {
+            Debug.Assert(_lodGroups.Any(), "Can't save geometry without any lod groups.");
+            
+            var savedFiles = new List<string>();
+            if (!_lodGroups.Any())
+            {
+                return savedFiles;
+            }
+
+            var path = Path.GetDirectoryName(file) + Path.DirectorySeparatorChar;
+            var fileName = Path.GetFileNameWithoutExtension(file);
+
+            try
+            {
+                foreach(var lodGroup in _lodGroups)
+                {
+                    Debug.Assert(lodGroup.LODs.Any(), "Can't save lod group with no LODs in it.");
+
+                    var meshFileName = AssetHelper.SanitizeFileName(path + fileName + "_" + lodGroup.LODs[0].Name + ASSET_FILE_EXTENSION);
+                    Guid = Guid.NewGuid();
+
+                    byte[] data = null;
+                    using (var writer = new BinaryWriter(new MemoryStream()))
+                    {
+                        writer.Write(lodGroup.Name);
+                        writer.Write(lodGroup.LODs.Count);
+
+                        var hashes = new List<byte>();
+                        foreach(var lod in lodGroup.LODs)
+                        {
+                            LODToBinary(lod, writer, out var hash);
+                            hashes.AddRange(hash);
+                        }
+
+                        Hash = AssetHelper.ComputeHash(hashes.ToArray());
+                        data = (writer.BaseStream as MemoryStream).ToArray();
+                        Icon = GenerateIcon(lodGroup.LODs[0]);
+                    }
+
+                    Debug.Assert(data?.Length > 0);
+                    using (var writer = new BinaryWriter(File.Open(meshFileName, FileMode.Create, FileAccess.Write)))
+                    {
+                        WriteAssetFileHeader(writer);
+                        ImportSettings.ToBinary(writer);
+                        
+                        writer.Write(data.Length);
+                        writer.Write(data);
+                    }
+
+                    savedFiles.Add(meshFileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Logger.Log(MessageType.Error, $"Failed to save geometry to {file}");
+            }
+
+            return savedFiles;
+        }
+
+        private byte[] GenerateIcon(MeshLOD lod)
+        {
+            var width = 90 * 4;
+            BitmapSource bmp = null;
+
+
+            // NOTE: It's not good practice to use a WPF control in the ViewModel.
+            //       But we need to make an exception for this case, for as long as we don't
+            //       have a graphics renderer that we can use for screenshot.
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                bmp = GeometryView.RenderToBitmap(new MeshRenderer(lod, null), width, width);
+                bmp = new TransformedBitmap(bmp, new ScaleTransform(0.25, 0.25, 0.5, 0.5));
+            });
+
+            using var memStream = new MemoryStream();
+            memStream.SetLength(0);
+
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            encoder.Save(memStream);
+
+            return memStream.ToArray();
+        }
+
+        private void LODToBinary(MeshLOD lod, BinaryWriter writer, out byte[] hash)
+        {
+            writer.Write(lod.Name);
+            writer.Write(lod.LodThreshold);
+            writer.Write(lod.Meshes.Count);
+
+            var meshDataBegin = writer.BaseStream.Position;
+            foreach (var mesh in lod.Meshes)
+            {
+                writer.Write(mesh.VertexSize);
+                writer.Write(mesh.VertexCount);
+                writer.Write(mesh.IndexSize);
+                writer.Write(mesh.IndexCount);
+                writer.Write(mesh.Vertices);
+                writer.Write(mesh.Indices);
+            }
+
+            var meshDataSize = writer.BaseStream.Position - meshDataBegin;
+            Debug.Assert(meshDataSize > 0);
+
+            var buffer = (writer.BaseStream as MemoryStream).ToArray();
+            hash = AssetHelper.ComputeHash(buffer, (int)meshDataBegin, (int)meshDataSize);
         }
     }
 }

@@ -45,6 +45,7 @@ namespace Editor.GameProject
 
         public string FullPath => $@"{Path}{Name}{ProjectConsts.PROJECT_EXTENSION}";
         public string Solution => $@"{Path}{Name}.sln";
+        public string ContentPath => $@"{Path}Content\";
 
         public static Project CurrentGameProject => Application.Current.MainWindow.DataContext as Project;
         public static UndoRedoManager UndoRedoManager { get; } = new UndoRedoManager();

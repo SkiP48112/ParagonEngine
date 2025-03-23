@@ -1,7 +1,10 @@
 ﻿using Editor.AssetToolsAPIStructs;
 using Editor.DLLWrapper;
 using Editor.Editors;
+using Editor.GameProject;
 using Editor.Utilities.Controls;
+using Microsoft.Win32;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -159,6 +162,25 @@ namespace Editor.Assets
             foreach(var mesh in vm.MeshRenderer.Meshes)
             {
                 mesh.Diffuse = brush;
+            }
+        }
+
+        private void OnSaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var saveDialog = new SaveFileDialog()
+            {
+                InitialDirectory = Project.CurrentGameProject.ContentPath,
+                Filter = "Asset file (*.asset)|*.asset"
+            };
+
+            if(saveDialog.ShowDialog() == true)
+            {
+                Debug.Assert(string.IsNullOrEmpty(saveDialog.FileName), "Can't save asset file with invalid name.");
+
+                var asset = (DataContext as IAssetEditor).Asset;
+                Debug.Assert(asset != null, "Can't find asset in asset editor.");
+
+                asset.Save(saveDialog.FileName);
             }
         }
     }

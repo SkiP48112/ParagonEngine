@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 
 
@@ -9,6 +11,9 @@ namespace Editor.Editors
 {
     public partial class GeometryView : UserControl
     {
+        private static readonly GeometryView _geometryView = 
+            new GeometryView() { Background = (Brush)Application.Current.FindResource("Editor.Window.GrayBrush4") };
+        
         private Point _clickPosition;
         private bool _isCapturedLeft;
         private bool _isCapturedRight;
@@ -160,6 +165,21 @@ namespace Editor.Editors
             cameraPosition.Y = radialDistance * Math.Cos(polarAngle);
 
             viewModel.CameraPosition = new Point3D(cameraPosition.X, cameraPosition.Y, cameraPosition.Z);
+        }
+
+        internal static BitmapSource RenderToBitmap(MeshRenderer mesh, int width, int height)
+        {
+            var bmp = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Default);
+
+            _geometryView.DataContext = mesh;
+            _geometryView.Width = width;
+            _geometryView.Height = height;
+            _geometryView.Measure(new Size(width, height));
+            _geometryView.Arrange(new Rect(0, 0, width, height));
+            _geometryView.UpdateLayout();
+
+            bmp.Render(_geometryView);
+            return bmp;
         }
     }
 }
