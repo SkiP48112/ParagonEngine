@@ -1,7 +1,8 @@
 #pragma comment(lib, "engine.lib")
 
 #define TEST_ENTITY_AND_COMPONENTS 0;
-#define TEST_WINDOW 1;
+#define TEST_WINDOW 0;
+#define TEST_RENDERER 1;
 
 
 
@@ -9,6 +10,8 @@
 	#include "test_entity_and_components.h"
 #elif TEST_WINDOW
 	#include "test_window.h"
+#elif TEST_RENDERER
+	#include "test_renderer.h"
 #else
 	#error One of the test need to be enabled
 #endif
