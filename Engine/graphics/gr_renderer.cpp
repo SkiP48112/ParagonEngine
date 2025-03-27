@@ -1,6 +1,6 @@
 #include "gr_renderer.h"
 #include "gr_platform_interface.h"
-#include "direct3d_12/d3d12_interface.h"
+#include "direct3d_12\d3d12_interface.h"
 
 
 namespace
@@ -15,7 +15,7 @@ namespace
          d3d12GetPlatformInterface(gfx);
          break;
       default:
-         break;
+         return false;
       }
 
       return true;
@@ -25,7 +25,7 @@ namespace
 
 bool grInitialize(grGRAPHICS_PLATFORM platform)
 {
-   return grSetPlatformInterface(platform);
+   return grSetPlatformInterface(platform) && gfx.Initialize();
 }
 
 
