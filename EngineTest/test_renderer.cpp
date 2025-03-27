@@ -3,6 +3,7 @@
 #include "..\platform\app_platform.h"
 #include "..\graphics\gr_renderer.h"
 
+#if TEST_RENDERER
 
 grRENDER_SURFACE surfaces[4];
 
@@ -96,3 +97,5 @@ void testENGINE_TEST::Shutdown()
 
    grShutdown();
 }
+
+#endif

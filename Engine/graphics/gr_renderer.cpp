@@ -33,3 +33,9 @@ void grShutdown()
 {
    gfx.Shutdown();
 }
+
+
+void grRender()
+{
+   gfx.Render();
+}

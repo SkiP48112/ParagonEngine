@@ -6,6 +6,117 @@ using namespace Microsoft::WRL;
 
 namespace
 {
+   struct d3d12COMMAND_FRAME
+   {
+      ID3D12CommandAllocator* commandAllocator = nullptr;
+
+
+      void Wait()
+      {
+
+      }
+
+
+      void Release()
+      {
+         d3d12Release(commandAllocator);
+      }
+   };
+
+   class d3d12COMMAND
+   {
+   public:
+      explicit d3d12COMMAND(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
+      {
+         HRESULT hResult = S_OK;
+
+         D3D12_COMMAND_QUEUE_DESC desc;
+         desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+         desc.NodeMask = 0;
+         desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+         desc.Type = type;
+
+         ASSERT_DX(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue)));
+         if (FAILED(hResult))
+         {
+            Release();
+            return;
+         }
+
+         NAME_D3D12_OBJECT(commandQueue, 
+            type == D3D12_COMMAND_LIST_TYPE_DIRECT ? 
+            L"GFX Command Queue" : 
+            type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? 
+            L"Compute Command Queue" : L"Command Queue");
+
+         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+         {
+            d3d12COMMAND_FRAME& frame = commandFrames[i];
+            ASSERT_DX(hResult = device->CreateCommandAllocator(type, IID_PPV_ARGS(&frame.commandAllocator)));
+            if (FAILED(hResult))
+            {
+               Release();
+               return;
+            }
+
+            NAME_D3D12_INDEXED_OBJECT(frame.commandAllocator, i,
+               type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
+               L"GFX Command Allocator" :
+               type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
+               L"Compute Command Allocator" : L"Command Allocator");
+         }
+
+         ASSERT_DX(hResult = device->CreateCommandList(0, type, commandFrames[0].commandAllocator, nullptr, IID_PPV_ARGS(&commandList)));
+         if (FAILED(hResult))
+         {
+            Release();
+            return;
+         }
+
+         ASSERT_DX(commandList->Close());
+         NAME_D3D12_OBJECT(commandList,
+            type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
+            L"GFX Command List" :
+            type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
+            L"Compute Command List" : L"Command List");
+
+         Release();
+      }
+
+
+      void BeginFrame()
+      {
+         d3d12COMMAND_FRAME& frame = commandFrames[frameIndex];
+         frame.Wait();
+
+         ASSERT_DX(frame.commandAllocator->Reset());
+         ASSERT_DX(commandList->Reset(frame.commandAllocator, nullptr));
+      }
+
+
+      void EndFrame()
+      {
+         ASSERT_DX(commandList->Close());
+         ID3D12CommandList* const commandLists[]{ commandList };
+         commandQueue->ExecuteCommandLists(_countof(commandLists), &commandLists[0]);
+
+         frameIndex = (frameIndex + 1) % D3D12_FRAME_BUFFER_COUNT;
+      }
+
+
+      void Release()
+      {
+
+      }
+
+   private:
+      ID3D12CommandQueue* commandQueue = nullptr;
+      ID3D12GraphicsCommandList7* commandList = nullptr;
+      d3d12COMMAND_FRAME commandFrames[D3D12_FRAME_BUFFER_COUNT];
+      U32 frameIndex = 0;
+   };
+
+
    ID3D12Device8* d3d12MainDevice = nullptr;
    IDXGIFactory7* d3d12DXGIFactory = nullptr;
 
@@ -110,12 +221,15 @@ bool d3d12Initialize()
    {
       ComPtr<ID3D12InfoQueue> infoQueue;
       ASSERT_DX(d3d12MainDevice->QueryInterface(IID_PPV_ARGS(&infoQueue)));
-   
+
       infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
       infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
       infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
    }
 #endif
+
+_error:
+   int x = 10;
 
    return true;
 }
@@ -142,4 +256,12 @@ void d3d12Shutdown()
 #endif
 
    d3d12Release(d3d12MainDevice);
+}
+
+
+void d3d12Render()
+{
+   //d3d12BeginFrame();
+
+   //d3d12EndFrame();
 }
