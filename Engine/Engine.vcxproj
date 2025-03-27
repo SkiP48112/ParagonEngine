@@ -23,6 +23,10 @@
     <ClInclude Include="common\app_primitive_types.h" />
     <ClInclude Include="common\app_id.h" />
     <ClInclude Include="data_structures\ds_string.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_common_headers.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_core.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_interface.h" />
+    <ClInclude Include="graphics\gr_platform_interface.h" />
     <ClInclude Include="graphics\gr_renderer.h" />
     <ClInclude Include="math\m_math.h" />
     <ClInclude Include="platform\app_platform.h" />
@@ -46,6 +50,9 @@
     <ClInclude Include="math\m_vector4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="graphics\direct3d_12\d3d12_core.cpp" />
+    <ClCompile Include="graphics\direct3d_12\d3d12_interface.cpp" />
+    <ClCompile Include="graphics\gr_renderer.cpp" />
     <ClCompile Include="platform\app_platform.cpp" />
     <ClCompile Include="resources\res_content_loader.cpp" />
     <ClCompile Include="core\core_engine.cpp" />
@@ -123,7 +130,7 @@
       <CallingConvention>FastCall</CallingConvention>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -148,7 +155,7 @@
       <CallingConvention>FastCall</CallingConvention>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -177,7 +184,7 @@
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -208,7 +215,7 @@
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(ProjectDir)Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>

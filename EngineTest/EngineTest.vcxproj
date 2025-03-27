@@ -140,8 +140,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="test_main.cpp" />
+    <ClCompile Include="test_renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="test_renderer.h" />
     <ClInclude Include="test_window.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="test_entity_and_components.h" />

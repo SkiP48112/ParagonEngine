@@ -26,6 +26,10 @@
     <ClInclude Include="graphics\gr_renderer.h" />
     <ClInclude Include="data_structures\ds_string.h" />
     <ClInclude Include="math\m_math.h" />
+    <ClInclude Include="graphics\gr_platform_interface.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_interface.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_core.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_common_headers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_systems\gs_entity.cpp" />
@@ -35,5 +39,8 @@
     <ClCompile Include="core\core_engine.cpp" />
     <ClCompile Include="resources\res_content_loader.cpp" />
     <ClCompile Include="platform\app_platform.cpp" />
+    <ClCompile Include="graphics\gr_renderer.cpp" />
+    <ClCompile Include="graphics\direct3d_12\d3d12_interface.cpp" />
+    <ClCompile Include="graphics\direct3d_12\d3d12_core.cpp" />
   </ItemGroup>
 </Project>
