@@ -85,6 +85,7 @@ bool testENGINE_TEST::Initialize()
 void testENGINE_TEST::Run()
 {
    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+   grRender();
 }
 
 

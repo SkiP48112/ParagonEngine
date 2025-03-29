@@ -9,11 +9,20 @@ namespace
    struct d3d12COMMAND_FRAME
    {
       ID3D12CommandAllocator* commandAllocator = nullptr;
+      U64 fenceValue = 0;
 
 
-      void Wait()
+      void Wait(HANDLE fenceEvent, ID3D12Fence1* fence)
       {
+         assert(fence && fenceEvent);
 
+         // NOTE: If the current fence value is less than "fenceValue"
+         //       then we know that's the GPU has not finished executing commands
+         if (fence->GetCompletedValue() < fenceValue)
+         {
+            ASSERT_DX(fence->SetEventOnCompletion(fenceValue, fenceEvent));
+            WaitForSingleObject(fenceEvent, INFINITE);
+         }
       }
 
 
@@ -23,9 +32,13 @@ namespace
       }
    };
 
+
    class d3d12COMMAND
    {
    public:
+      d3d12COMMAND() = default;
+      DISABLE_COPY_AND_MOVE(d3d12COMMAND);
+
       explicit d3d12COMMAND(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
       {
          HRESULT hResult = S_OK;
@@ -80,14 +93,30 @@ namespace
             type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
             L"Compute Command List" : L"Command List");
 
-         Release();
+         ASSERT_DX(hResult = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+         if (FAILED(hResult))
+         {
+            Release();
+            return;
+         }
+
+         NAME_D3D12_OBJECT(fence, L"D3D12 Fence");
+
+         fenceEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
+         assert(fenceEvent);
+      }
+
+
+      ~d3d12COMMAND()
+      {
+         assert(!commandQueue && !commandList && !fence);
       }
 
 
       void BeginFrame()
       {
          d3d12COMMAND_FRAME& frame = commandFrames[frameIndex];
-         frame.Wait();
+         frame.Wait(fenceEvent, fence);
 
          ASSERT_DX(frame.commandAllocator->Reset());
          ASSERT_DX(commandList->Reset(frame.commandAllocator, nullptr));
@@ -100,25 +129,80 @@ namespace
          ID3D12CommandList* const commandLists[]{ commandList };
          commandQueue->ExecuteCommandLists(_countof(commandLists), &commandLists[0]);
 
+         U64& pFenceValue = fenceValue;
+         pFenceValue++;
+
+         d3d12COMMAND_FRAME& pFrame = commandFrames[frameIndex];
+         pFrame.fenceValue = pFenceValue;
+
+         commandQueue->Signal(fence, fenceValue);
          frameIndex = (frameIndex + 1) % D3D12_FRAME_BUFFER_COUNT;
+      }
+
+
+      void Flush()
+      {
+         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+         {
+            commandFrames[i].Wait(fenceEvent, fence);
+         }
+         
+         frameIndex = 0;
       }
 
 
       void Release()
       {
+         Flush();
+         d3d12Release(fence);
 
+         fenceValue = 0;
+         CloseHandle(fenceEvent);
+         fenceEvent = nullptr;
+
+         d3d12Release(commandQueue);
+         d3d12Release(commandList);
+
+         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+         {
+            commandFrames[i].Release();
+         }
+      }
+
+
+      constexpr ID3D12CommandQueue* const GetCommandQueue() const
+      {
+         return commandQueue;
+      }
+
+
+      constexpr ID3D12GraphicsCommandList6* const GetCommandList() const
+      {
+         return commandList;
+      }
+
+
+      constexpr U32 GetFrameIndex() const
+      {
+         return frameIndex;
       }
 
    private:
       ID3D12CommandQueue* commandQueue = nullptr;
-      ID3D12GraphicsCommandList7* commandList = nullptr;
+      ID3D12GraphicsCommandList6* commandList = nullptr;
+      ID3D12Fence1* fence = nullptr;
+      HANDLE fenceEvent = nullptr;
+
       d3d12COMMAND_FRAME commandFrames[D3D12_FRAME_BUFFER_COUNT];
+
       U32 frameIndex = 0;
+      U64 fenceValue = 0;
    };
 
 
    ID3D12Device8* d3d12MainDevice = nullptr;
    IDXGIFactory7* d3d12DXGIFactory = nullptr;
+   d3d12COMMAND gfxCommand;
 
    constexpr D3D_FEATURE_LEVEL d3d12MinimunFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 
@@ -215,7 +299,14 @@ bool d3d12Initialize()
       return d3d12FailedInit();
    }
 
+   new (&gfxCommand) d3d12COMMAND(d3d12MainDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
+   if (!gfxCommand.GetCommandQueue())
+   {
+      return d3d12FailedInit();
+   }
+
    NAME_D3D12_OBJECT(d3d12MainDevice, L"Main D3D12 Device");
+   
 
 #ifdef _DEBUG
    {
@@ -228,15 +319,13 @@ bool d3d12Initialize()
    }
 #endif
 
-_error:
-   int x = 10;
-
    return true;
 }
 
 
 void d3d12Shutdown()
 {
+   gfxCommand.Release();
    d3d12Release(d3d12DXGIFactory);
 
 #ifdef _DEBUG
@@ -259,9 +348,13 @@ void d3d12Shutdown()
 }
 
 
+// NOTE: Wait for the GPU to finish with the command allocator and
+//       reset the allocator once the GPU is done.
+//       Tgis frees the memory that was used to store commands.
 void d3d12Render()
 {
-   //d3d12BeginFrame();
+   gfxCommand.BeginFrame();
+   ID3D12GraphicsCommandList6* commandList = gfxCommand.GetCommandList();
 
-   //d3d12EndFrame();
+   gfxCommand.EndFrame();
 }
