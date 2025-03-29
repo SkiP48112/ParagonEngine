@@ -24,6 +24,5 @@ enum class grGRAPHICS_PLATFORM : U32
 
 
 bool grInitialize(grGRAPHICS_PLATFORM platform);
-void grShutdown();
-
 void grRender();
+void grShutdown();

@@ -20,7 +20,13 @@ namespace
          //       then we know that's the GPU has not finished executing commands
          if (fence->GetCompletedValue() < fenceValue)
          {
-            ASSERT_DX(fence->SetEventOnCompletion(fenceValue, fenceEvent));
+            HRESULT hResult = S_OK;
+            ASSERT_DX(hResult = fence->SetEventOnCompletion(fenceValue, fenceEvent));
+            if (FAILED(hResult))
+            {
+               return;
+            }
+
             WaitForSingleObject(fenceEvent, INFINITE);
          }
       }
@@ -42,66 +48,35 @@ namespace
       explicit d3d12COMMAND(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
       {
          HRESULT hResult = S_OK;
-
-         D3D12_COMMAND_QUEUE_DESC desc;
-         desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-         desc.NodeMask = 0;
-         desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-         desc.Type = type;
-
-         ASSERT_DX(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue)));
+         
+         hResult = CreateCommandQueue(device, type);
          if (FAILED(hResult))
          {
             Release();
             return;
          }
 
-         NAME_D3D12_OBJECT(commandQueue, 
-            type == D3D12_COMMAND_LIST_TYPE_DIRECT ? 
-            L"GFX Command Queue" : 
-            type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? 
-            L"Compute Command Queue" : L"Command Queue");
-
-         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
-         {
-            d3d12COMMAND_FRAME& frame = commandFrames[i];
-            ASSERT_DX(hResult = device->CreateCommandAllocator(type, IID_PPV_ARGS(&frame.commandAllocator)));
-            if (FAILED(hResult))
-            {
-               Release();
-               return;
-            }
-
-            NAME_D3D12_INDEXED_OBJECT(frame.commandAllocator, i,
-               type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
-               L"GFX Command Allocator" :
-               type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
-               L"Compute Command Allocator" : L"Command Allocator");
-         }
-
-         ASSERT_DX(hResult = device->CreateCommandList(0, type, commandFrames[0].commandAllocator, nullptr, IID_PPV_ARGS(&commandList)));
+         hResult = CreateCommandFrames(device, type);
          if (FAILED(hResult))
          {
             Release();
             return;
          }
 
-         ASSERT_DX(commandList->Close());
-         NAME_D3D12_OBJECT(commandList,
-            type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
-            L"GFX Command List" :
-            type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
-            L"Compute Command List" : L"Command List");
-
-         ASSERT_DX(hResult = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+         hResult = CreateCommandList(device, type);
          if (FAILED(hResult))
          {
             Release();
             return;
          }
 
-         NAME_D3D12_OBJECT(fence, L"D3D12 Fence");
-
+         hResult = CreateFence(device, type);
+         if (FAILED(hResult))
+         {
+            Release();
+            return;
+         }
+         
          fenceEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
          assert(fenceEvent);
       }
@@ -110,6 +85,24 @@ namespace
       ~d3d12COMMAND()
       {
          assert(!commandQueue && !commandList && !fence);
+      }
+
+
+      constexpr ID3D12CommandQueue* const GetCommandQueue() const
+      {
+         return commandQueue;
+      }
+
+
+      constexpr ID3D12GraphicsCommandList6* const GetCommandList() const
+      {
+         return commandList;
+      }
+
+
+      constexpr U32 GetFrameIndex() const
+      {
+         return frameIndex;
       }
 
 
@@ -140,17 +133,6 @@ namespace
       }
 
 
-      void Flush()
-      {
-         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
-         {
-            commandFrames[i].Wait(fenceEvent, fence);
-         }
-         
-         frameIndex = 0;
-      }
-
-
       void Release()
       {
          Flush();
@@ -169,22 +151,100 @@ namespace
          }
       }
 
-
-      constexpr ID3D12CommandQueue* const GetCommandQueue() const
+   private:
+      HRESULT CreateCommandQueue(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
       {
-         return commandQueue;
+         HRESULT hResult = S_OK;
+
+         D3D12_COMMAND_QUEUE_DESC desc;
+         desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+         desc.NodeMask = 0;
+         desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+         desc.Type = type;
+
+         ASSERT_DX(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue)));
+         if (FAILED(hResult))
+         {
+            return hResult;
+         }
+
+         NAME_D3D12_OBJECT(commandQueue,
+            type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
+            L"GFX Command Queue" :
+            type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
+            L"Compute Command Queue" : L"Command Queue");
+
+         return hResult;
       }
 
 
-      constexpr ID3D12GraphicsCommandList6* const GetCommandList() const
+      HRESULT CreateCommandFrames(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
       {
-         return commandList;
+         HRESULT hResult = S_OK;
+         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+         {
+            d3d12COMMAND_FRAME& frame = commandFrames[i];
+            ASSERT_DX(hResult = device->CreateCommandAllocator(type, IID_PPV_ARGS(&frame.commandAllocator)));
+            if (FAILED(hResult))
+            {
+               return hResult;
+            }
+
+            NAME_D3D12_INDEXED_OBJECT(frame.commandAllocator, i,
+               type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
+               L"GFX Command Allocator" :
+               type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
+               L"Compute Command Allocator" : L"Command Allocator");
+         }
+
+         return hResult;
       }
 
 
-      constexpr U32 GetFrameIndex() const
+      HRESULT CreateCommandList(ID3D12Device* const device, D3D12_COMMAND_LIST_TYPE type)
       {
-         return frameIndex;
+         HRESULT hResult = S_OK;
+
+         ASSERT_DX(hResult = device->CreateCommandList(0, type, commandFrames[0].commandAllocator, nullptr, IID_PPV_ARGS(&commandList)));
+         if (FAILED(hResult))
+         {
+            return hResult;
+         }
+
+         ASSERT_DX(commandList->Close());
+         NAME_D3D12_OBJECT(commandList,
+            type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
+            L"GFX Command List" :
+            type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
+            L"Compute Command List" : L"Command List");
+
+         return hResult;
+      }
+
+
+      HRESULT CreateFence(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
+      {
+         HRESULT hResult = S_OK;
+
+         ASSERT_DX(hResult = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+         if (FAILED(hResult))
+         {
+            return hResult;
+         }
+
+         NAME_D3D12_OBJECT(fence, L"D3D12 Fence");
+         return hResult;
+      }
+
+
+      void Flush()
+      {
+         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+         {
+            commandFrames[i].Wait(fenceEvent, fence);
+         }
+         
+         frameIndex = 0;
       }
 
    private:
@@ -306,7 +366,6 @@ bool d3d12Initialize()
    }
 
    NAME_D3D12_OBJECT(d3d12MainDevice, L"Main D3D12 Device");
-   
 
 #ifdef _DEBUG
    {
