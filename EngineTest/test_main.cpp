@@ -1,9 +1,6 @@
+#include "test.h"
+
 #pragma comment(lib, "engine.lib")
-
-#define TEST_ENTITY_AND_COMPONENTS 0;
-#define TEST_WINDOW 0;
-#define TEST_RENDERER 1;
-
 
 
 #if TEST_ENTITY_AND_COMPONENTS

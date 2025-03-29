@@ -4,6 +4,7 @@
 
 bool d3d12Initialize();
 void d3d12Shutdown();
+void d3d12Render();
 
 
 template<typename T>

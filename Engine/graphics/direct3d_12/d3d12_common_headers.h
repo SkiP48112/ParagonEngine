@@ -11,6 +11,9 @@
 #pragma comment(lib, "d3d12.lib")
 
 
+constexpr U32 D3D12_FRAME_BUFFER_COUNT = 3;
+
+
 // Assert that COM call to D3D API succeded
 
 #ifdef _DEBUG
@@ -38,6 +41,18 @@
 
 #ifdef _DEBUG
    #define NAME_D3D12_OBJECT(obj, name) obj->SetName(name); OutputDebugString(L"::D3D12 Object Created: "); OutputDebugString(name); OutputDebugString(L"\n");
+   #define NAME_D3D12_INDEXED_OBJECT(obj, index, name)            \
+   {                                                              \
+      wchar_t fullName[128];                                      \
+      if (swprintf_s(fullName, L"%s[%u]", name, index) > 0)       \
+      {                                                           \
+         obj->SetName(fullName);                                  \
+         OutputDebugString(L"::D3D12 Object Created: ");          \
+         OutputDebugString(fullName);                             \
+         OutputDebugString(L"\n");                                \
+      }                                                           \
+   }
 #else
    #define NAME_D3D12_OBJECT(obj, name)
+   #define NAME_D3D12_INDEXED_OBJECT(obj, index, name)
 #endif

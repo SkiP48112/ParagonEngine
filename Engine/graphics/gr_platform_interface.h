@@ -8,4 +8,5 @@ struct grPLATFORM_INTERFACE
 {
    bool(*Initialize)(void);
    void(*Shutdown)(void);
+   void(*Render)(void);
 };

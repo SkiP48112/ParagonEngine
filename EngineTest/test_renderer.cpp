@@ -3,6 +3,7 @@
 #include "..\platform\app_platform.h"
 #include "..\graphics\gr_renderer.h"
 
+#if TEST_RENDERER
 
 grRENDER_SURFACE surfaces[4];
 
@@ -84,6 +85,7 @@ bool testENGINE_TEST::Initialize()
 void testENGINE_TEST::Run()
 {
    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+   grRender();
 }
 
 
@@ -96,3 +98,5 @@ void testENGINE_TEST::Shutdown()
 
    grShutdown();
 }
+
+#endif
