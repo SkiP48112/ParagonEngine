@@ -17,3 +17,6 @@ constexpr void d3d12Release(T*& resource)
       resource = nullptr;
    }
 }
+
+
+ID3D12Device* const d3d12GetMainDevice();

@@ -417,3 +417,9 @@ void d3d12Render()
 
    gfxCommand.EndFrame();
 }
+
+
+ID3D12Device* const d3d12GetMainDevice()
+{
+   return d3d12MainDevice;
+}
