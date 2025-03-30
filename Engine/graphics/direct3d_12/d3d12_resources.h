@@ -94,6 +94,7 @@ public:
 
    bool Initialize(U32 capacity, bool isShaderVisible);
    void Release();
+   void ProcessDeferredFree(U32 frameIdx);
 
    [[nodiscard]] d3d12DESCRIPTOR_HANDLE Allocate();
    void Free(d3d12DESCRIPTOR_HANDLE& handle);
@@ -104,6 +105,8 @@ private:
    ID3D12DescriptorHeap* heap = nullptr;
    D3D12_CPU_DESCRIPTOR_HANDLE cpuStart{};
    D3D12_GPU_DESCRIPTOR_HANDLE gpuStart{};
+
+   dsVECTOR<U32> deferredFreeIndices[D3D12_FRAME_BUFFER_COUNT];
 
    std::unique_ptr<U32[]> freeHandles;
    std::mutex mutex;

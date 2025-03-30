@@ -1,4 +1,5 @@
 #include "d3d12_core.h"
+#include "d3d12_resources.h"
 
 
 using namespace Microsoft::WRL;
@@ -262,7 +263,15 @@ namespace
 
    ID3D12Device8* d3d12MainDevice = nullptr;
    IDXGIFactory7* d3d12DXGIFactory = nullptr;
-   d3d12COMMAND gfxCommand;
+   d3d12COMMAND d3d12GfxCommand;
+
+   d3d12DESCRIPTOR_HEAP d3d12RTVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
+   d3d12DESCRIPTOR_HEAP d3d12DSVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_DSV };
+   d3d12DESCRIPTOR_HEAP d3d12SRVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
+   d3d12DESCRIPTOR_HEAP d3d12UAVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
+
+   U32 d3d12DeferredReleasesFlag[D3D12_FRAME_BUFFER_COUNT];
+   std::mutex d3d12DeferredReleasesMutex;
 
    constexpr D3D_FEATURE_LEVEL d3d12MinimunFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 
@@ -309,6 +318,49 @@ namespace
       ASSERT_DX(device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featureLevelInfo, sizeof(featureLevelInfo)));
 
       return featureLevelInfo.MaxSupportedFeatureLevel;
+   }
+
+
+   void __declspec(noinline) d3d12ProcessDeferredReleases(U32 frameIdx)
+   {
+      std::lock_guard lock(d3d12DeferredReleasesMutex);
+
+      d3d12DeferredReleasesFlag[frameIdx] = 0;
+
+      d3d12RTVDescriptorHeap.ProcessDeferredFree(frameIdx);
+      d3d12DSVDescriptorHeap.ProcessDeferredFree(frameIdx);
+      d3d12SRVDescriptorHeap.ProcessDeferredFree(frameIdx);
+      d3d12UAVDescriptorHeap.ProcessDeferredFree(frameIdx);
+
+      // TODO: Release pending resources
+   }
+
+
+   bool d3d12InitializeDescriptorHeaps()
+   {
+      bool result = true;
+      result &= d3d12RTVDescriptorHeap.Initialize(512, false);
+      result &= d3d12DSVDescriptorHeap.Initialize(512, false);
+      result &= d3d12SRVDescriptorHeap.Initialize(4096, true);
+      result &= d3d12UAVDescriptorHeap.Initialize(512, false);
+
+      if (result)
+      {
+         NAME_D3D12_OBJECT(d3d12RTVDescriptorHeap.GetHeap(), L"RTV Descriptor Heal");
+         NAME_D3D12_OBJECT(d3d12DSVDescriptorHeap.GetHeap(), L"DSV Descriptor Heal");
+         NAME_D3D12_OBJECT(d3d12SRVDescriptorHeap.GetHeap(), L"SRV Descriptor Heal");
+         NAME_D3D12_OBJECT(d3d12UAVDescriptorHeap.GetHeap(), L"UAV Descriptor Heal");
+      }
+
+      return result;
+   }
+
+   void d3d12ReleaseDescriptorHeaps()
+   {
+      d3d12RTVDescriptorHeap.Release();
+      d3d12DSVDescriptorHeap.Release();
+      d3d12SRVDescriptorHeap.Release();
+      d3d12UAVDescriptorHeap.Release();
    }
 }
 
@@ -359,14 +411,6 @@ bool d3d12Initialize()
       return d3d12FailedInit();
    }
 
-   new (&gfxCommand) d3d12COMMAND(d3d12MainDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
-   if (!gfxCommand.GetCommandQueue())
-   {
-      return d3d12FailedInit();
-   }
-
-   NAME_D3D12_OBJECT(d3d12MainDevice, L"Main D3D12 Device");
-
 #ifdef _DEBUG
    {
       ComPtr<ID3D12InfoQueue> infoQueue;
@@ -378,14 +422,42 @@ bool d3d12Initialize()
    }
 #endif
 
+   if (!d3d12InitializeDescriptorHeaps())
+   {
+      return d3d12FailedInit();
+   }
+
+   new (&d3d12GfxCommand) d3d12COMMAND(d3d12MainDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
+   if (!d3d12GfxCommand.GetCommandQueue())
+   {
+      return d3d12FailedInit();
+   }
+
+   NAME_D3D12_OBJECT(d3d12MainDevice, L"Main D3D12 Device");
+
    return true;
 }
 
 
 void d3d12Shutdown()
 {
-   gfxCommand.Release();
+   d3d12GfxCommand.Release();
+   
+   // NOTE: We don't call d3d12ProcessDeferredReleases at the end because
+   //       some resources (such as swap chains) can't be released before
+   //       their depending resources and released.
+   for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+   {
+      d3d12ProcessDeferredReleases(i);
+   }
+
    d3d12Release(d3d12DXGIFactory);
+   d3d12ReleaseDescriptorHeaps();
+
+   // NOTE: Some types only use deferred releases for their resources during 
+   //       shutdown/reset/clear. To finally release these resources we call
+   //       d3d12ProcessDeferredReleases once more.
+   d3d12ProcessDeferredReleases(0);
 
 #ifdef _DEBUG
    {
@@ -412,14 +484,32 @@ void d3d12Shutdown()
 //       Tgis frees the memory that was used to store commands.
 void d3d12Render()
 {
-   gfxCommand.BeginFrame();
-   ID3D12GraphicsCommandList6* commandList = gfxCommand.GetCommandList();
+   d3d12GfxCommand.BeginFrame();
+   ID3D12GraphicsCommandList6* commandList = d3d12GfxCommand.GetCommandList();
 
-   gfxCommand.EndFrame();
+   const U32 frameIdx = d3d12GetCurrentFrameIndex();
+   if (d3d12DeferredReleasesFlag[frameIdx])
+   {
+      d3d12ProcessDeferredReleases(frameIdx);
+   }
+
+   d3d12GfxCommand.EndFrame();
 }
 
 
 ID3D12Device* const d3d12GetMainDevice()
 {
    return d3d12MainDevice;
+}
+
+
+U32 d3d12GetCurrentFrameIndex()
+{
+   return d3d12GfxCommand.GetFrameIndex();
+}
+
+
+void d3d12SetDeferredReleasesFlag()
+{
+   d3d12DeferredReleasesFlag[d3d12GetCurrentFrameIndex()] = 1;
 }

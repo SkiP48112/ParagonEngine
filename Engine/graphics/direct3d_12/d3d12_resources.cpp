@@ -57,6 +57,12 @@ void d3d12DESCRIPTOR_HEAP::Release()
 }
 
 
+void d3d12DESCRIPTOR_HEAP::ProcessDeferredFree(U32 frameIdx)
+{
+
+}
+
+
 d3d12DESCRIPTOR_HANDLE d3d12DESCRIPTOR_HEAP::Allocate()
 {
    std::lock_guard lock(mutex);
@@ -99,6 +105,10 @@ void d3d12DESCRIPTOR_HEAP::Free(d3d12DESCRIPTOR_HANDLE& handle)
 
    const U32 index = (U32)(handle.cpu.ptr - cpuStart.ptr) / descriptorSize;
    assert(handle.index == index);
+
+   const U32 frameIndex = d3d12GetCurrentFrameIndex();
+   deferredFreeIndices[frameIndex].push_back(index);
+   d3d12SetDeferredReleasesFlag();
 
    handle = {};
 }

@@ -20,3 +20,6 @@ constexpr void d3d12Release(T*& resource)
 
 
 ID3D12Device* const d3d12GetMainDevice();
+
+U32 d3d12GetCurrentFrameIndex();
+void d3d12SetDeferredReleasesFlag();
