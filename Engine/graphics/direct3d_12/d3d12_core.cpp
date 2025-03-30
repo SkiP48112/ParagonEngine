@@ -9,10 +9,7 @@ namespace
 {
    struct d3d12COMMAND_FRAME
    {
-      ID3D12CommandAllocator* commandAllocator = nullptr;
-      U64 fenceValue = 0;
-
-
+   public:
       void Wait(HANDLE fenceEvent, ID3D12Fence1* fence)
       {
          assert(fence && fenceEvent);
@@ -36,7 +33,12 @@ namespace
       void Release()
       {
          d3d12Release(commandAllocator);
+         fenceValue = 0;
       }
+
+   public:
+      ID3D12CommandAllocator* commandAllocator = nullptr;
+      U64 fenceValue = 0;
    };
 
 
@@ -270,7 +272,9 @@ namespace
    d3d12DESCRIPTOR_HEAP d3d12SRVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
    d3d12DESCRIPTOR_HEAP d3d12UAVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
 
+   dsVECTOR<IUnknown*> d3d12DeferredReleases[D3D12_FRAME_BUFFER_COUNT];
    U32 d3d12DeferredReleasesFlag[D3D12_FRAME_BUFFER_COUNT];
+
    std::mutex d3d12DeferredReleasesMutex;
 
    constexpr D3D_FEATURE_LEVEL d3d12MinimunFeatureLevel = D3D_FEATURE_LEVEL_11_0;
@@ -325,6 +329,9 @@ namespace
    {
       std::lock_guard lock(d3d12DeferredReleasesMutex);
 
+      // NOTE: We clear this flag at the beggining. If we'd clear it at the end
+      //       then it might overwrite some other thread that was trying to set it.
+      //       It's fine if overwriting happens before processing the items.
       d3d12DeferredReleasesFlag[frameIdx] = 0;
 
       d3d12RTVDescriptorHeap.ProcessDeferredFree(frameIdx);
@@ -332,7 +339,16 @@ namespace
       d3d12SRVDescriptorHeap.ProcessDeferredFree(frameIdx);
       d3d12UAVDescriptorHeap.ProcessDeferredFree(frameIdx);
 
-      // TODO: Release pending resources
+      dsVECTOR<IUnknown*>& resources = d3d12DeferredReleases[frameIdx];
+      if (!resources.empty())
+      {
+         for (auto& resource : resources)
+         {
+            d3d12Release(resource);
+         }
+
+         resources.clear();
+      }
    }
 
 
@@ -346,10 +362,10 @@ namespace
 
       if (result)
       {
-         NAME_D3D12_OBJECT(d3d12RTVDescriptorHeap.GetHeap(), L"RTV Descriptor Heal");
-         NAME_D3D12_OBJECT(d3d12DSVDescriptorHeap.GetHeap(), L"DSV Descriptor Heal");
-         NAME_D3D12_OBJECT(d3d12SRVDescriptorHeap.GetHeap(), L"SRV Descriptor Heal");
-         NAME_D3D12_OBJECT(d3d12UAVDescriptorHeap.GetHeap(), L"UAV Descriptor Heal");
+         NAME_D3D12_OBJECT(d3d12RTVDescriptorHeap.GetHeap(), L"RTV Descriptor Heap");
+         NAME_D3D12_OBJECT(d3d12DSVDescriptorHeap.GetHeap(), L"DSV Descriptor Heap");
+         NAME_D3D12_OBJECT(d3d12SRVDescriptorHeap.GetHeap(), L"SRV Descriptor Heap");
+         NAME_D3D12_OBJECT(d3d12UAVDescriptorHeap.GetHeap(), L"UAV Descriptor Heap");
       }
 
       return result;
@@ -377,8 +393,14 @@ bool d3d12Initialize()
    // Enable debugging layer. Requires "Graphics Tools" optional feature.
    {
       ComPtr<ID3D12Debug3> debugInterface;
-      ASSERT_DX(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)));
-      debugInterface->EnableDebugLayer();
+      if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface))))
+      {
+         debugInterface->EnableDebugLayer();
+      }
+      else
+      {
+         OutputDebugStringA("Warning: D3D12 Debug interface is not available for a reason. Verify that Graphics Tools optional feature is installed in this device. \n");
+      }
 
       dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
    }
@@ -422,11 +444,6 @@ bool d3d12Initialize()
    }
 #endif
 
-   if (!d3d12InitializeDescriptorHeaps())
-   {
-      return d3d12FailedInit();
-   }
-
    new (&d3d12GfxCommand) d3d12COMMAND(d3d12MainDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
    if (!d3d12GfxCommand.GetCommandQueue())
    {
@@ -434,6 +451,11 @@ bool d3d12Initialize()
    }
 
    NAME_D3D12_OBJECT(d3d12MainDevice, L"Main D3D12 Device");
+
+   if (!d3d12InitializeDescriptorHeaps())
+   {
+      return d3d12FailedInit();
+   }
 
    return true;
 }
@@ -455,8 +477,8 @@ void d3d12Shutdown()
    d3d12ReleaseDescriptorHeaps();
 
    // NOTE: Some types only use deferred releases for their resources during 
-   //       shutdown/reset/clear. To finally release these resources we call
-   //       d3d12ProcessDeferredReleases once more.
+   //       shutdown/reset/clear.(heaps for example). To finally release these resources
+   //       we call d3d12ProcessDeferredReleases once more.
    d3d12ProcessDeferredReleases(0);
 
 #ifdef _DEBUG
@@ -494,6 +516,16 @@ void d3d12Render()
    }
 
    d3d12GfxCommand.EndFrame();
+}
+
+
+void d3d12DefferedReleaseInternal(IUnknown* resource)
+{
+   const U32 frameIdx = d3d12GetCurrentFrameIndex();
+   std::lock_guard lock(d3d12DeferredReleasesMutex);
+
+   d3d12DeferredReleases[frameIdx].push_back(resource);
+   d3d12SetDeferredReleasesFlag();
 }
 
 

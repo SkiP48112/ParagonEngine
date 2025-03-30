@@ -19,6 +19,20 @@ constexpr void d3d12Release(T*& resource)
 }
 
 
+void d3d12DefferedReleaseInternal(IUnknown* resource);
+
+
+template<typename T>
+constexpr void d3d12DeferredRelease(T*& resource)
+{
+   if (resource)
+   {
+      d3d12DefferedReleaseInternal(resource);
+      resource = nullptr;
+   }
+}
+
+
 ID3D12Device* const d3d12GetMainDevice();
 
 U32 d3d12GetCurrentFrameIndex();

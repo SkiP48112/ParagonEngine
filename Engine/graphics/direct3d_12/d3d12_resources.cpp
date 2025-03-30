@@ -43,6 +43,13 @@ bool d3d12DESCRIPTOR_HEAP::Initialize(U32 capacity, bool isShaderVisible)
       freeHandles[i] = i;
    }
 
+#ifdef _DEBUG
+   for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+   {
+      assert(deferredFreeIndices[i].empty());
+   }
+#endif
+
    descriptorSize = device->GetDescriptorHandleIncrementSize(type);
    cpuStart = heap->GetCPUDescriptorHandleForHeapStart();
    gpuStart = isShaderVisible ? heap->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
@@ -53,13 +60,27 @@ bool d3d12DESCRIPTOR_HEAP::Initialize(U32 capacity, bool isShaderVisible)
 
 void d3d12DESCRIPTOR_HEAP::Release()
 {
-
+   assert(!size);
+   d3d12DeferredRelease(heap);
 }
 
 
 void d3d12DESCRIPTOR_HEAP::ProcessDeferredFree(U32 frameIdx)
 {
+   std::lock_guard lock(mutex);
+   assert(frameIdx < D3D12_FRAME_BUFFER_COUNT);
 
+   dsVECTOR<U32>& indices = deferredFreeIndices[frameIdx];
+   if (!indices.empty())
+   {
+      for (auto index : indices)
+      {
+         --size;
+         freeHandles[size] = index;
+      }
+
+      indices.clear();
+   }
 }
 
 
