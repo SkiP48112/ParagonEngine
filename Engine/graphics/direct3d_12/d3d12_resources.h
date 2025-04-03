@@ -114,5 +114,4 @@ private:
    U32 descriptorSize = 0;
    U32 capacity = 0;
    U32 size = 0;
-
 };

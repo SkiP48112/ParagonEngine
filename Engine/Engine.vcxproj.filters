@@ -31,6 +31,7 @@
     <ClInclude Include="graphics\direct3d_12\d3d12_core.h" />
     <ClInclude Include="graphics\direct3d_12\d3d12_common_headers.h" />
     <ClInclude Include="graphics\direct3d_12\d3d12_resources.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_surface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_systems\gs_entity.cpp" />
@@ -44,5 +45,6 @@
     <ClCompile Include="graphics\direct3d_12\d3d12_interface.cpp" />
     <ClCompile Include="graphics\direct3d_12\d3d12_core.cpp" />
     <ClCompile Include="graphics\direct3d_12\d3d12_resources.cpp" />
+    <ClCompile Include="graphics\direct3d_12\d3d12_surface.cpp" />
   </ItemGroup>
 </Project>

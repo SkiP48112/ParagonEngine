@@ -35,7 +35,42 @@ void grShutdown()
 }
 
 
-void grRender()
+grSURFACE grCreateSurface(appWINDOW window)
 {
-   gfx.Render();
+   return gfx.surface.Create(window);
+}
+
+
+void grRemoveSurface(grSURFACE_ID id)
+{
+   assert(idIsValid(id));
+   gfx.surface.Remove(id);
+}
+
+
+void grSURFACE::Resize(U32 width, U32 height) const
+{
+   assert(IsValid());
+   gfx.surface.Resize(id, width, height);
+}
+
+
+U32 grSURFACE::GetWidth() const
+{
+   assert(IsValid());
+   return gfx.surface.GetWidth(id);
+}
+
+
+U32 grSURFACE::GetHeight() const
+{
+   assert(IsValid());
+   return gfx.surface.GetHeight(id);
+}
+
+
+void grSURFACE::Render() const
+{
+   assert(IsValid());
+   gfx.surface.Render(id);
 }

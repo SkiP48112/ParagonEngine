@@ -26,6 +26,7 @@
     <ClInclude Include="graphics\direct3d_12\d3d12_common_headers.h" />
     <ClInclude Include="graphics\direct3d_12\d3d12_core.h" />
     <ClInclude Include="graphics\direct3d_12\d3d12_interface.h" />
+    <ClInclude Include="graphics\direct3d_12\d3d12_surface.h" />
     <ClInclude Include="graphics\direct3d_12\d3d12_resources.h" />
     <ClInclude Include="graphics\gr_platform_interface.h" />
     <ClInclude Include="graphics\gr_renderer.h" />
@@ -54,6 +55,7 @@
     <ClCompile Include="graphics\direct3d_12\d3d12_core.cpp" />
     <ClCompile Include="graphics\direct3d_12\d3d12_interface.cpp" />
     <ClCompile Include="graphics\direct3d_12\d3d12_resources.cpp" />
+    <ClCompile Include="graphics\direct3d_12\d3d12_surface.cpp" />
     <ClCompile Include="graphics\gr_renderer.cpp" />
     <ClCompile Include="platform\app_platform.cpp" />
     <ClCompile Include="resources\res_content_loader.cpp" />
