@@ -93,7 +93,7 @@ d3d12DESCRIPTOR_HANDLE d3d12DESCRIPTOR_HEAP::Allocate()
 
    const U32 index = freeHandles[size];
    const U32 offset = index * descriptorSize;
-   size++;
+   ++size;
 
    d3d12DESCRIPTOR_HANDLE handle;
    handle.cpu.ptr = cpuStart.ptr + offset;

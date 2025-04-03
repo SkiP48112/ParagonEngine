@@ -6,6 +6,7 @@
 
 #include "app_common_headers.h"
 #include "graphics/gr_renderer.h"
+#include "platform/app_window.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")

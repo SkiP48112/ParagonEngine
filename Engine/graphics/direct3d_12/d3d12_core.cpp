@@ -1,5 +1,6 @@
 #include "d3d12_core.h"
 #include "d3d12_resources.h"
+#include "d3d12_surface.h"
 
 
 using namespace Microsoft::WRL;
@@ -28,7 +29,6 @@ namespace
             WaitForSingleObject(fenceEvent, INFINITE);
          }
       }
-
 
       void Release()
       {
@@ -84,30 +84,25 @@ namespace
          assert(fenceEvent);
       }
 
-
       ~d3d12COMMAND()
       {
          assert(!commandQueue && !commandList && !fence);
       }
-
 
       constexpr ID3D12CommandQueue* const GetCommandQueue() const
       {
          return commandQueue;
       }
 
-
       constexpr ID3D12GraphicsCommandList6* const GetCommandList() const
       {
          return commandList;
       }
 
-
       constexpr U32 GetFrameIndex() const
       {
          return frameIndex;
       }
-
 
       void BeginFrame()
       {
@@ -117,7 +112,6 @@ namespace
          ASSERT_DX(frame.commandAllocator->Reset());
          ASSERT_DX(commandList->Reset(frame.commandAllocator, nullptr));
       }
-
 
       void EndFrame()
       {
@@ -135,6 +129,15 @@ namespace
          frameIndex = (frameIndex + 1) % D3D12_FRAME_BUFFER_COUNT;
       }
 
+      void Flush()
+      {
+         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
+         {
+            commandFrames[i].Wait(fenceEvent, fence);
+         }
+
+         frameIndex = 0;
+      }
 
       void Release()
       {
@@ -180,7 +183,6 @@ namespace
          return hResult;
       }
 
-
       HRESULT CreateCommandFrames(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
       {
          HRESULT hResult = S_OK;
@@ -203,7 +205,6 @@ namespace
          return hResult;
       }
 
-
       HRESULT CreateCommandList(ID3D12Device* const device, D3D12_COMMAND_LIST_TYPE type)
       {
          HRESULT hResult = S_OK;
@@ -224,7 +225,6 @@ namespace
          return hResult;
       }
 
-
       HRESULT CreateFence(ID3D12Device8* const device, D3D12_COMMAND_LIST_TYPE type)
       {
          HRESULT hResult = S_OK;
@@ -239,17 +239,6 @@ namespace
          return hResult;
       }
 
-
-      void Flush()
-      {
-         for (U32 i = 0; i < D3D12_FRAME_BUFFER_COUNT; ++i)
-         {
-            commandFrames[i].Wait(fenceEvent, fence);
-         }
-         
-         frameIndex = 0;
-      }
-
    private:
       ID3D12CommandQueue* commandQueue = nullptr;
       ID3D12GraphicsCommandList6* commandList = nullptr;
@@ -262,10 +251,11 @@ namespace
       U64 fenceValue = 0;
    };
 
-
    ID3D12Device8* d3d12MainDevice = nullptr;
    IDXGIFactory7* d3d12DXGIFactory = nullptr;
    d3d12COMMAND d3d12GfxCommand;
+
+   dsVECTOR<d3d12SURFACE> d3d12Surfaces;
 
    d3d12DESCRIPTOR_HEAP d3d12RTVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
    d3d12DESCRIPTOR_HEAP d3d12DSVDescriptorHeap{ D3D12_DESCRIPTOR_HEAP_TYPE_DSV };
@@ -277,7 +267,8 @@ namespace
 
    std::mutex d3d12DeferredReleasesMutex;
 
-   constexpr D3D_FEATURE_LEVEL d3d12MinimunFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+   constexpr DXGI_FORMAT D3D12_RENDER_TARGET_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+   constexpr D3D_FEATURE_LEVEL D3D12_MINIMUM_FEATURE_LEVEL = D3D_FEATURE_LEVEL_11_0;
 
 
    bool d3d12FailedInit()
@@ -292,7 +283,7 @@ namespace
       IDXGIAdapter4* adapter = nullptr;
       for (U32 i = 0; d3d12DXGIFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND; ++i)
       {
-         if (SUCCEEDED(D3D12CreateDevice(adapter, d3d12MinimunFeatureLevel, __uuidof(ID3D12Device), nullptr)))
+         if (SUCCEEDED(D3D12CreateDevice(adapter, D3D12_MINIMUM_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr)))
          {
             return adapter;
          }
@@ -318,7 +309,7 @@ namespace
       featureLevelInfo.pFeatureLevelsRequested = featureLevels;
 
       ComPtr<ID3D12Device> device;
-      ASSERT_DX(D3D12CreateDevice(adapter, d3d12MinimunFeatureLevel, IID_PPV_ARGS(&device)));
+      ASSERT_DX(D3D12CreateDevice(adapter, D3D12_MINIMUM_FEATURE_LEVEL, IID_PPV_ARGS(&device)));
       ASSERT_DX(device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featureLevelInfo, sizeof(featureLevelInfo)));
 
       return featureLevelInfo.MaxSupportedFeatureLevel;
@@ -421,8 +412,8 @@ bool d3d12Initialize()
    }
 
    D3D_FEATURE_LEVEL maxFeatureLevel = d3d12GetMaxFeatureLevel(mainAdapter.Get());
-   assert(maxFeatureLevel >= d3d12MinimunFeatureLevel);
-   if (maxFeatureLevel < d3d12MinimunFeatureLevel)
+   assert(maxFeatureLevel >= D3D12_MINIMUM_FEATURE_LEVEL);
+   if (maxFeatureLevel < D3D12_MINIMUM_FEATURE_LEVEL)
    {
       return d3d12FailedInit();
    }
@@ -501,24 +492,6 @@ void d3d12Shutdown()
 }
 
 
-// NOTE: Wait for the GPU to finish with the command allocator and
-//       reset the allocator once the GPU is done.
-//       Tgis frees the memory that was used to store commands.
-void d3d12Render()
-{
-   d3d12GfxCommand.BeginFrame();
-   ID3D12GraphicsCommandList6* commandList = d3d12GfxCommand.GetCommandList();
-
-   const U32 frameIdx = d3d12GetCurrentFrameIndex();
-   if (d3d12DeferredReleasesFlag[frameIdx])
-   {
-      d3d12ProcessDeferredReleases(frameIdx);
-   }
-
-   d3d12GfxCommand.EndFrame();
-}
-
-
 void d3d12DefferedReleaseInternal(IUnknown* resource)
 {
    const U32 frameIdx = d3d12GetCurrentFrameIndex();
@@ -535,6 +508,36 @@ ID3D12Device* const d3d12GetMainDevice()
 }
 
 
+d3d12DESCRIPTOR_HEAP& d3d12GetRTVHeap()
+{
+   return d3d12RTVDescriptorHeap;
+}
+
+
+d3d12DESCRIPTOR_HEAP& d3d12GetDSVHeap()
+{
+   return d3d12DSVDescriptorHeap;
+}
+
+
+d3d12DESCRIPTOR_HEAP& d3d12GetSRVHeap()
+{
+   return d3d12SRVDescriptorHeap;
+}
+
+
+d3d12DESCRIPTOR_HEAP& d3d12GetUAVHeap()
+{
+   return d3d12UAVDescriptorHeap;
+}
+
+
+DXGI_FORMAT d3d12GetDefaultRenderTargetFormat()
+{
+   return D3D12_RENDER_TARGET_FORMAT;
+}
+
+
 U32 d3d12GetCurrentFrameIndex()
 {
    return d3d12GfxCommand.GetFrameIndex();
@@ -544,4 +547,68 @@ U32 d3d12GetCurrentFrameIndex()
 void d3d12SetDeferredReleasesFlag()
 {
    d3d12DeferredReleasesFlag[d3d12GetCurrentFrameIndex()] = 1;
+}
+
+
+grSURFACE d3d12CreateSurface(appWINDOW window)
+{
+   d3d12Surfaces.emplace_back(window);
+   grSURFACE_ID id{ (U32) d3d12Surfaces.size() - 1 };
+
+   d3d12Surfaces[id].CreateSwapChain(d3d12DXGIFactory, d3d12GfxCommand.GetCommandQueue(), D3D12_RENDER_TARGET_FORMAT);
+   return grSURFACE(id);
+}
+
+
+void d3d12RemoveSurface(grSURFACE_ID id)
+{
+   d3d12GfxCommand.Flush();
+
+   // HACK TODO: Use proper removal of surface
+   d3d12Surfaces[id].~d3d12SURFACE();
+}
+
+
+void d3d12ResizeSurface(grSURFACE_ID id, U32 width, U32 height)
+{
+   d3d12GfxCommand.Flush();
+   d3d12Surfaces[id].Resize();
+}
+
+
+U32 d3d12GetSurfaceWidth(grSURFACE_ID id)
+{
+   return d3d12Surfaces[id].GetWidth();
+}
+
+
+U32 d3d12GetSurfaceHeight(grSURFACE_ID id)
+{
+   return d3d12Surfaces[id].GetHeight();
+}
+
+
+void d3d12RenderSurface(grSURFACE_ID id)
+{
+   // NOTE: Wait for the GPU to finish with the command allocator and
+   //       reset the allocator once the GPU is done with it.
+   //       This frees the memory that was used to store commands.
+   d3d12GfxCommand.BeginFrame();
+   ID3D12GraphicsCommandList6* commandList = d3d12GfxCommand.GetCommandList();
+
+   const U32 frameIdx = d3d12GetCurrentFrameIndex();
+   if (d3d12DeferredReleasesFlag[frameIdx])
+   {
+      d3d12ProcessDeferredReleases(frameIdx);
+   }
+
+   const d3d12SURFACE& surface = d3d12Surfaces[id];
+
+   // NOTE: Presenting swap chain buffers happens in lockstep with frame buffers
+   surface.Present();
+
+   // NOTE: Record commands
+   //       Execute commands.
+   //       Signal and incremend the fence value for the next frame.
+   d3d12GfxCommand.EndFrame();
 }

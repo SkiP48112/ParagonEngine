@@ -8,20 +8,19 @@ DEFINE_TYPED_ID(appWINDOW_ID);
 class appWINDOW
 {
 public:
+   constexpr appWINDOW() = default;
+
    constexpr explicit appWINDOW(appWINDOW_ID id)
       : id(id)
    {
    }
 
-   constexpr appWINDOW()
-      : id(ID_INVALID_ID)
-   {
-   }
 
    constexpr appWINDOW_ID GetID() const
    {
       return id;
    }
+
 
    constexpr bool IsValid() const
    {

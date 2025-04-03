@@ -6,7 +6,8 @@
 #if TEST_RENDERER
 
 grRENDER_SURFACE surfaces[4];
-
+testTIMER timer;
+void testDestroyRenderSurface(grRENDER_SURFACE& surface);
 
 LRESULT testWinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -17,10 +18,16 @@ LRESULT testWinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
       bool isAllWindowsClosed = true;
       for (U32 i = 0; i < _countof(surfaces); ++i)
       {
-         if (!surfaces[i].window.IsClosed())
+         if (surfaces[i].window.IsValid())
          {
-            isAllWindowsClosed = false;
-            break;
+            if (surfaces[i].window.IsClosed())
+            {
+               testDestroyRenderSurface(surfaces[i]);
+            }
+            else
+            {
+               isAllWindowsClosed = false;
+            }
          }
       }
 
@@ -39,6 +46,12 @@ LRESULT testWinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
          return 0;
       }
       break;
+   case WM_KEYDOWN:
+      if (wparam == VK_ESCAPE)
+      {
+         PostMessage(hwnd, WM_CLOSE, 0, 0);
+         return 0;
+      }
    }
 
    return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -48,12 +61,23 @@ LRESULT testWinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 void testCreateRenderSurface(grRENDER_SURFACE& surface, appWINDOW_INIT_INFO info)
 {
    surface.window = appCreateWindow(&info);
+   surface.surface = grCreateSurface(surface.window);
 }
 
 
 void testDestroyRenderSurface(grRENDER_SURFACE& surface)
 {
-   appRemoveWindow(surface.window.GetID());
+   grRENDER_SURFACE temp{ surface };
+   surface = {};
+   if (temp.surface.IsValid())
+   {
+      grRemoveSurface(temp.surface.GetID());
+   }
+
+   if (temp.window.IsValid())
+   {
+      appRemoveWindow(temp.window.GetID());
+   }
 }
 
 
@@ -84,8 +108,18 @@ bool testENGINE_TEST::Initialize()
 
 void testENGINE_TEST::Run()
 {
-   std::this_thread::sleep_for(std::chrono::milliseconds(10));
-   grRender();
+   timer.Begin();
+
+   //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+   for (U32 i = 0; i < _countof(surfaces); ++i)
+   {
+      if (surfaces[i].surface.IsValid())
+      {
+         surfaces[i].surface.Render();
+      }
+   }
+   
+   timer.End();
 }
 
 
